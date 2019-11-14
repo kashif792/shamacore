@@ -1,0 +1,612 @@
+.container-fluid {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0px !important;
+    padding-right: 0px !important;
+    background:#292d30; 
+}
+a, a:visited, a:active, a:hover
+{
+text-decoration: none;
+outline: none;
+
+} 
+body, h1,h2,h3,h4,h5,h6,p,a
+{
+font-family: 'open sans';
+
+}
+.clear
+{
+	clear: both;
+}
+.grid
+{
+	width: 100%;
+
+}
+.row
+{
+	 margin-left: 0px;
+    margin-right: 0px;
+}
+.left_colmn
+{
+	float: left;
+	background:#292d30; 
+	
+	color: #d9dcde;
+height: 100%;
+	 min-width: 210px;
+	 padding: 0px;
+	 min-height: 100%;
+	 position: absolute;
+
+
+}
+.left_colmn a 
+{
+	color: #d9dcde;
+	text-decoration: none;
+}
+
+
+.left_colmn .logo
+{
+	background:#23272b;
+	padding: 30px  20px;
+
+	
+}
+.user_box
+{
+	padding: 40px 20px;
+}
+.user_box .user_image {
+    float: left;
+    width: 75px;
+    height:75px;
+}
+.user_box .user_image img{
+  border-radius: 50px;
+
+}
+.user_box .user_text {
+    float: right;
+    text-align: center;
+    padding-right: 20px;
+}
+.user_box .user_text h4{
+ font-size: 16px;
+ font-weight: 700;  
+}
+.user_box .user_text h5{
+ font-size: 15px;
+   
+}
+.left_nav ul{
+ list-style: outside none none;
+ padding-left: 0px;
+ }
+
+ .left_nav ul li{
+  display: block;
+
+ }
+
+ 
+ .left_nav ul li a{
+ 
+display: block;
+    font-size: 14px;
+    line-height: 29px;
+    outline: medium none;
+    padding-bottom: 19px;
+    padding-left: 13px;
+    padding-top: 19px;
+
+ }
+ .left_nav ul li a i {
+    font-size: 29px !important;
+    line-height: 9px;
+     padding-right: 20px;
+} 
+
+.left_nav ul li a:hover,.left_nav ul li a:active {
+ background:#23272b;
+ text-decoration: none;
+ color: #fff;
+ outline: none;
+ }
+ 
+ .right_colmn
+{
+	float: right;
+	 margin: 0;
+    padding: 0;
+    	background:#d9dcde;
+}
+.right_colmn .top_bar {
+    padding: 17px 40px;
+    	background:white;
+ -webkit-transition: all 3s ease;
+  -moz-transition: all 3s ease;
+  transition: all 3s ease;
+}
+.left
+{
+	float: left;
+}
+.right
+{
+	float: right;
+}
+
+.actions a
+{
+	color: #7a8897;
+}
+.actions button, .actions input, .actions a
+{
+	background:none;
+	border:0;
+	outline: none;	
+}
+.actions i {
+    color: #7a8897;
+    font-size: 30px ;
+    padding-left: 5px;
+    padding-right: 5px;
+
+}
+.submit i {
+    font-size: 20px !important;
+}
+
+.actions .user_link { vertical-align: middle; }
+.actions .user_link i { font-size: 20px; padding-right: 20px; }
+.actions.right i { 
+	font-size: 20px !important; padding-right: 10px; 
+	padding-left: 10px; line-height: 29px;
+	vertical-align: middle;
+}
+.searchbox {
+    float: right;
+    line-height: 27px;
+    vertical-align: middle;
+    background: #d9dcde;
+    border:1px dashed transparent;
+    border-radius: 3px; 
+}
+.searchbox input, button{
+    border:none;
+    background: none;
+    padding-left: 5px;
+    color:#7a8897;
+    border:1px solid rgba(196,196,196,0.5);
+
+}
+  .searchbox input:focus{
+    border:1px solid #22a3ab;
+}
+i.button:hover, .actions i:hover, .actions a:hover
+{
+color:#22a3ab !important;
+}
+button:active ,.actions i:active , .actions a:active
+{
+color:#00b07d !important;
+}
+
+.main
+{
+
+		padding: 3%;
+		margin: 0 auto;
+
+
+}
+
+.gadgets
+{
+
+	margin:0 auto;
+	width: 100%;
+text-align: center;
+
+}
+
+.gadgets .small_gadgets
+{
+
+border-radius: 5px;
+color: white;
+width: 31%;
+
+margin-left: 10px;
+margin-right: 10px;
+min-width: 239px;
+float: left;
+margin-top: 12px;
+margin-bottom: 12px;
+}
+.gadgets .small_gadgets:nth-child(1)
+{
+	background:#00b07d;
+	
+
+}
+.gadgets .small_gadgets:nth-child(2)
+{
+	background:#d74d54;
+
+}
+.gadgets .small_gadgets:nth-child(3)
+{
+background:#46a4e8;
+
+
+}
+.small_gadgets h1 {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+.small_gadgets .table tr th, .small_gadgets .table tr, .small_gadgets .table tr td{
+    border:none !important;
+
+   }
+
+.small_gadgets .table tr th{
+    border:none !important;
+font-size: 15px;
+text-align: center;
+ 
+   }
+
+
+.small_gadgets .table tr td{
+    border:none !important;
+font-size: 14px;
+text-align: center;
+ 
+   }
+   .progress_div
+   {
+   	text-align: center;
+   	width: 100%;
+   	margin-bottom: 0 !important;
+   }
+   .progress_div p
+   {
+  color: #005b30;
+	padding-bottom: 8px;
+   }
+   .progress_div p .value
+   {
+  color: #fff;
+	
+   }
+ .progress_div .progress {
+    background: #fff !important;
+    border-radius: 4px;
+    box-shadow: none !important;
+   /* height: 10px;*/
+    margin-top: 5px;
+    margin-bottom: 5px;
+    overflow: hidden;
+    width: 100%;
+    border:0px; 
+    color:red;
+}
+
+progress:not(value) {
+	/* Add your styles here. As part of this walkthrough we will focus only on determinate progress bars. */
+}
+
+/* Styling the determinate progress element */
+
+progress[value] {
+	/* Get rid of the default appearance */
+	appearance: none;
+	
+	/* This unfortunately leaves a trail of border behind in Firefox and Opera. We can remove that by setting the border to none. */
+	border: none;
+	
+	/* Add dimensions */
+	width: 100%; height: 20px;
+	
+	/* Although firefox doesn't provide any additional pseudo class to style the progress element container, any style applied here works on the container. */
+	  background-color: whiteSmoke;
+	  border-radius: 3px;
+	  box-shadow: 0 2px 3px rgba(0,0,0,.5) inset;
+	
+	/* Of all IE, only IE10 supports progress element that too partially. It only allows to change the background-color of the progress value using the 'color' attribute. */
+	color: royalblue;
+	
+	position: relative;
+	margin: 0 0 1.5em; 
+}
+
+/*
+Webkit browsers provide two pseudo classes that can be use to style HTML5 progress element.
+-webkit-progress-bar -> To style the progress element container
+-webkit-progress-value -> To style the progress element value.
+*/
+
+progress[value]::-webkit-progress-bar {
+	background-color: whiteSmoke;
+	border-radius: 3px;
+	box-shadow: 0 2px 3px rgba(0,0,0,.5) inset;
+}
+
+progress[value]::-webkit-progress-value {
+	position: relative;
+	
+	background-size: 35px 20px, 100% 100%, 100% 100%;
+	border-radius:3px;
+	
+	/* Let's animate this */
+animation: animate-stripes 5s linear infinite;
+}
+
+@keyframes animate-stripes { 100% { background-position: -100px 0; } }
+
+/* Let's spice up things little bit by using pseudo elements. */
+
+progress[value]::-webkit-progress-value:after {
+	/* Only webkit/blink browsers understand pseudo elements on pseudo classes. A rare phenomenon! */
+	content: '';
+	position: absolute;
+	
+	width:5px; height:5px;
+	top:7px; right:7px;
+	
+	background-color: white;
+	border-radius: 100%;
+}
+
+/* Firefox provides a single pseudo class to style the progress element value and not for container. -moz-progress-bar */
+
+progress[value]::-moz-progress-bar {
+	/* Gradient background with Stripes */
+	background-image:
+	-moz-linear-gradient( 135deg,
+													 transparent,
+													 transparent 33%,
+													 rgba(0,0,0,.1) 33%,
+													 rgba(0,0,0,.1) 66%,
+													 transparent 66%),
+    -moz-linear-gradient( top,
+														rgba(255, 255, 255, .25),
+														rgba(0,0,0,.2)),
+     -moz-linear-gradient( left, #09c, #f44);
+	
+	background-size: 35px 20px, 100% 100%, 100% 100%;
+	border-radius:3px;
+	
+	/* Firefox doesn't support CSS3 keyframe animations on progress element. Hence, we did not include animate-stripes in this code block */
+}
+
+/* Fallback technique styles */
+.progress-bar {
+	background-color: whiteSmoke;
+	border-radius: 3px;
+	box-shadow: 0 2px 3px rgba(0,0,0,.5) inset;
+
+	/* Dimensions should be similar to the parent progress element. */
+	width: 100%; height:20px;
+}
+
+
+p[data-value] { 
+  
+  position: relative; 
+}
+
+/* The percentage will automatically fall in place as soon as we make the width fluid. Now making widths fluid. */
+
+p[data-value]:after {
+	content: attr(data-value) '%';
+	position: absolute; right:0;
+}
+
+.progress::-webkit-progress-value
+ {
+	/* Gradient background with Stripes */
+	background-image:
+	-webkit-linear-gradient( 135deg,
+													 transparent,
+													 transparent 33%,
+													 rgba(0,0,0,.1) 33%,
+													 rgba(0,0,0,.1) 66%,
+													 transparent 66%),
+    -webkit-linear-gradient( top,
+														rgba(255, 255, 255, .25),
+														rgba(0,0,0,.2)),
+     -webkit-linear-gradient( left, #09c, #f44);
+}
+
+
+
+/* Similarly, for Mozillaa. Unfortunately combining the styles for different browsers will break every other browser. Hence, we need a separate block. */
+
+.progress::-moz-progress-bar {
+	/* Gradient background with Stripes */
+	background-image:
+	-moz-linear-gradient( 135deg,
+													 transparent,
+													 transparent 33%,
+													 rgba(0,0,0,.1) 33%,
+													 rgba(0,0,0,.1) 66%,
+													 transparent 66%),
+    -moz-linear-gradient( top,
+														rgba(255, 255, 255, .25),
+														rgba(0,0,0,.2)),
+     -moz-linear-gradient( left, #09c, #f44);
+}
+
+
+.quick_view
+{
+  
+
+   
+  background:#292d30;
+  border-radius: 5px;
+
+
+margin-bottom: 20px;
+    margin-top: 20px;
+    border-radius: 5px;
+}
+
+.quick_view .store_list
+{
+ 
+  background:#22a3ab;
+  padding-left: 0px;
+padding-top: 40px;
+  padding-bottom:40px;
+  padding-right: 0px;
+
+border-radius: 5px 0 0 5px;
+ height: 100%;
+    min-height: 500px;
+
+}
+.quick_view ul
+{
+	list-style: outside none none;
+	padding-left: 0px;
+
+width: 100%;
+padding-right: 15px;
+border-radius: 5px 0 0 5px;
+
+}
+.quick_view ul li
+{
+	
+}
+.quick_view ul li a
+{
+	display: block;
+	line-height: 34px;
+	color: #fff;
+	font-size: 15px;
+	width: 183px;
+	height: 45px;
+	padding-left: 45px;
+}
+.quick_view ul li a:hover,.quick_view ul li a:active
+{
+	text-decoration: none;
+	background:#0e99a0;
+}
+
+.quick_view .details{
+ border-radius: 0px 5px 5px 0px;
+  background:#292d30;
+  padding-left: 0px;
+
+padding-top: 34px;
+  padding-bottom:34px;
+
+color: #eceef0;
+text-align: center;
+}
+.quick_view .details h2{font-size: 20px; font-weight:400; padding-bottom: 15px; }
+.quick_view select {
+    padding:5px;
+    margin: 0;
+    width: 200px;
+    -webkit-border-radius:0;
+    -moz-border-radius:0;
+    border-radius:0;
+    -webkit-box-shadow: 0 3px 0 #ccc, 0 -1px #333 inset;
+    -moz-box-shadow: 0 3px 0 #ccc, 0 -1px #333 inset;
+    box-shadow: 0 3px 0 #ccc, 0 -1px #333 inset;
+    background: #34373b;
+    color:#888;
+    border:none;
+    outline:none;
+    display: inline-block;
+    -webkit-appearance:none;
+    -moz-appearance:none;
+    appearance:none;
+    cursor:pointer;margin-bottom: 30px;
+}
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    select {padding-right:30px}
+}
+
+.quick_view  label {position:relative}
+.quick_view label:after {
+    content:'<>';
+    font:22px "open sans";
+    color:#aaa;
+    -webkit-transform:rotate(90deg);
+    -moz-transform:rotate(90deg);
+    -ms-transform:rotate(90deg);
+    transform:rotate(90deg);
+    right:8px; top:2px;
+    padding:0 0 2px;
+    border-bottom:1px solid #ddd;
+    position:absolute;
+    pointer-events:none;
+   
+}
+label:before {
+    content:'';
+    right:6px; top:0px;
+    width:20px; height:20px;
+    background:#f8f8f8;
+    position:absolute;
+    pointer-events:none;
+    display:block;
+}
+
+.quick_view .table tr th, .quick_view .table tr, .quick_view.table tr td{
+    border:none !important;
+
+   }
+
+.quick_view .table tr th{
+    border:none !important;
+font-size: 15px;
+text-align: center;
+
+ 
+   }
+
+.quick_view .table tr td{
+    border:none !important;
+font-size: 14px;
+text-align: center;
+ line-height: 30px;
+ border-left: 1px solid #6e7173 !important;
+   }
+
+  
+   .quick_graph {
+    padding-bottom: 20px;
+    padding-top: 20px;
+}
+
+.quick_graph img
+{
+	width: 100%;
+}
+.full_graphs
+{
+	margin-bottom: 20px;
+    margin-top: 20px;
+}
+.sidr{
+	position:absolute;
+	position:fixed;top:0;height:100%;z-index:999999;}
+	.sidr .sidr-inner{padding:0 0 15px}.sidr .sidr-inner>p{margin-left:15px;margin-right:15px}.sidr.right{left:auto;right:-260px}.sidr.left{left:-260px;right:auto}
+
+
+

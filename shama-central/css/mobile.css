@@ -1,0 +1,9 @@
+@media only screen and (max-device-width: 780px) {
+  /* define mobile specific styles come here */
+  .left_colmn
+  {
+  	float: none !important;
+  	width: 100%;
+  	display: none;
+  }
+}

@@ -1,0 +1,372 @@
+* { box-sizing:border-box; }
+
+body {
+  font-family: Helvetica;
+  background: #FFFFFF;
+  -webkit-font-smoothing: antialiased;
+  background-image: url(../images/main_background.png);
+   background-size: 100%; 
+  /* background-position: 39% -104%; */
+  background-repeat: no-repeat;
+}
+
+hgroup { 
+  text-align:center;
+  margin-top: 4em;
+}
+
+h1, h3 { font-weight: 300; }
+
+h1 {color: white;font-size: 19px;padding: 0px;padding-bottom: 10px;margin: 0px;}
+
+h3 { color: #4a89dc; }
+
+form {
+  max-width: 500px;
+  padding: 2em 2em 2em 2em;
+  padding-top: 80px;
+}
+
+.group { 
+  position: relative; 
+  margin-bottom: 45px; 
+}
+
+input {
+  font-size: 14px;
+  padding: 10px 10px 10px 5px;
+  -webkit-appearance: none;
+  display: block;
+  background: #fafafa;
+  color: #636363;
+  width: 100%;
+  border: none;
+  border-radius: 0;
+  /*border-bottom: 1px solid #C7C7C7;*/
+  border: 1px solid #C7C7C7;
+}
+
+input:focus { outline: none; }
+
+
+/* Label */
+
+label {
+  color: #999; 
+  font-size: 18px;
+  font-weight: normal;
+  position: absolute;
+  pointer-events: none;
+  left: 5px;
+  top: -26px;
+  -webkit-transition:all 0.2s ease;
+  transition: all 0.2s ease;
+}
+
+
+/* active */
+
+input:focus ~ label, input.used ~ label {
+  top: -20px;
+  -webkit-transform: scale(.75);
+          transform: scale(.75); left: -2px;
+  /* font-size: 14px; */
+  color: #4a89dc;
+}
+
+
+/* Underline */
+
+.bar {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.bar:before, .bar:after {
+  content: '';
+  height: 2px; 
+  width: 0;
+  bottom: 1px; 
+  position: absolute;
+  background: #4a89dc; 
+  -webkit-transition:all 0.2s ease; 
+  transition: all 0.2s ease;
+}
+
+.bar:before { left: 50%; }
+
+.bar:after { right: 50%; }
+
+
+/* active */
+
+input:focus ~ .bar:before, input:focus ~ .bar:after { width: 50%; }
+
+
+/* Highlight */
+
+.highlight {
+  position: absolute;
+  height: 60%; 
+  width: 100px; 
+  top: 25%; 
+  left: 0;
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+
+/* active */
+
+input:focus ~ .highlight {
+  -webkit-animation: inputHighlighter 0.3s ease;
+          animation: inputHighlighter 0.3s ease;
+}
+
+
+/* Animations */
+
+@-webkit-keyframes inputHighlighter {
+  from { background: #4a89dc; }
+  to  { width: 0; background: transparent; }
+}
+
+@keyframes inputHighlighter {
+  from { background: #4a89dc; }
+  to  { width: 0; background: transparent; }
+}
+
+
+/* Button */
+
+.button {
+  position: relative;
+  display: inline-block;
+  padding: 12px 24px;
+  margin: .3em 0 1em 0;
+  width: 100%;
+  vertical-align: middle;
+  color: #fff;
+  font-size: 16px;
+  line-height: 20px;
+  -webkit-font-smoothing: antialiased;
+  text-align: center;
+  letter-spacing: 1px;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid #3160B6;
+  cursor: pointer;
+  -webkit-transition:all 0.15s ease;
+  transition: all 0.15s ease;
+}
+.button:focus { outline: 0; }
+
+
+/* Button modifiers */
+
+.buttonBlue {
+  background: #4a89dc;
+  text-shadow: 1px 1px 0 rgba(39, 110, 204, .5);
+}
+
+.buttonBlue:hover { background: #357bd8; }
+
+
+/* Ripples container */
+
+.ripples {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+}
+
+
+/* Ripples circle */
+
+.ripplesCircle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  opacity: 0;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.ripples.is-active .ripplesCircle {
+  -webkit-animation: ripples .4s ease-in;
+          animation: ripples .4s ease-in;
+}
+
+
+/* Ripples animation */
+
+@-webkit-keyframes ripples {
+  0% { opacity: 0; }
+
+  25% { opacity: 1; }
+
+  100% {
+    width: 200%;
+    padding-bottom: 200%;
+    opacity: 0;
+  }
+}
+
+@keyframes ripples {
+  0% { opacity: 0; }
+
+  25% { opacity: 1; }
+
+  100% {
+    width: 200%;
+    padding-bottom: 200%;
+    opacity: 0;
+  }
+}
+
+footer { text-align: center; }
+
+footer p {
+  color: #888;
+  font-size: 13px;
+  letter-spacing: .4px;
+}
+
+footer a {
+  color: #4a89dc;
+  text-decoration: none;
+  -webkit-transition:all .2s ease;
+  transition: all .2s ease;
+}
+
+footer a:hover {
+  color: #666;
+  text-decoration: underline;
+}
+
+footer img {
+  width: 80px;
+  -webkit-transition:all .2s ease;
+  transition: all .2s ease;
+}
+
+footer img:hover { opacity: .83; }
+
+footer img:focus , footer a:focus { outline: none; }
+
+#login-form > div  {
+    bottom: 0;
+    display: inline-block;
+    right: 33px !important;
+    position: absolute;
+    right: 0;
+    padding-bottom: 10px;
+    color: #636363;
+}
+
+#forgot-password > div {
+    bottom: 0;
+    display: inline-block;
+ 
+    position: absolute;
+    right: 20px;
+    padding-bottom: 10px;
+    color: #636363;
+}
+
+#login-form >div a , #forgot-password >div a{
+  color: #A5B6D0;
+  text-decoration: none;
+}
+
+div#login-form , div#forgot-password {
+    position: relative;
+}
+#login-form > div#error-messages   {
+    bottom: 0;
+    color: #ff0000;
+    display: inline-block;
+    font-size: 13px;
+    
+    display: none;
+    position: absolute;
+    right: 10px;
+    
+   
+}
+div#login-form, .login-form {
+    max-width: 500px;
+    margin: auto auto;
+    background: #ffffff;
+    box-shadow: 0px 0px 13px -4px #333;
+    left: auto;
+}
+div#logo-container img {
+    width: 150px;
+}
+div#logo-container {
+    position: relative;
+    width: 100%;
+    text-align: center;
+    padding-top: 5px;
+    right: 0 !important;
+}
+hgroup {
+    max-width: 500px;
+    margin: auto auto;
+    background: #5D5D5D;
+    border-top-right-radius: 10px;
+    border-top-left-radius: 10px;
+    padding-top: 10px;
+    margin-top: 9%;
+}
+
+hgroup img{
+  max-width: 150px;
+}
+
+hgroup h3 {
+    display: none;
+}
+hgroup.bottom
+{margin: 0 auto;border-bottom-right-radius: 10px;border-bottom-left-radius: 10px;border-top-right-radius: 0px;border-top-left-radius: 0px;background: #5D5D5D;box-shadow: 0px 0px 0px 1px silver;}
+  hgroup.bottom h1 {
+    font-size: 10px;
+}
+.log_cont {
+    top: 0;
+    position: fixed;
+    width: 100%;
+    bottom: 0;
+    right: 0;
+    left: 0;
+}
+div#error-messages {
+    top: 85px;
+    left: 65px;
+}
+
+div#forgot-error-messages {
+    top: 85px;
+    color: #ff0000;
+    left: 35px;
+    display: none;
+}
+
+.hide{
+  display: none;
+}
+
+.error{
+  color: red;
+  padding-top: :5px; 
+}
