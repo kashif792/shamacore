@@ -238,7 +238,7 @@ require APPPATH.'views/__layout/footer.php';
 
         ajaxType = "GET";
 
-            urlpath = "<?php echo $path_url; ?>Principal_controller/removeSubject";
+            urlpath = "<?php echo SHAMA_CORE_API_PATH; ?>/removesubject";
 
             var dataString = ({'id':dvalue});
 
@@ -252,7 +252,7 @@ require APPPATH.'views/__layout/footer.php';
 
         {
 
-      $(".user-message").show();
+        $(".user-message").show();
 
         $(".message-text").text("Subject has been not deleted").fadeOut(10000);
 
@@ -269,8 +269,8 @@ require APPPATH.'views/__layout/footer.php';
                 $("#"+row_slug).remove();
 
           $(".user-message").show();
-
-          $(".message-text").text("Subject has been deleted").fadeOut(10000);
+          message("Subject has been deleted","show");
+          //$(".message-text").text("Subject has been deleted").fadeOut(10000);
 
           } 
 

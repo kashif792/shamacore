@@ -90,7 +90,7 @@ class MY_Controller extends CI_Controller {
         return $this->session->userdata('default_session_id');
     }
 
-
+    
     function CheckCurrentWeekend($date)
     {
         if(date('D',strtotime($date)) == 'Sat' || date('D',strtotime($date)) == 'Sun') {

@@ -543,7 +543,7 @@ class MY_Rest_Controller extends REST_Controller
     function get_subject($subject_id)
     {
         if (! empty($subject_id)) {
-            $is_subject_found = $this->operation->GetByQuery("SELECT * FROM subjects WHERE active=1 AND id = " . $subject_id);
+            $is_subject_found = $this->operation->GetByQuery("SELECT * FROM subjects WHERE id = " . $subject_id);
             if (count($is_subject_found)) {
                 return $is_subject_found[0];
             } else {
@@ -557,8 +557,8 @@ class MY_Rest_Controller extends REST_Controller
         if (! empty($class_id)) {
             $this->operation->table_name = 'subjects';
             return $this->operation->GetByWhere(array(
-                'class_id' => $class_id,
-                'active' => 1
+                'class_id' => $class_id
+                
             ));
         }
     }
@@ -1710,5 +1710,69 @@ class MY_Rest_Controller extends REST_Controller
 
             return false;
         } catch (Exception $e) {}
+    }
+    function GetCurrentSemesterData($sessionid = null)
+    {
+        $this->operation->table_name = 'semester_dates';
+        $is_semester_dates_found = $this->operation->GetByWhere(array('session_id'=>$sessionid,'status'=>'a'));
+      
+        return  $is_semester_dates_found;
+    }
+    function getClass($classid)
+    {
+        $is_class_found = $this->operation->GetByQuery("Select c.* from classes c where c.id = ".$classid);
+        if(count($is_class_found)){
+            return $is_class_found[0]->grade;
+        }
+        else{
+            return false;
+        }
+    }
+    
+    function getSectionList($sectioid = null ,$section_name = null,$school_id=null)
+    {
+        if(!is_null($sectioid))
+        {
+            return $this->operation->GetByQuery("Select s.* from sections s where s.id = ".$sectioid);
+        }
+        else{
+            return $this->operation->GetByQuery("Select s.* from sections s where s.section_name = '".$section_name."' AND school_id = ".$school_id);
+        }
+    }
+    
+    
+    function GetSubject($subjectid = null)
+    {
+        if(is_null($subjectid))
+        {
+            $is_subject_found = $this->operation->GetByQuery("Select * from subjects");
+            if(count($is_subject_found)){
+                return $is_subject_found;
+            }
+            else{
+                return false;
+            }
+        }
+        else{
+            $is_subject_found = $this->operation->GetByQuery("Select * from subjects  where id = ".$subjectid);
+            if(count($is_subject_found)){
+                return $is_subject_found;
+            }
+            else{
+                return false;
+            }
+        }
+
+    }
+    function GetUserById($userid)
+    {
+        $is_meta_found = $this->operation->GetByQuery("Select * from invantage_users where id = ".$userid);
+
+        if(count($is_meta_found)){
+            return $is_meta_found;
+        }
+        else{
+            return false;
+        }
     }
 }

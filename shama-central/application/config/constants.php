@@ -137,6 +137,10 @@ defined('HTTP_LOCKED')                          OR define('HTTP_LOCKED', 423);
 defined('HTTP_FAILED_DEPENDENCY')               OR define('HTTP_FAILED_DEPENDENCY', 424);
 */
 
+defined('ASSEMBLY_START') OR define('ASSEMBLY_START', '7:30');
+defined('ASSEMBLY_END') OR define('ASSEMBLY_END', '7:50');
+defined('BREAK_START') OR define('BREAK_START', '9:36');
+defined('BREAK_END') OR define('BREAK_END', '10:10');
 
  /*
   * SHAMA API End Points

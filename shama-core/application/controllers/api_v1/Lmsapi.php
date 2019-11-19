@@ -507,36 +507,94 @@ class LMSApi extends MY_Rest_Controller
     // endregion
     public function schedules_get()
     {
+
         $user_id = $this->input->get('user_id');
         $school_id = $this->input->get('school_id');
+        $currentday = $this->input->get('select_day');
+        if($currentday=='')
+        {
+            $date = date('Y-m-d');
+            $currentday = strtolower(date('D', strtotime($date)));
+        }
         
-        $result = array();
-        if (! empty($user_id) && ! empty($school_id)) {
-            
-            $role_id = FALSE;
+
+        $request = json_decode(file_get_contents('php://input'));
+        $inputday = $this->security->xss_clean(trim($request->inputday));
+        if($inputday)
+        {
+            $currentday = $inputday;
+        }
+        $listarray =array();
+        $data_array =array();
+        $d_start_time = array();
+        $d_end_time = array();
+        
+        //$active_session = parent::GetUserActiveSession();
+        //$active_semester = parent::GetCurrentSemesterData($active_session[0]->id);
+        $active_session = $this->get_active_session($school_id);
+        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+        $role_id = FALSE;
             if ($role = $this->get_user_role($user_id)) {
                 $role_id = $role->role_id;
+            }  
+        if($role_id == 3 && count($active_session) && count($active_semester))
+        {
+
+            $datameta=$this->data['timetable_list'] = $this->operation->GetByQuery("SELECT sc.*,sc.id,sub.id as subid,subject_name,grade,section_name,screenname,start_time,end_time FROM schedule sc INNER JOIN classes cl ON  sc.class_id=cl.id INNER JOIN invantage_users inv ON sc.teacher_uid=inv.id INNER JOIN subjects sub ON sc.subject_id=sub.id INNER JOIN sections  sct ON sc.section_id=sct.id WHERE cl.school_id =".$school_id." AND sub.session_id = ".$active_session->id." AND sub.semester_id = ".$active_semester->semester_id." ORDER by sc.id desc");
+            if(count($datameta))
+            {
+                foreach ($datameta as $key => $value) 
+                {
+
+                    $subcod=$this->operation->GetByQuery("select subject_code from subjects where id= ".$value->subid);
+                    $value->subject_name=$value->subject_name." (".$subcod[0]->subject_code.")";
+                    $value->subject_name;
+                    // Create Day wise start and end time
+                    $s_time =  $currentday.'_start_time';
+                    $e_time =  $currentday.'_end_time';
+                    if($value->$s_time=="00:00:00")
+                    {
+                        $value->start_time = "";
+                    }
+                    else
+                    {
+                        $value->start_time = date('H:i',strtotime($value->$s_time));
+                    }
+                    if($value->$e_time=="00:00:00")
+                    {
+                        $value->end_time = "";
+                    }
+                    else
+                    {
+                        $value->end_time = date('H:i',strtotime($value->$e_time));
+                    }
+                    
+                }
             }
             
-            $active_session = $this->get_active_session($school_id);
-            $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+       }
+       else if( $roles[0]['role_id'] == 4 && count($active_session) && count($active_semester))
+       {
+            $this->data['timetable_list'] = $this->operation->GetByQuery("SELECT sc.id, subject_name,grade,section_name,username,start_time,end_time FROM schedule sc  INNER JOIN classes cl ON  sc.class_id=cl.id INNER JOIN invantage_user inv ON sc.teacher_uid=inv.id INNER JOIN subjects sub ON sc.subject_id=sub.id INNER JOIN sections  sct ON sc.section_id=sct.id where sc.teacher_uid=".$this->session->userdata('id')." AND cl.school_id =".$locations[0]['school_id']." AND sub.session_id = ".$active_session[0]->id." AND sub.semsterid = ".$active_semester[0]->semester_id);
             
-            if ($role_id == 3 && count($active_session) && count($active_semester)) {
                 
-                $result = $this->operation->GetByQuery("SELECT sc.id, cl.grade, sct.section_name as section, sub.subject_name as subject, screenname as teacher,start_time,end_time FROM schedule sc INNER JOIN classes cl ON  sc.class_id=cl.id INNER JOIN invantage_users inv ON sc.teacher_uid=inv.id INNER JOIN subjects sub ON sc.subject_id=sub.id INNER JOIN sections sct ON sc.section_id=sct.id WHERE cl.school_id =" . $school_id . " AND sc.session_id = " . $active_session->id . " AND sc.semester_id = " . $active_semester->semester_id . " ORDER by sc.id DESC");
-            } else if ($role_id == 4 && count($active_session) && count($active_semester)) {
+       }
+       $data_array = array('select_day'=>$currentday);
+       
+        foreach ($this->data['timetable_list'] as $key => $element) {
+            
+            if ($element->start_time=="") {
                 
-                $result = $this->operation->GetByQuery("SELECT sc.id, cl.grade, sct.section_name as section, sub.subject_name as subject, screenname as teacher,start_time,end_time FROM schedule sc  INNER JOIN classes cl ON  sc.class_id=cl.id INNER JOIN invantage_users inv ON sc.teacher_uid=inv.id INNER JOIN subjects sub ON sc.subject_id=sub.id INNER JOIN sections  sct ON sc.section_id=sct.id WHERE sc.teacher_uid=" . $user_id . " AND cl.school_id =" . $school_id . " AND sc.session_id = " . $active_session->id . " AND sc.semester_id = " . $active_semester->semester_id);
+                unset($this->data['timetable_list'][$key]);
             }
         }
-        
-        if (count($result)) {
-            foreach ($result as $key => $value) {
-                $value->start_time = date('H:i', $value->start_time);
-                $value->end_time = date('H:i', $value->end_time);
-            }
-        }
-        
+        $this->data['timetable_list']= array_values($this->data['timetable_list']); 
+        $result[] = array(
+                        'listarray'=>$this->data['timetable_list'],
+                        
+                        'data_array'=>$data_array
+                    );
+
         $this->set_response($result, REST_Controller::HTTP_OK);
     }
     
@@ -561,8 +619,29 @@ class LMSApi extends MY_Rest_Controller
                         'section_id' => $value->section_id,
                         'subject_id' => $value->subject_id,
                         'teacher_id' => $value->teacher_uid,
-                        'start_time' => date('H:i', $value->start_time),
-                        'end_time' => date('H:i', $value->end_time)
+                        'mon_status' => $value->mon_status,
+                        'mon_start_time' => date('H:i',strtotime($value->mon_start_time)),
+                        'mon_end_time' => date('H:i',strtotime($value->mon_end_time)),
+                        'tue_status' => $value->tue_status,
+                        'tue_start_time' => date('H:i',strtotime($value->tue_start_time)),
+                        'tue_end_time' => date('H:i',strtotime($value->tue_end_time)),
+                        'wed_status' => $value->wed_status,
+                        'wed_start_time' => date('H:i',strtotime($value->wed_start_time)),
+                        'wed_end_time' => date('H:i',strtotime($value->wed_end_time)),
+                        'thu_status' => $value->thu_status,
+                        'thu_start_time' => date('H:i',strtotime($value->thu_start_time)),
+                        'thu_end_time' => date('H:i',strtotime($value->thu_end_time)),
+                        'fri_status' => $value->fri_status,
+                        'fri_start_time' => date('H:i',strtotime($value->fri_start_time)),
+                        'fri_end_time' => date('H:i',strtotime($value->fri_end_time)),
+                        'sat_status' => $value->sat_status,
+                        'sat_start_time' => date('H:i',strtotime($value->sat_start_time)),
+                        'sat_end_time' => date('H:i',strtotime($value->sat_end_time)),
+                        'sun_status' => $value->sun_status,
+                        'sun_start_time' => date('H:i',strtotime($value->sun_start_time)),
+                        'sun_end_time' => date('H:i',strtotime($value->sun_end_time))
+
+                        
                     );
                 }
             }
@@ -581,32 +660,151 @@ class LMSApi extends MY_Rest_Controller
         $school_id = $request->school_id;
         $section_id = $request->section_id;
         $teacher_id = $request->teacher_id;
-        $start_time = $request->start_time;
-        $end_time = $request->end_time;
-        
+        // $start_time = $request->start_time;
+        // $end_time = $request->end_time;
+
         $result = array();
         $result['message'] = false;
-        
-        if (! empty($class_id) && ! empty($section_id) && ! empty($subject_id) && ! empty($teacher_id) && ! empty($start_time) && ! empty($end_time) && ! empty($school_id)) {
+
+        if (! empty($class_id) && ! empty($section_id) && ! empty($subject_id) && ! empty($teacher_id)  && ! empty($school_id)) {
             
             $active_session = $this->get_active_session($school_id);
+
             $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
             
+            // Day wise timing
+            if($request->mon_status=='Active')
+                {
+                    $mon_status = "Active";
+                    $mon_start_time = $request->mon_start_time!='' ? $request->mon_start_time :"00:00:00";
+                    $mon_end_time = $request->mon_end_time!='' ? $request->mon_end_time :"00:00:00";
+                }
+                else
+                {
+                    $mon_status = "Inactive";
+                    $mon_start_time = "00:00:00";
+                    $mon_end_time ="00:00:00";
+                }
+                if($request->tue_status=='Active')
+                {
+                    $tue_status = "Active";
+                    $tue_start_time = $request->tue_start_time!='' ? $request->tue_start_time :"00:00:00";
+                    $tue_end_time = $request->tue_end_time!='' ? $request->tue_end_time :"00:00:00";
+                }
+                else
+                {
+                    $tue_status = "Inactive";
+                    $tue_start_time = "00:00:00";
+                    $tue_end_time ="00:00:00";
+                }
+                if($request->wed_status=='Active')
+                {
+                    $wed_status = "Active";
+                    $wed_start_time = $request->wed_start_time!='' ? $request->wed_start_time :"00:00:00";
+                    $wed_end_time = $request->wed_end_time!='' ? $request->wed_end_time :"00:00:00";
+                }
+                else
+                {
+                    $wed_status = "Inactive";
+                    $wed_start_time = "00:00:00";
+                    $wed_end_time ="00:00:00";
+                }
+                if($request->thu_status=='Active')
+                {
+                    $thu_status = "Active";
+                    $thu_start_time = $request->thu_start_time!='' ? $request->thu_start_time :"00:00:00";
+                    $thu_end_time = $request->thu_end_time!='' ? $request->thu_end_time :"00:00:00";
+                }
+                else
+                {
+                    $thu_status = "Inactive";
+                    $thu_start_time = "00:00:00";
+                    $thu_end_time ="00:00:00";
+                }
+                if($request->fri_status=='Active')
+                {
+                    $fri_status = "Active";
+                    $fri_start_time = $request->fri_start_time!='' ? $request->fri_start_time :"00:00:00";
+                    $fri_end_time = $request->fri_end_time!='' ? $request->fri_end_time :"00:00:00";
+                }
+                else
+                {
+                    $fri_status = "Inactive";
+                    $fri_start_time = "00:00:00";
+                    $fri_end_time ="00:00:00";
+                }
+                if($request->sat_status=='Active')
+                {
+                    $sat_status = "Active";
+                    $sat_start_time = $request->sat_start_time!='' ? $request->sat_start_time :"00:00:00";
+                    $sat_end_time = $request->sat_end_time!='' ? $request->sat_end_time :"00:00:00";
+                }
+                else
+                {
+                    $sat_status = "Inactive";
+                    $sat_start_time = "00:00:00";
+                    $sat_end_time ="00:00:00";
+                }
+                if($request->sun_status=='Active')
+                {
+                    $sun_status = "Active";
+                    $sun_start_time = $request->sun_start_time!='' ? $request->sun_start_time :"00:00:00";
+                    $sun_end_time = $request->sun_end_time!='' ? $request->sun_end_time :"00:00:00";
+                }
+                else
+                {
+                    $sun_status = "Inactive";
+                    $sun_start_time = "00:00:00";
+                    $sun_end_time ="00:00:00";
+                }
+            // End here
             if ($id) {
                 $subject_schedual_check = true;
                 
-                $schedule = array(
-                    'last_update' => date('Y-m-d'),
-                    'subject_id' => $subject_id,
-                    'class_id' => $class_id,
-                    'section_id' => $section_id,
-                    'teacher_uid' => $teacher_id,
-                    'start_time' => strtotime($start_time),
-                    'end_time' => strtotime($end_time),
-                    'semester_id' => $active_semester->semester_id,
-                    'session_id' => $active_session->id
-                );
-                
+                // $schedule = array(
+                //     'last_update' => date('Y-m-d'),
+                //     'subject_id' => $subject_id,
+                //     'class_id' => $class_id,
+                //     'section_id' => $section_id,
+                //     'teacher_uid' => $teacher_id,
+                //     'start_time' => strtotime($start_time),
+                //     'end_time' => strtotime($end_time),
+                //     'semester_id' => $active_semester->semester_id,
+                //     'session_id' => $active_session->id
+                // );
+                $schedule =  array(
+                            'last_update'=> date('Y-m-d'),
+                            'subject_id'=>$subject_id,
+                            'class_id'=>$class_id,
+                            'section_id'=>$section_id,
+                            'teacher_uid'=>$teacher_id,
+                            //'start_time'=>strtotime($this->input->post('inputFrom')),
+                            //'end_time'=>strtotime($this->input->post('inputTo')),
+                            'mon_status'=>$mon_status,
+                            'mon_start_time'=>date('H:i',strtotime($mon_start_time)),
+                            'mon_end_time'=>date('H:i',strtotime($mon_end_time)),
+                            'tue_status'=>$tue_status,
+                            'tue_start_time'=>date('H:i',strtotime($tue_start_time)),
+                            'tue_end_time'=>date('H:i',strtotime($tue_end_time)),
+                            'wed_status'=>$wed_status,
+                            'wed_start_time'=>date('H:i',strtotime($wed_start_time)),
+                            'wed_end_time'=>date('H:i',strtotime($wed_end_time)),
+                            'thu_status'=>$thu_status,
+                            'thu_start_time'=>date('H:i',strtotime($thu_start_time)),
+                            'thu_end_time'=>date('H:i',strtotime($thu_end_time)),
+                            'fri_status'=>$fri_status,
+                            'fri_start_time'=>date('H:i',strtotime($fri_start_time)),
+                            'fri_end_time'=>date('H:i',strtotime($fri_end_time)),
+                            'sat_status'=>$sat_status,
+                            'sat_start_time'=>date('H:i',strtotime($sat_start_time)),
+                            'sat_end_time'=>date('H:i',strtotime($sat_end_time)),
+                            'sun_status'=>$sun_status,
+                            'sun_start_time'=>date('H:i',strtotime($sun_start_time)),
+                            'sun_end_time'=>date('H:i',strtotime($sun_end_time)),
+                            
+                            'semester_id'=>$active_semester->semester_id,
+                            'session_id'=>$active_session->id,
+                        );
                 $this->operation->table_name = 'schedule';
                 $this->operation->primary_key = 'id';
                 if ($subject_schedual_check == true) {
@@ -618,17 +816,39 @@ class LMSApi extends MY_Rest_Controller
             } else {
                 $subject_schedual_check = true;
                 
-                $schedule = array(
-                    'last_update' => date('Y-m-d'),
-                    'subject_id' => $subject_id,
-                    'class_id' => $class_id,
-                    'section_id' => $section_id,
-                    'teacher_uid' => $teacher_id,
-                    'start_time' => strtotime($start_time),
-                    'end_time' => strtotime($end_time),
-                    'semester_id' => $active_semester->semester_id,
-                    'session_id' => $active_session->id
-                );
+                $schedule =  array(
+                            'last_update'=> date('Y-m-d'),
+                            'subject_id'=>$subject_id,
+                            'class_id'=>$class_id,
+                            'section_id'=>$section_id,
+                            'teacher_uid'=>$teacher_id,
+                            //'start_time'=>strtotime($this->input->post('inputFrom')),
+                            //'end_time'=>strtotime($this->input->post('inputTo')),
+                            'mon_status'=>$mon_status,
+                            'mon_start_time'=>date('H:i',strtotime($mon_start_time)),
+                            'mon_end_time'=>date('H:i',strtotime($mon_end_time)),
+                            'tue_status'=>$tue_status,
+                            'tue_start_time'=>date('H:i',strtotime($tue_start_time)),
+                            'tue_end_time'=>date('H:i',strtotime($tue_end_time)),
+                            'wed_status'=>$wed_status,
+                            'wed_start_time'=>date('H:i',strtotime($wed_start_time)),
+                            'wed_end_time'=>date('H:i',strtotime($wed_end_time)),
+                            'thu_status'=>$thu_status,
+                            'thu_start_time'=>date('H:i',strtotime($thu_start_time)),
+                            'thu_end_time'=>date('H:i',strtotime($thu_end_time)),
+                            'fri_status'=>$fri_status,
+                            'fri_start_time'=>date('H:i',strtotime($fri_start_time)),
+                            'fri_end_time'=>date('H:i',strtotime($fri_end_time)),
+                            'sat_status'=>$sat_status,
+                            'sat_start_time'=>date('H:i',strtotime($sat_start_time)),
+                            'sat_end_time'=>date('H:i',strtotime($sat_end_time)),
+                            'sun_status'=>$sun_status,
+                            'sun_start_time'=>date('H:i',strtotime($sun_start_time)),
+                            'sun_end_time'=>date('H:i',strtotime($sun_end_time)),
+                            
+                            'semester_id'=>$active_semester->semester_id,
+                            'session_id'=>$active_session->id,
+                        );
                 
                 $this->operation->table_name = 'schedule';
                 $this->operation->primary_key = 'id';
@@ -656,6 +876,120 @@ class LMSApi extends MY_Rest_Controller
             }
         }
         $this->set_response($result, REST_Controller::HTTP_OK);
+    }
+    function getTimetablepdf_get()
+    {
+        try
+        {
+
+            $roles = $this->input->get('role_id');
+            $school_id = $this->input->get('school_id');
+            
+            $this->operation->table_name = 'sessions';
+            $active_session = $this->operation->GetByWhere(array('status' => "a", 'school_id' =>  $school_id));
+            
+            $active_semester = parent::GetCurrentSemesterData($active_session[0]->id);
+            $request = json_decode(file_get_contents('php://input'));
+            $grade_id = $this->input->get('grade_id');
+            $this->operation->table_name = 'classes';
+            $is_class = $this->operation->GetByWhere(array('grade' => $grade_id,'school_id' => $school_id));
+            //print($is_class[0]->id);
+            //exit;
+            $schedule = array();
+            $class_array = array();
+            $kindergarten_section = array();
+            $rest_section = array();
+            $result = array();
+            $data_array = array();
+            $day_array = array();
+            $subject_array = array('day');
+            $mon_array = array('day' => "Monday|" );
+            $tue_array = array('day' => "Tuesday|" );
+            $wed_array = array('day' => "Wednesday|" );
+            $thu_array = array('day' => "Thursday|" );
+            $fri_array = array('day' => "Friday|" );
+            $sat_array = array('day' => "Saturday|" );
+            $sun_array = array('day' => "Sunday|" );
+            // Assembly time fetch from database
+            $this->operation->table_name = 'assembly';
+            $is_assembly_found = $this->operation->GetByWhere(array('school_id' => $school_id));
+            if(count($is_assembly_found))
+            {
+                $ass_start_time = $is_assembly_found[0]->start_time;
+                $ass_end_time = $is_assembly_found[0]->end_time;
+            }
+            else
+            {
+                $ass_start_time = ASSEMBLY_START;
+                $ass_end_time = ASSEMBLY_END;
+            }
+            // Break time fetch from database
+            $today = strtolower(date("l"));
+            $this->operation->table_name = 'break';
+            $date = date('Y-m-d');
+        
+            //$currentday = strtolower(date('D', strtotime($date)));
+            
+            $is_break_found = $this->operation->GetByWhere(array('school_id' => $school_id));
+            if(count($is_break_found))
+            {
+                    $mon_break = date('H:i', strtotime($is_break_found[0]->monday_start_time)).' - '.date('H:i', strtotime($is_break_found[0]->monday_end_time));
+                    $tue_break = date('H:i', strtotime($is_break_found[0]->tuesday_start_time)).' - '.date('H:i', strtotime($is_break_found[0]->tuesday_end_time));
+                    $wed_break = date('H:i', strtotime($is_break_found[0]->wednesday_start_time)).' - '.date('H:i', strtotime($is_break_found[0]->wednesday_end_time));
+                    $thu_break = date('H:i', strtotime($is_break_found[0]->thursday_start_time)).' - '.date('H:i', strtotime($is_break_found[0]->thursday_end_time));
+                    $fri_break = date('H:i', strtotime($is_break_found[0]->friday_start_time)).' - '.date('H:i', strtotime($is_break_found[0]->friday_end_time));
+            }
+            else
+                {
+                    $break_start_time = BREAK_START;
+                    $break_end_time  = BREAK_END;
+                }
+               
+                
+                $query = $this->operation->GetByQuery("SELECT sch.* FROM schedule sch  Where class_id =".$is_class[0]->id." AND sch.semester_id = " . $active_semester[0]->semester_id . " AND sch.session_id =" . $active_session[0]->id . " Order by sch.id,sch.start_time");
+                
+                if (count($query))
+                {
+                    $is_yellow_section_found = false;
+                    foreach ($query as $key => $value)
+                    {
+                        
+                        $grade = parent::getClass($value->class_id);
+                        $section = parent::getSectionList($value->section_id,$school_id);
+                        $subject = parent::GetSubject($value->subject_id);
+                        $teacher = parent::GetUserById($value->teacher_uid);
+                        $is_class_found = in_array($grade, $class_array);
+                        
+                            $mon_status = "Active";
+                            $subject_array[] = $value->subject_id;
+
+                            $mon_array[$value->subject_id] =  $subject[0]->subject_name.'| ('.date('H:i', strtotime($value->mon_start_time)).' - '.date('H:i', strtotime($value->mon_end_time)).')';
+                            $tue_array[$value->subject_id] =  $subject[0]->subject_name.'| ('.date('H:i', strtotime($value->tue_start_time)).' - '.date('H:i', strtotime($value->tue_end_time)).')';
+                            $wed_array[$value->subject_id] =  $subject[0]->subject_name.'| ('.date('H:i', strtotime($value->wed_start_time)).' - '.date('H:i', strtotime($value->wed_end_time)).')';
+                            $thu_array[$value->subject_id] =  $subject[0]->subject_name.'| ('.date('H:i', strtotime($value->thu_start_time)).' - '.date('H:i', strtotime($value->thu_end_time)).')';
+                            $fri_array[$value->subject_id] =  $subject[0]->subject_name.'| ('.date('H:i', strtotime($value->fri_start_time)).' - '.date('H:i', strtotime($value->fri_end_time)).')';
+                            $sat_array[$value->subject_id] =  $subject[0]->subject_name.'| ('.date('H:i', strtotime($value->sat_start_time)).' - '.date('H:i', strtotime($value->sat_end_time)).')';
+                            $sun_array[$value->subject_id] =  $subject[0]->subject_name.'| ('.date('H:i', strtotime($value->sun_start_time)).' - '.date('H:i', strtotime($value->sun_end_time)).')';
+                            
+                    }
+                    $schedule = array($mon_array,$tue_array,$wed_array,$thu_array,$fri_array,$sat_array,$sun_array);
+                    //$schedule['day_array'] = array('mon'=>'Monday','tue'=>'Tuesday','wed'=>'Wednesday','thu'=>'Thursday','fri'=>'Friday','sat'=>'Saturday','sun'=>'Sunday');
+
+                }
+            $data_array = array('grade_name'=>$is_class[0]->grade);
+            $result[] = array(
+                        'details'=>$schedule,
+                        'colums'=>$subject_array,
+                        
+                        'data_array'=>$data_array
+                    );
+            $this->set_response($result, REST_Controller::HTTP_OK);
+            //echo json_encode($result);
+            //echo json_encode($schedule);
+        }
+        catch(Exception $e)
+        {
+        }
     }
     
     // region Principal
@@ -1736,92 +2070,191 @@ class LMSApi extends MY_Rest_Controller
     {
         $school_id = $this->input->get('school_id');
         
-        if (! empty($school_id)) {
-            $this->operation->table_name = 'semester_dates';
-            $semester_datail_list = $this->operation->GetByWhere(array(
-                'school_id' => $school_id
-            ));
-            
-            $result = array();
-            if (count($semester_datail_list)) {
-                foreach ($semester_datail_list as $value) {
-                    
-                    $current_active_session = $this->get_session($value->session_id);
-                    $current_active_semester = $this->get_semester($value->semester_id);
-                    $result[] = array(
-                        'id' => $value->id,
-                        'start_date' => date('M d, Y', strtotime($value->start_date)),
-                        'end_date' => date('M d, Y', strtotime($value->end_date)),
-                        'session_id' => $value->session_id,
-                        'semester' => $value->semester_id,
-                        'status' => $value->status,
-                        'session_value' => date('M d, Y', strtotime($current_active_session[0]->datefrom)) . ' - ' . date('M d, Y', strtotime($current_active_session[0]->dateto)),
-                        'semester_value' => $current_active_semester[0]->semester_name
-                    );
+        $this->operation->table_name = 'semester_dates';
+       
+        $semester_datail_list = $this->operation->GetByWhere(array('school_id'=> $school_id));
+        $result = array();
+        $status = "";
+        $this->operation->table_name = 'sessions';
+        $active_session_check = $this->operation->GetByWhere(array('status' => "a", 'school_id' =>  $school_id));
+        $active_session_enddate = date('Y-m-d',strtotime($active_session_check[0]->dateto));
+        
+        if(count($semester_datail_list))
+        {
+            foreach ($semester_datail_list as $key => $value) {
+               
+                $current_active_session = $this->get_session($value->session_id);
+                $current_active_semester = $this->get_semester($value->semester_id);
+                
+                $end_date_session = date('Y-m-d',strtotime($current_active_session[0]->dateto));
+                
+                if($active_session_enddate==$end_date_session)
+                {
+                    $status ="Active";
                 }
+                else
+                {
+                    $status ="Inactive";
+                }
+                $result[] = array(
+                    'id'=>$value->id,
+                    'start_date'=>date('M d, Y',strtotime($value->start_date)),
+                    'end_date'=>date('M d, Y',strtotime($value->end_date)),
+                    'session_id'=>$value->session_id,
+                    'semester'=>$value->semester_id,
+                    'status'=>$value->status,
+                    'session_value'=>date('M d, Y',strtotime($current_active_session[0]->datefrom)).' - '.date('M d, Y',strtotime($current_active_session[0]->dateto)),
+                    'session_status' =>$status,
+                    'semester_value'=>$current_active_semester[0]->semester_name
+                );
             }
         }
+
         $this->set_response($result, REST_Controller::HTTP_OK);
     }
+
     
     /**
      * Save semester dates
      */
     function semester_date_post()
     {
-        $request = $this->parse_params();
-        $serial = $this->security->xss_clean(trim($request->id));
+        $request = json_decode( file_get_contents('php://input'));
+
         $school_id = $this->security->xss_clean(trim($request->school_id));
-        $semester_id = $this->security->xss_clean(trim($request->semester_id));
+        $serail = $this->security->xss_clean(trim($request->id));
+        $semester = $this->security->xss_clean(trim($request->semester_id));
         $start_date = $this->security->xss_clean(trim($request->start_date));
         $end_date = $this->security->xss_clean(trim($request->end_date));
-        //$session_id = $this->security->xss_clean(trim($request->session_id));
-        
+
+        $sresult['message'] = false;
+        $check_valid['check_validation'] = true;
+        $check_session_valid['check_session_valid'] = false;
         $error_array = array();
-        if (empty($school_id) || empty($semester_id) || empty($start_date) || empty($end_date)) {
-            array_push($error_array, "Missing params");
+        if (empty($start_date) || empty($end_date)) {
+            array_push($error_array,"Date is empty");
         }
         
-        if (count($error_array)) {
-            $this->set_response([], REST_Controller::HTTP_OK);
-            exit();
-        }
+        $post_start_date = date('Y-m-d', strtotime($start_date));
         
+        $this->operation->table_name = 'sessions';
+        $current_active_session = $this->operation->GetByWhere(array('school_id'=>$school_id,'status'=>'a'));
+        $this->operation->table_name = 'semester_dates';
+        $current_activeted_semester = $this->operation->GetByWhere(array('school_id'=>$school_id,'status'=>'a'));
+        
+        
+        // Check already exists session,semester ans school
         $this->operation->table_name = 'semester_dates';
         
-        if (count($error_array) == false) {
-            if ($serial) {
-                $semester_datail = array(
-                    'start_date' => date('Y-m-d', strtotime($start_date)),
-                    'end_date' => date('Y-m-d', strtotime($end_date)),
-                    'last_edited' => date('Y-m-d'),
-                    'semester_id' => $semester_id
-                );
-                
-                $id = $this->operation->Create($semester_datail, $serial);
-                if (count($id)) {
-                    $result['message'] = true;
-                }
-            } else {
-                $session_id =
-                $semester_datail = array(
-                    'session_id' => $session_id,
-                    'semester_id' => $semester_id,
-                    'start_date' => date('Y-m-d', strtotime($start_date)),
-                    'end_date' => date('Y-m-d', strtotime($end_date)),
-                    'school_id' => $school_id,
-                    'created' => date('Y-m-d'),
-                    'last_edited' => date('Y-m-d')
-                );
-                $id = $this->operation->Create($semester_datail);
-                
-                if (count($id)) {
-                    $result['message'] = true;
-                }
+        $active_semester = $this->operation->GetByWhere(array('session_id' => $current_active_session[0]->id, 'school_id' => $current_active_session[0]->school_id, 'semester_id' => $semester));
+        
+        if($serail)
+        {
+            $semester_datail = array(
+                'start_date'=>date('Y-m-d',strtotime($start_date)),
+                'end_date'=>date('Y-m-d',strtotime($end_date)),
+                'last_edited'=>date('Y-m-d'),
+                'semester_id'=>$semester,
+            );
+            $id = $this->operation->Create($semester_datail,$serail);
+            if(count($id))
+            {
+                $sresult['message'] = true;
             }
         }
-        
-        $this->set_response($result, REST_Controller::HTTP_OK);
+        else
+        {
+            $inputstartdate = date('Y-m-d', strtotime($start_date));
+            $inputenddate = date('Y-m-d', strtotime($end_date));  
+            $record_check = $this->operation->GetByQuery("SELECT * FROM semester_dates WHERE  school_id =  ".$school_id);
+            if(count($record_check))
+            {
+                foreach ($record_check as $key => $value)
+                {
+                    $start_date = date('Y-m-d', strtotime($value->start_date));
+                    $end_date = date('Y-m-d', strtotime($value->end_date));
+                    $record_datefrom = $this->operation->GetByQuery("SELECT * FROM semester_dates WHERE '".$inputstartdate."'>='".$start_date."' AND '".$inputstartdate."'<='".$end_date."' AND id =  ".$value->id);
+                    if(count($record_datefrom))
+                    {
+                        
+                        $sresult['exists'] = 'Exists';
+                        $check_valid['check_validation'] = false;
+                    }
+                    $record_dateto = $this->operation->GetByQuery("SELECT * FROM semester_dates WHERE '".$inputenddate."'>='".$start_date."' AND '".$inputenddate."'<='".$end_date."' AND id =  ".$value->id);
+                    if(count($record_dateto))
+                    {
+                       
+                        $sresult['exists'] = 'Exists';
+                        $check_valid['check_validation'] = false;
+                    }
+                }
+                
+                    
+                    if($check_valid['check_validation'])
+                    {
+                        $record_check = $this->operation->GetByQuery("SELECT * FROM sessions WHERE  school_id =  ".$school_id);
+                        if(count($record_check))
+                        {
+                            foreach ($record_check as $key => $value)
+                            {
+                                $start_date = date('Y-m-d', strtotime($value->datefrom));
+                                $end_date = date('Y-m-d', strtotime($value->dateto));
+                                $record_datefrom = $this->operation->GetByQuery("SELECT * FROM sessions WHERE '".$inputstartdate."'>='".$start_date."' AND '".$inputstartdate."'<='".$end_date."' AND id =  ".$value->id);
+                                if(count($record_datefrom))
+                                {
+                                    $sessionid = $value->id;
+                                    $sessiondatefrom = $value->datefrom;
+                                    $sessiondateto = $value->dateto;
+                                    $check_session_valid['check_session_valid'] = true;
+                                }
+                                $record_dateto = $this->operation->GetByQuery("SELECT * FROM sessions WHERE '".$inputenddate."'>='".$start_date."' AND '".$inputenddate."'<='".$end_date."' AND id =  ".$value->id);
+                                if(count($record_dateto))
+                                {
+                                    $sessionid = $value->id;
+                                    $sessiondatefrom = $value->datefrom;
+                                    $sessiondateto = $value->dateto;
+                                    $check_session_valid['check_session_valid'] = true;
+                                }
+                            }
+                        }
+                        // Check session dates
+                        if($sessionid)
+                        {
+                            $record_datefrom_check = $this->operation->GetByQuery("SELECT * FROM sessions WHERE '".$inputstartdate."'>='".$sessiondatefrom."' AND '".$inputenddate."'<='".$sessiondateto."' AND id =  ".$sessionid);
+                            if(count($record_datefrom_check))
+                            {
+                                $semester_datail = array(
+                                'session_id'=>$sessionid,
+                                'semester_id'=>$semester,
+                                'start_date'=>date('Y-m-d',strtotime($inputstartdate)),
+                                'end_date'=>date('Y-m-d',strtotime($inputenddate)),
+                                'school_id'=>$school_id,
+                                'created'=>date('Y-m-d'),
+                                'last_edited'=>date('Y-m-d'),
+                                );
+                                $id = $this->operation->Create($semester_datail);
+                                if(count($id))
+                                {
+                                    $sresult['message'] = true;
+                                }
+                                
+                            }
+                            else
+                            {
+                                $sresult['session_date_error'] = 'SessionDateError';
+                            }
+                        }
+                        
+                        
+                    }
+                
+            }
+            else
+            {
+                $sresult['session_date_error'] = 'SessionDateError';
+            }
+        }
+        $this->set_response($sresult, REST_Controller::HTTP_OK);
     }
     
     // engregion
@@ -1967,6 +2400,7 @@ class LMSApi extends MY_Rest_Controller
     
     function subjects_by_class_get()
     {
+
         $class_id = $this->input->get('class_id');
         
         $user_id = $this->input->get('user_id');
@@ -2001,7 +2435,7 @@ class LMSApi extends MY_Rest_Controller
     function subject_get()
     {
         $id = $this->input->get('subject_id');
-        
+
         $subjects = array();
         if ($id) {
             $is_selected_subject = $this->get_subject($id);
@@ -2025,12 +2459,13 @@ class LMSApi extends MY_Rest_Controller
     public function subject_post()
     {
         
+
         $params = $this->parse_params();
         
         $result = array();
         
         $serial = $params->serial;
-        
+
         // $session_id = $this->input->post('session_id');
         
         // $is_image_edit = $this->input->post('is_image_edit');
@@ -2040,14 +2475,17 @@ class LMSApi extends MY_Rest_Controller
         $code = $params->code;
         
         $class_id = $params->class_id;
-        
+        $semester_id = $params->semester_id;
+        $session_id = $params->session_id;
         // $semester_id = $this->input->post('semester_id');
         
         if (empty($name) || empty($class_id)) {
             $this->response($result, REST_Controller::HTTP_NOT_ACCEPTABLE);
             return;
         }
+        // get semester id and session id
         
+        // end
         $subjectfile = '';
         $is_subject_found = array();
         
@@ -2072,6 +2510,8 @@ class LMSApi extends MY_Rest_Controller
                 'subject_name' => $name,
                 'subject_code' => $code,
                 'class_id' => $class_id,
+                'semester_id' => $semester_id,
+                'session_id' => $session_id,
                 'last_update' => date("Y-m-d H:i")
             );
             
@@ -2083,6 +2523,8 @@ class LMSApi extends MY_Rest_Controller
                 'subject_name' => $name,
                 'subject_code' => $code,
                 'class_id' => $class_id,
+                'semester_id' => $semester_id,
+                'session_id' => $session_id,
                 'last_update' => date("Y-m-d H:i")
             );
             
@@ -2340,6 +2782,25 @@ class LMSApi extends MY_Rest_Controller
         if (! empty($section_id)) {
             $this->operation->table_name = 'sections';
             $this->operation->Remove($section_id);
+            $sresult['message'] = true;
+        }
+        $this->response($sresult, REST_Controller::HTTP_OK);
+    }
+
+    function semester_date_delete()
+    {
+
+        
+        $postdata = file_get_contents("php://input");
+            
+        $request = json_decode($postdata);
+        
+        $id =  $request->id;
+
+        $sresult['message'] = false;
+        if (! empty($id)) {
+            $this->operation->table_name = 'semester_dates';
+            $this->operation->Remove($id);
             $sresult['message'] = true;
         }
         $this->response($sresult, REST_Controller::HTTP_OK);
@@ -3538,87 +3999,145 @@ class LMSApi extends MY_Rest_Controller
     
     function sessions_get()
     {
-        $school_id = $this->input->get('school_id');
-        
-        $sessionarray = array();
-        
-        if (empty($school_id)) {
-            $this->response($sessionarray, REST_Controller::HTTP_NOT_ACCEPTABLE);
-            return;
-        }
-        
         $this->operation->table_name = 'sessions';
-        $this->operation->order_by = 'desc';
-        
-        $sessionlist = $this->operation->GetByWhere(array(
-            'school_id' => $school_id
-        ));
-        
-        if (count($sessionlist)) {
-            foreach ($sessionlist as $value) {
-                $sessionarray[] = array(
-                    'id' => $value->id,
-                    'name' => date('M d, Y', strtotime($value->datefrom)) . ' - ' . date('M d, Y', strtotime($value->dateto)),
-                    'from' => date('m/d/Y', strtotime($value->datefrom)),
-                    'to' => date('m/d/Y', strtotime($value->dateto)),
-                    'status' => $value->status
-                );
+        $school_id = $this->input->get('school_id');
+        $sessionarray = array();
+        if ($this->input->get('inputsessionid'))
+        {
+            $sessionlist = $this->operation->GetByWhere(array('id' => $this->input->get('inputsessionid')));
+            if (count($sessionlist))
+            {
+                foreach ($sessionlist as $key => $value)
+                {
+                    $sessionarray = array('id' => $value->id, 'from' => date('m/d/Y', strtotime($value->datefrom)), 'to' => date('m/d/Y', strtotime($value->dateto)), 'status' => $value->status,);
+                }
             }
         }
-        
+        else
+        {
+           
+            $sessionlist = $this->operation->GetByWhere(array('school_id' => $school_id));
+            $current_date = date('Y-m-d');
+            $active_status = 'Active';
+            if (count($sessionlist))
+            {
+                foreach ($sessionlist as $key => $value)
+                {
+                    if(date('Y-m-d', strtotime($value->dateto))<$current_date)
+                    {
+                        $active_status = "Inactive";
+                    }
+                    else
+                    {
+                        $active_status = "Active";
+                    }
+                    $sessionarray[] = array('id' => $value->id, 'from' => date('m/d/Y', strtotime($value->datefrom)), 'to' => date('m/d/Y', strtotime($value->dateto)), 'status' => $value->status,'show' =>$active_status,);
+                }
+            }
+        }
+
         $this->response($sessionarray, REST_Controller::HTTP_OK);
     }
     
     function session_post()
     {
+        
         $request = $this->parse_params();
         
-        $start_date = $request->start_date;
-        $end_date = $request->end_date;
-        $session_id = $request->session_id;
+        $inputstartdate = $request->start_date;
+        $inputenddate = $request->end_date;
+        $inputsessionid = $request->session_id;
         $school_id = $request->school_id;
         
         $sresult = array();
         $sresult['message'] = false;
-        
-        if (! empty($start_date) && ! is_null($end_date) && ! is_null($school_id)) {
-            $this->operation->table_name = 'sessions';
-            if (! is_null($session_id) && ! empty($session_id)) {
-                $sessionarray = array(
-                    'datefrom' => date('Y-m-d', strtotime($start_date)),
-                    'dateto' => date('Y-m-d', strtotime($end_date)),
-                    'datetime' => date('Y-m-d'),
-                    'school_id' => $school_id
-                );
-                
-                $id = $this->operation->Create($sessionarray, $session_id);
-                if (count($id)) {
-                    $sresult['message'] = true;
-                }
-            } else {
-                
-                $sessionarray = array(
-                    'datefrom' => date('Y-m-d', strtotime($start_date)),
-                    'dateto' => date('Y-m-d', strtotime($end_date)),
-                    'datetime' => date('Y-m-d'),
-                    'status' => 'i',
-                    'school_id' => $school_id
-                );
-                
-                $id = $this->operation->Create($sessionarray);
-                if (count($id)) {
+        $check_valid['check_validation'] = true;
+        $current_date = date('Y-m-d');
+
+        if (!is_null($inputstartdate) && !is_null($inputenddate))
+        {
+            
+            // Check start date
+            if (!is_null($inputsessionid) && !empty($inputsessionid))
+            {
+                $sessionarray = array('datefrom' => date('Y-m-d', strtotime($inputstartdate)), 'dateto' => date('Y-m-d', strtotime($inputenddate)), 'datetime' => date('Y-m-d'), 'school_id' => $school_id);
+                $id = $this->operation->Create($sessionarray, $inputsessionid);
+                if (count($id))
+                {
                     $sresult['message'] = true;
                 }
             }
+            else
+            {
+                // Check Past date
+                
+                $start_date = date('Y-m-d', strtotime($inputstartdate));
+                $end_date = date('Y-m-d', strtotime($inputenddate));
+
+                if($start_date<$current_date && $end_date<$current_date)
+                {
+                    $sresult['date_not_match'] = 'DateNotMatch';
+
+                }
+                else
+                {
+                    $inputstartdate = date('Y-m-d', strtotime($inputstartdate));
+                    $inputenddate = date('Y-m-d', strtotime($inputenddate));  
+                    $record_check = $this->operation->GetByQuery("SELECT * FROM sessions WHERE  school_id =" . $school_id);
+                    
+                    if(count($record_check))
+                    {
+                        
+                        foreach ($record_check as $key => $value)
+                        {
+                            $start_date = date('Y-m-d', strtotime($value->datefrom));
+                            $end_date = date('Y-m-d', strtotime($value->dateto));
+                            $record_datefrom = $this->operation->GetByQuery("SELECT * FROM sessions WHERE '".$inputstartdate."'>='".$start_date."' AND '".$inputstartdate."'<='".$end_date."' AND id =  ".$value->id);
+                            if(count($record_datefrom))
+                            {
+
+                                $sresult['exists'] = 'Exists';
+                                $check_valid['check_validation'] = false;
+                            }
+                            $record_dateto = $this->operation->GetByQuery("SELECT * FROM sessions WHERE '".$inputenddate."'>='".$start_date."' AND '".$inputenddate."'<='".$end_date."' AND id =  ".$value->id);
+                            if(count($record_dateto))
+                            {
+                                $sresult['exists'] = 'Exists';
+                                $check_valid['check_validation'] = false;
+                            }
+                        }
+                        if($check_valid['check_validation'])
+                        {
+                            $this->operation->table_name = 'sessions';
+                            $sessionarray = array('datefrom' => date('Y-m-d', strtotime($inputstartdate)), 'dateto' => date('Y-m-d', strtotime($inputenddate)), 'datetime' => date('Y-m-d'), 'status' => 'i', 'school_id' => $school_id);
+                            $id = $this->operation->Create($sessionarray);
+                            if (count($id))
+                            {
+                                $sresult['message'] = true;
+                            }
+                        }
+                    }
+                }
+                
+            }
+            
         }
+
         $this->response($sresult, REST_Controller::HTTP_OK);
     }
     
     function session_delete()
     {
         $sresult = array();
+        
+        $postdata = file_get_contents("php://input");
+            
+        $request = json_decode($postdata);
+        
+        $session_id =  $request->session_id;
         $sresult['message'] = false;
-        $session_id = $this->input->get('session_id');
+        
+         
         if (! empty($session_id)) {
             $this->operation->table_name = 'sessions';
             $this->operation->Remove($session_id);
@@ -3626,7 +4145,19 @@ class LMSApi extends MY_Rest_Controller
         }
         $this->response($sresult, REST_Controller::HTTP_OK);
     }
-    
+   
+    function subjectRemove_get()
+    {
+        $sresult = array();
+        $sresult['message'] = false;
+        $subject_id = $this->input->get('id');
+        if (! empty($subject_id)) {
+            $this->operation->table_name = 'subjects';
+            $this->operation->Remove($subject_id);
+            $sresult['message'] = true;
+        }
+        $this->response($sresult, REST_Controller::HTTP_OK);
+    }
     function active_session_get()
     {
         $res = FALSE;
@@ -7593,5 +8124,470 @@ class LMSApi extends MY_Rest_Controller
                 'status' => FALSE,
             ], REST_Controller::HTTP_OK);
         }
+    }
+    // Shama v2.0
+    function getassemblydata_get()
+    {
+        
+        //echo $this->input->post("schoolid");
+       $school_id = $this->input->get('school_id');
+        
+        
+        $assemblydata = array();
+
+            
+
+            
+            $query = $this->operation->GetByQuery('Select * from assembly where school_id ='.$school_id);
+
+            if(count($query))
+
+            {
+
+                foreach ($query as $key => $value) {
+
+                    $assemblydata[] = array(
+
+                        'id'=>$value->id,
+
+                        'start_time'=>date("H:i",strtotime($value->start_time)),
+                        'end_time'=>date("H:i",strtotime($value->end_time)),
+
+                    );
+
+                }
+
+            }
+
+        
+
+        //echo json_encode($assemblydata);
+        $this->response($assemblydata, REST_Controller::HTTP_OK);
+    }
+    function getassemblyupdate_get()
+    {
+        $school_id = $this->input->get('school_id');
+        
+        
+        $assemblydata = array();
+
+            
+
+            
+            $query = $this->operation->GetByQuery('Select * from assembly where school_id ='.$school_id);
+
+            if(count($query))
+
+            {
+
+                foreach ($query as $key => $value) {
+
+                    $assemblydata[] = array(
+
+                        'id'=>$value->id,
+
+                        'start_time'=>date("H:i",strtotime($value->start_time)),
+                        'end_time'=>date("H:i",strtotime($value->end_time)),
+
+                    );
+
+                }
+
+            }
+
+        
+
+        //echo json_encode($assemblydata);
+        $this->response($assemblydata, REST_Controller::HTTP_OK);
+    }
+    function saveassembly_post()
+    {
+        
+        $request = json_decode( file_get_contents('php://input'));
+        
+        $inputstarttime = $this->security->xss_clean(trim($request->starttime));
+        $inputendtime = $this->security->xss_clean(trim($request->endtime));
+        $sresult['message'] = false;
+        $school_id = $this->security->xss_clean(trim($request->school_id));
+        //$locations = $this->session->userdata('locations');
+        if (!is_null($inputstarttime) && !is_null($inputendtime))
+        {
+            // Date Conditions
+            $date1 = date('H:i:s', strtotime($inputstarttime));
+            $date2 = date('H:i:s', strtotime($inputendtime));
+
+            if(strtotime($date1) < strtotime($date2)){
+                $query = $this->operation->GetByQuery('Select * from assembly where school_id ='.$school_id);
+                if($query)
+                {
+
+                    $data = array('start_time' => date('H:i:s', strtotime($inputstarttime)), 'end_time' => date('H:i:s', strtotime($inputendtime)), 'updated_at' => date('Y-m-d H:i'));
+                    $this->db->where('school_id',$school_id);
+                    $this->db->update('assembly',$data);
+                    $sresult['message'] = true;
+                }
+                else
+                {
+                    $this->operation->table_name = 'assembly';
+                    $data = array('start_time' => date('H:i:s', strtotime($inputstarttime)), 'end_time' => date('H:i:s', strtotime($inputendtime)), 'created_at' => date('Y-m-d H:i'), 'school_id' => $school_id);
+                    $id = $this->operation->Create($data);
+                    if (count($id))
+                    {
+                        $sresult['message'] = true;
+                    }
+                }
+            }
+            else
+            {
+                $sresult['message'] = false;
+            }
+        }
+        $this->response($sresult, REST_Controller::HTTP_OK);
+        //echo json_encode($sresult);
+    }
+    
+    function getbreakdata_get()
+    {
+        
+        //echo $this->input->post("schoolid");
+        $school_id = $this->input->get('school_id');
+        $assemblydata = array();
+
+        
+            
+           
+            
+            $query = $this->operation->GetByQuery('Select * from break where school_id ='.$school_id);
+
+            if(count($query))
+
+            {
+
+                foreach ($query as $key => $value) {
+
+                    $breakdata[] = array(
+
+                        'id'=>$value->id,
+                        'monday_start_time'=>date("H:i",strtotime($value->monday_start_time)),
+                        'monday_end_time'=>date("H:i",strtotime($value->monday_end_time)),
+                        'tuesday_start_time'=>date("H:i",strtotime($value->tuesday_start_time)),
+                        'tuesday_end_time'=>date("H:i",strtotime($value->tuesday_end_time)),
+                        'wednesday_start_time'=>date("H:i",strtotime($value->wednesday_start_time)),
+                        'wednesday_end_time'=>date("H:i",strtotime($value->wednesday_end_time)),
+                        'thursday_start_time'=>date("H:i",strtotime($value->thursday_start_time)),
+                        'thursday_end_time'=>date("H:i",strtotime($value->thursday_end_time)),
+                        'friday_start_time'=>date("H:i",strtotime($value->friday_start_time)),
+                        'friday_end_time'=>date("H:i",strtotime($value->friday_end_time)),
+                    );
+
+                }
+
+            }
+
+        
+        $this->response($breakdata, REST_Controller::HTTP_OK);
+        //echo json_encode($breakdata);
+    }
+    function getbreakupdate_get()
+    {
+        $school_id = $this->input->get('school_id');
+        
+        
+        $assemblydata = array();
+
+            
+
+            
+            $query = $this->operation->GetByQuery('Select * from break where school_id ='.$school_id);
+
+            if(count($query))
+
+            {
+
+                foreach ($query as $key => $value) {
+
+                    $breakdata[] = array(
+
+                        'id'=>$value->id,
+                        'monday_start_time'=>date("H:i",strtotime($value->monday_start_time)),
+                        'monday_end_time'=>date("H:i",strtotime($value->monday_end_time)),
+                        'tuesday_start_time'=>date("H:i",strtotime($value->tuesday_start_time)),
+                        'tuesday_end_time'=>date("H:i",strtotime($value->tuesday_end_time)),
+                        'wednesday_start_time'=>date("H:i",strtotime($value->wednesday_start_time)),
+                        'wednesday_end_time'=>date("H:i",strtotime($value->wednesday_end_time)),
+                        'thursday_start_time'=>date("H:i",strtotime($value->thursday_start_time)),
+                        'thursday_end_time'=>date("H:i",strtotime($value->thursday_end_time)),
+                        'friday_start_time'=>date("H:i",strtotime($value->friday_start_time)),
+                        'friday_end_time'=>date("H:i",strtotime($value->friday_end_time)),
+                    );
+
+                }
+
+            }
+
+        
+
+        //echo json_encode($assemblydata);
+
+        $this->response($breakdata, REST_Controller::HTTP_OK);
+    }
+    function savebreak_post()
+    {
+        
+        $request = json_decode( file_get_contents('php://input'));
+
+        $monstarttime = $this->security->xss_clean(trim($request->monday_start_time));
+        $monendtime = $this->security->xss_clean(trim($request->monday_end_time));
+        $tusstarttime = $this->security->xss_clean(trim($request->tuesday_start_time));
+        $tusendtime = $this->security->xss_clean(trim($request->tuesday_end_time));
+        $wedstarttime = $this->security->xss_clean(trim($request->wednesday_start_time));
+        $wedendtime = $this->security->xss_clean(trim($request->wednesday_end_time));
+        $thrstarttime = $this->security->xss_clean(trim($request->thursday_start_time));
+        $threndtime = $this->security->xss_clean(trim($request->thursday_end_time));
+        $fristarttime = $this->security->xss_clean(trim($request->friday_start_time));
+        $friendtime = $this->security->xss_clean(trim($request->friday_end_time));
+        $school_id = $this->security->xss_clean(trim($request->school_id));
+        $sresult['message'] = false;
+        
+        if (!is_null($monstarttime) && !is_null($monendtime))
+        {
+            // Date Conditions
+                $query = $this->operation->GetByQuery('Select * from break where school_id ='.$school_id);
+                if($query)
+                {
+                    $data = array('monday_start_time' => date('H:i:s', strtotime($monstarttime)), 'monday_end_time' => date('H:i:s', strtotime($monendtime)), 
+                                'tuesday_start_time' => date('H:i:s', strtotime($tusstarttime)), 'tuesday_end_time' => date('H:i:s', strtotime($tusendtime)),
+                                'wednesday_start_time' => date('H:i:s', strtotime($wedstarttime)), 'wednesday_end_time' => date('H:i:s', strtotime($wedendtime)),
+                                'thursday_start_time' => date('H:i:s', strtotime($thrstarttime)), 'thursday_end_time' => date('H:i:s', strtotime($threndtime)),
+                                'friday_start_time' => date('H:i:s', strtotime($fristarttime)), 'friday_end_time' => date('H:i:s', strtotime($friendtime)),
+                                'updated_at' => date('Y-m-d H:i'), 'school_id' => $school_id
+                                );
+                    $this->db->where('school_id',$school_id);
+                    $this->db->update('break',$data);
+                    $sresult['message'] = true;
+                }
+                else
+                {
+                    $this->operation->table_name = 'break';
+                    $data = array('monday_start_time' => date('H:i:s', strtotime($monstarttime)), 'monday_end_time' => date('H:i:s', strtotime($monendtime)), 
+                                'tuesday_start_time' => date('H:i:s', strtotime($tusstarttime)), 'tuesday_end_time' => date('H:i:s', strtotime($tusendtime)),
+                                'wednesday_start_time' => date('H:i:s', strtotime($wedstarttime)), 'wednesday_end_time' => date('H:i:s', strtotime($wedendtime)),
+                                'thursday_start_time' => date('H:i:s', strtotime($thrstarttime)), 'thursday_end_time' => date('H:i:s', strtotime($threndtime)),
+                                'friday_start_time' => date('H:i:s', strtotime($fristarttime)), 'friday_end_time' => date('H:i:s', strtotime($friendtime)),
+                                'created_at' => date('Y-m-d H:i'), 'school_id' => $school_id
+                                );
+
+                    $id = $this->operation->Create($data);
+                    if (count($id))
+                    {
+                        $sresult['message'] = true;
+                    }
+                }
+        }
+            
+        $this->response($sresult, REST_Controller::HTTP_OK);
+        //echo json_encode($sresult);
+    }
+    // Time Table
+
+    function show_schedule_list_post()
+    {
+        date_default_timezone_set("Asia/Karachi");
+        
+        $date = date('Y-m-d');
+        
+        $currentday = strtolower(date('D', strtotime($date)));
+        $request = json_decode(file_get_contents('php://input'));
+        $inputday = $this->security->xss_clean(trim($request->inputday));
+        if($inputday)
+        {
+            $currentday = $inputday;
+        }
+        $listarray =array();
+        $data_array =array();
+        $d_start_time = array();
+        $d_end_time = array();
+        $locations = $this->session->userdata('locations');
+        $roles = $this->session->userdata('roles');
+        $active_session = parent::GetUserActiveSession();
+        $active_semester = parent::GetCurrentSemesterData($active_session[0]->id);
+        if( $roles[0]['role_id'] == 3 && count($active_session) && count($active_semester))
+        {
+
+            $datameta=$this->data['timetable_list'] = $this->operation->GetRowsByQyery("SELECT sc.*,sc.id,sub.id as subid,subject_name,grade,section_name,screenname,start_time,end_time FROM schedule sc INNER JOIN classes cl ON  sc.class_id=cl.id INNER JOIN invantageuser inv ON sc.teacher_uid=inv.id INNER JOIN subjects sub ON sc.subject_id=sub.id INNER JOIN sections  sct ON sc.section_id=sct.id WHERE cl.school_id =".$locations[0]['school_id']." AND sub.session_id = ".$active_session[0]->id." AND sub.semsterid = ".$active_semester[0]->semester_id." ORDER by sc.id desc");
+            if(count($datameta))
+            {
+                foreach ($datameta as $key => $value) 
+                {
+                    $subcod=$this->operation->GetRowsByQyery("select subject_code from subjects where id= ".$value->subid);
+                    $value->subject_name=$value->subject_name." (".$subcod[0]->subject_code.")";
+                    $value->subject_name;
+                    // Create Day wise start and end time
+                    $s_time =  $currentday.'_start_time';
+                    $e_time =  $currentday.'_end_time';
+                    if($value->$s_time=="00:00:00")
+                    {
+                        $value->start_time = "";
+                    }
+                    else
+                    {
+                        $value->start_time = date('H:i',strtotime($value->$s_time));
+                    }
+                    if($value->$e_time=="00:00:00")
+                    {
+                        $value->end_time = "";
+                    }
+                    else
+                    {
+                        $value->end_time = date('H:i',strtotime($value->$e_time));
+                    }
+                    
+                }
+            }
+            
+       }
+       else if( $roles[0]['role_id'] == 4 && count($active_session) && count($active_semester))
+       {
+            $this->data['timetable_list'] = $this->operation->GetRowsByQyery("SELECT sc.id, subject_name,grade,section_name,username,start_time,end_time FROM schedule sc  INNER JOIN classes cl ON  sc.class_id=cl.id INNER JOIN invantageuser inv ON sc.teacher_uid=inv.id INNER JOIN subjects sub ON sc.subject_id=sub.id INNER JOIN sections  sct ON sc.section_id=sct.id where sc.teacher_uid=".$this->session->userdata('id')." AND cl.school_id =".$locations[0]['school_id']." AND sub.session_id = ".$active_session[0]->id." AND sub.semsterid = ".$active_semester[0]->semester_id);
+            
+                
+       }
+       $data_array = array('select_day'=>$currentday);
+       
+        foreach ($this->data['timetable_list'] as $key => $element) {
+            
+            if ($element->start_time=="") {
+                
+                unset($this->data['timetable_list'][$key]);
+            }
+        }
+        $this->data['timetable_list']= array_values($this->data['timetable_list']); 
+        $result[] = array(
+                        'listarray'=>$this->data['timetable_list'],
+                        
+                        'data_array'=>$data_array
+                    );
+
+        echo json_encode($result);
+        //echo json_encode($this->data['timetable_list']);
+    
+    }
+    function getTimetable()
+    {
+        try
+        {
+
+            $roles = $this->session->userdata('roles');
+            $locations = $this->session->userdata('locations');
+            $active_session = parent::GetUserActiveSession();
+            $active_semester = parent::GetCurrentSemesterData($active_session[0]->id);
+            $request = json_decode(file_get_contents('php://input'));
+            $grade_id = $this->input->get('grade_id');
+            $this->operation->table_name = 'classes';
+            $is_class = $this->operation->GetByWhere(array('grade' => $grade_id,'school_id' => $locations[0]['school_id']));
+            //print($is_class[0]->id);
+            //exit;
+            $schedule = array();
+            $class_array = array();
+            $kindergarten_section = array();
+            $rest_section = array();
+            $result = array();
+            $data_array = array();
+            $day_array = array();
+            $subject_array = array('day');
+            $mon_array = array('day' => "Monday|" );
+            $tue_array = array('day' => "Tuesday|" );
+            $wed_array = array('day' => "Wednesday|" );
+            $thu_array = array('day' => "Thursday|" );
+            $fri_array = array('day' => "Friday|" );
+            $sat_array = array('day' => "Saturday|" );
+            $sun_array = array('day' => "Sunday|" );
+            // Assembly time fetch from database
+            $this->operation->table_name = 'assembly';
+            $is_assembly_found = $this->operation->GetByWhere(array('school_id' => $locations[0]['school_id']));
+            if(count($is_assembly_found))
+            {
+                $ass_start_time = $is_assembly_found[0]->start_time;
+                $ass_end_time = $is_assembly_found[0]->end_time;
+            }
+            else
+            {
+                $ass_start_time = ASSEMBLY_START;
+                $ass_end_time = ASSEMBLY_END;
+            }
+            // Break time fetch from database
+            $today = strtolower(date("l"));
+            $this->operation->table_name = 'break';
+            $date = date('Y-m-d');
+        
+            //$currentday = strtolower(date('D', strtotime($date)));
+            
+            $is_break_found = $this->operation->GetByWhere(array('school_id' => $locations[0]['school_id']));
+            if(count($is_break_found))
+            {
+                    $mon_break = date('H:i', strtotime($is_break_found[0]->monday_start_time)).' - '.date('H:i', strtotime($is_break_found[0]->monday_end_time));
+                    $tue_break = date('H:i', strtotime($is_break_found[0]->tuesday_start_time)).' - '.date('H:i', strtotime($is_break_found[0]->tuesday_end_time));
+                    $wed_break = date('H:i', strtotime($is_break_found[0]->wednesday_start_time)).' - '.date('H:i', strtotime($is_break_found[0]->wednesday_end_time));
+                    $thu_break = date('H:i', strtotime($is_break_found[0]->thursday_start_time)).' - '.date('H:i', strtotime($is_break_found[0]->thursday_end_time));
+                    $fri_break = date('H:i', strtotime($is_break_found[0]->friday_start_time)).' - '.date('H:i', strtotime($is_break_found[0]->friday_end_time));
+            }
+            else
+                {
+                    $break_start_time = BREAK_START;
+                    $break_end_time  = BREAK_END;
+                }
+               
+                
+                $query = $this->operation->GetRowsByQyery("SELECT sch.* FROM schedule sch  Where class_id =".$is_class[0]->id." AND sch.semsterid = " . $active_semester[0]->semester_id . " AND sch.sessionid =" . $active_session[0]->id . " Order by sch.id,sch.start_time");
+                
+                if (count($query))
+                {
+                    $is_yellow_section_found = false;
+                    foreach ($query as $key => $value)
+                    {
+                        
+                        $grade = parent::getClass($value->class_id);
+                        $section = parent::getSectionList($value->section_id);
+                        $subject = parent::GetSubject($value->subject_id);
+                        $teacher = parent::GetUserById($value->teacher_uid);
+                        $is_class_found = in_array($grade, $class_array);
+                        
+                            $mon_status = "Active";
+                            $subject_array[] = $value->subject_id;
+
+                            $mon_array[$value->subject_id] =  $subject[0]->subject_name.'| ('.date('H:i', strtotime($value->mon_start_time)).' - '.date('H:i', strtotime($value->mon_end_time)).')';
+                            $tue_array[$value->subject_id] =  $subject[0]->subject_name.'| ('.date('H:i', strtotime($value->tue_start_time)).' - '.date('H:i', strtotime($value->tue_end_time)).')';
+                            $wed_array[$value->subject_id] =  $subject[0]->subject_name.'| ('.date('H:i', strtotime($value->wed_start_time)).' - '.date('H:i', strtotime($value->wed_end_time)).')';
+                            $thu_array[$value->subject_id] =  $subject[0]->subject_name.'| ('.date('H:i', strtotime($value->thu_start_time)).' - '.date('H:i', strtotime($value->thu_end_time)).')';
+                            $fri_array[$value->subject_id] =  $subject[0]->subject_name.'| ('.date('H:i', strtotime($value->fri_start_time)).' - '.date('H:i', strtotime($value->fri_end_time)).')';
+                            $sat_array[$value->subject_id] =  $subject[0]->subject_name.'| ('.date('H:i', strtotime($value->sat_start_time)).' - '.date('H:i', strtotime($value->sat_end_time)).')';
+                            $sun_array[$value->subject_id] =  $subject[0]->subject_name.'| ('.date('H:i', strtotime($value->sun_start_time)).' - '.date('H:i', strtotime($value->sun_end_time)).')';
+                            
+                    }
+                    $schedule = array($mon_array,$tue_array,$wed_array,$thu_array,$fri_array,$sat_array,$sun_array);
+                    //$schedule['day_array'] = array('mon'=>'Monday','tue'=>'Tuesday','wed'=>'Wednesday','thu'=>'Thursday','fri'=>'Friday','sat'=>'Saturday','sun'=>'Sunday');
+
+                }
+            $data_array = array('grade_name'=>$is_class[0]->grade);
+            $result[] = array(
+                        'details'=>$schedule,
+                        'colums'=>$subject_array,
+                        
+                        'data_array'=>$data_array
+                    );
+
+            echo json_encode($result);
+            //echo json_encode($schedule);
+        }
+        catch(Exception $e)
+        {
+        }
+    }
+    function getDayList_get()
+    {
+        $listarray = array();
+        $listarray[] = array("mon"=>"Monday","tue"=>"Tuesday","wed"=>"Wednesday","thu"=>"Thursday","fri"=>"Friday","sat"=>"Saturday","sun"=>"Sunday");
+        $this->response($listarray, REST_Controller::HTTP_OK);
+        //echo json_encode($listarray);
     }
 }

@@ -48,7 +48,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
                     <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
 
-                    <button type="button" id="save" class="btn btn-default " value="save">Yes</button>
+                    <button type="button" id="remove_session" class="btn btn-default " value="save">Yes</button>
 
                 </div>
 
@@ -399,10 +399,12 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
                                                 <td>{{s.from}} - {{s.to}}</td>
 
-                                                <td><input type="radio" name="inputSessionStatus" ng-model="inputSessionStatus" value="{{s.id}}" ng-click="setCurrentSession(s.id)"></td>
-
                                                 <td>
-
+                                                    <div ng-if="s.show=='Active'">
+                                                    <input type="radio" name="inputSessionStatus" ng-model="inputSessionStatus" value="{{s.id}}" ng-click="setCurrentSession(s.id)"></td>
+                                                    </div>
+                                                <td>
+                                                    <div ng-if="s.show=='Active'">
                                                     <a href="javascript:void(0)" ng-click="editsession(s.id)" title="Edit" class="edit" session-data="{{s.id}}">
 
                                                         <i class="fa fa-edit" aria-hidden="true"></i>
@@ -414,7 +416,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                                                        <i class="fa fa-remove" aria-hidden="true"></i>
 
                                                     </a>
-
+                                                    </div>
                                                 </td>
 
                                             </tr>
@@ -787,22 +789,24 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
                                                     <td>{{s.semester_value}}</td>
 
-                                                    <td><input type="radio" name="s.id" ng-model="InputActiveSem" value="s.id" ng-value="s.id" ng-click="changesemesterdate(s)"></td>
-
                                                     <td>
+                                                        <div ng-if="s.session_status=='Active'">
+                                                            <input type="radio" name="s.id" ng-model="InputActiveSem" value="s.id" ng-value="s.id" ng-click="changesemesterdate(s)"></td>
+                                                        </div>
+                                                    <td>
+                                                        <div ng-if="s.session_status=='Active'">
+                                                            <a href="javascript:void(0)" ng-click="editsemesterdetail(s)" title="Edit" class="edit" >
 
-                                                        <a href="javascript:void(0)" ng-click="editsemesterdetail(s)" title="Edit" class="edit" >
+                                                               <i class="fa fa-edit" aria-hidden="true"></i>
 
-                                                           <i class="fa fa-edit" aria-hidden="true"></i>
+                                                            </a>
 
-                                                        </a>
+                                                            <a href="javascript:void(0)" ng-click="removesemesterdetail(s)" title="Delete"  class="del">
 
-                                                        <a href="javascript:void(0)" ng-click="removesemesterdetail(s)" title="Delete"  class="del">
+                                                             <i class="fa fa-remove" aria-hidden="true"></i>
 
-                                                         <i class="fa fa-remove" aria-hidden="true"></i>
-
-                                                        </a>
-
+                                                            </a>
+                                                        </div>
                                                     </td>
 
                                                 </tr>
@@ -1075,7 +1079,366 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
                     </div>
                 </div>
-         
+         <div class="panel panel-default">
+
+                        <div class="panel-heading">
+
+                            <h4 class="panel-title">
+
+                                <a data-toggle="collapse" data-parent="#accordion" href="#assembly">Assembly</a>
+
+                            </h4>
+
+                        </div>
+
+                        <div id="assembly" class="panel-collapse collapse">
+
+                            <div class="panel-body">
+
+                                <form class="form-inline" name="assembly" ng-submit="saveassembly(assemblyobj)" novalidate>
+                                    
+                                    <input type="hidden" name="serial" ng-model="schoolid" id="schoolid" >
+                                    
+
+                                    <div class="form-group">
+
+                                        <label for="grade_lower_limit">Start Time:</label>
+
+                                        <input type="text" class="form-control getstarttime" autocomplete="off" value="assemblydata.start_time" id="inputStartitme"  name="inputFrom" ng-model="assemblyobj.start_time" placeholder="Start Time" required>
+
+                                    </div>
+
+                                    <div class="form-group">
+
+                                        <label for="grade_upper_limit">End Time:</label>
+
+                                        <input type="text" class="form-control" id="InputEndTime" autocomplete="off"  name="inputTo"  ng-model="assemblyobj.end_time"  placeholder="End Time"  tabindex="1" required>
+
+                                    </div>
+
+                                    <div class="form-group">
+
+                                        <button type="submit" ng-init="usersavebtntext = 'Save';"  ng-disabled="type.$invalid" class="btn btn-primary">
+
+                                            <span ng-show="usersavebtntext == 'Saving'">
+
+                                                <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+
+                                            </span>
+
+                                            {{usersavebtntext}}
+
+                                        </button>
+
+                                    </div>
+
+                                </form>
+                                 <div class="row" style="margin-top: 5px;">
+
+                                    <div class="col-sm-12">
+
+                                       <table datatable="ng" ng-hide="evulationarray.length <= 0" class="table table-striped table-bordered row-border hover">
+
+                                            <thead>
+
+                                                <tr>
+
+                                                    <th>Start Time</th>
+
+                                                    <th>End Time</th>
+
+                                                    <th></th>
+                                                    
+                                                </tr>
+
+                                            </thead>
+
+                                            <tbody>
+
+                                                <tr ng-repeat="g in assemblylist">
+
+                                                    <td>{{g.start_time}}</td>
+
+                                                    <td>{{g.end_time}}</td>
+
+                                                    
+                                                    <td>
+
+                                                        <a href="javascript:void(0)" ng-click="getassemblyedit()" title="Edit" class="edit" >
+
+                                                           <i class="fa fa-edit" aria-hidden="true"></i>
+
+                                                        </a>
+
+                                                        
+                                                    </td>
+
+                                                </tr>
+
+                                            </tbody>
+
+                                        </table>
+
+                                    </div>
+
+                                </div>
+                                
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="panel panel-default">
+
+                        <div class="panel-heading">
+
+                            <h4 class="panel-title">
+
+                                <a data-toggle="collapse" data-parent="#accordion" href="#break">Break Time</a>
+
+                            </h4>
+
+                        </div>
+
+                        <div id="break" class="panel-collapse collapse">
+
+                            <div class="panel-body">
+
+                               <div class="addbreak" style="display: block"> 
+                                <form class="form-inline breakcontainer" name="break" ng-submit="savebreak(breakobj)" novalidate>
+                                   <div class="row" style="margin: 20px 0px"> 
+                                        <div class="col-sm-6">
+                                            
+
+                                            
+                                                <div class="col-sm-6">
+                                                    <label for="grade_lower_limit">Monday Start Time:</label>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control breaktimepicker mon_start_time" autocomplete="off"  name="inputFrom" ng-model="breakobj.monday_start_time" placeholder="Start Time" required>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            
+                                        </div>
+                                        <div class="col-sm-6">
+                                                <div class="col-sm-6">
+                                                    <label for="grade_upper_limit">Monday End Time:</label>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control breaktimepicker mon_end_time" autocomplete="off"  name="inputTo"  ng-model="breakobj.monday_end_time"  placeholder="End Time"  tabindex="1" required>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            
+                                        </div>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="row" style="margin: 20px 0px"> 
+                                        <div class="col-sm-6">
+                                        
+                                                <div class="col-sm-6">
+                                                    <label for="grade_lower_limit">Tuesday Start Time:</label>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control breaktimepicker tue_start_time" autocomplete="off"  name="inputFrom" ng-model="breakobj.tuesday_start_time" placeholder="Start Time" required>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            
+                                        </div>
+                                        <div class="col-sm-6">
+                                           
+                                                <div class="col-sm-6">
+                                                    <label for="grade_upper_limit">Tuesday End Time:</label>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control breaktimepicker tue_end_time"  autocomplete="off" name="inputTo"  ng-model="breakobj.tuesday_end_time"  placeholder="End Time"  tabindex="1" required>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            
+                                        </div>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="row" style="margin: 20px 0px"> 
+                                        <div class="col-sm-6">
+                                        
+                                                <div class="col-sm-6">
+                                                    <label for="grade_lower_limit">Wednesday Start Time:</label>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control breaktimepicker wed_start_time"  autocomplete="off" name="inputFrom" ng-model="breakobj.wednesday_start_time" placeholder="Start Time" required>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            
+                                        </div>
+                                        <div class="col-sm-6">
+                                           
+                                                <div class="col-sm-6">
+                                                    <label for="grade_upper_limit">Wednesday End Time:</label>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control breaktimepicker wed_end_time" autocomplete="off" name="inputTo"  ng-model="breakobj.wednesday_end_time"  placeholder="End Time"  tabindex="1" required>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            
+                                        </div>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="row" style="margin: 20px 0px"> 
+                                        <div class="col-sm-6">
+                                        
+                                                <div class="col-sm-6">
+                                                    <label for="grade_lower_limit">Thursday Start Time:</label>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control breaktimepicker thu_start_time" autocomplete="off" name="inputFrom" ng-model="breakobj.thursday_start_time" placeholder="Start Time" required>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            
+                                        </div>
+                                        <div class="col-sm-6">
+                                            
+                                                <div class="col-sm-6">
+                                                    <label for="grade_upper_limit">Thursday End Time:</label>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control breaktimepicker thu_end_time"  autocomplete="off" name="inputTo"  ng-model="breakobj.thursday_end_time"  placeholder="End Time"  tabindex="1" required>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            
+                                        </div>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div class="row" style="margin: 20px 0px"> 
+                                        <div class="col-sm-6">
+                                        
+                                                <div class="col-sm-6">
+                                                    <label for="grade_lower_limit">Friday Start Time:</label>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control breaktimepicker fri_start_time" autocomplete="off" name="inputFrom" ng-model="breakobj.friday_start_time" placeholder="Start Time" required>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            
+                                        </div>
+                                        <div class="col-sm-6">
+                                            
+                                                <div class="col-sm-6">
+                                                    <label for="grade_upper_limit">Friday End Time:</label>
+                                                </div>
+                                                <div class="col-sm-6">
+                                                    <input type="text" class="form-control breaktimepicker fri_end_time" autocomplete="off" name="inputTo"  ng-model="breakobj.friday_end_time"  placeholder="End Time"  tabindex="1" required>
+                                                </div>
+                                                <div class="clearfix"></div>
+                                            
+                                        </div>
+                                        <div class="clearfix"></div>
+                                    </div>
+                                    <div style="width: 120px;margin:0px auto">
+                                        <div class="form-group">
+
+                                            <button type="submit" ng-init="usersavebtntext = 'Save';"  ng-disabled="type.$invalid" class="btn btn-primary">
+
+                                                <span ng-show="usersavebtntext == 'Saving'">
+
+                                                    <i class="fa fa-circle-o-notch fa-spin fa-1x fa-fw"></i>
+
+                                                </span>
+
+                                                {{usersavebtntext}}
+
+                                            </button>
+
+                                        </div>
+                                    </div>
+                                </form>
+                                </div>
+                                 <div class="row" style="margin-top: 15px;">
+
+                                    <div class="col-sm-12">
+
+                                       <table datatable="ng" class="table table-striped table-bordered row-border hover">
+
+                                        <thead>
+
+                                            <tr>
+
+                                                <th>Monday Start Time</th>
+
+                                                <th>Monday End Time</th>
+
+                                                <th>Tuesday Start Time</th>
+
+                                                <th>Tuesday End Time</th>
+
+                                                <th>Wednesday Start Time</th>
+
+                                                <th>Wednesday End Time</th>
+
+                                                <th>Thursday Start Time</th>
+
+                                                <th>Thursday End Time</th>
+
+                                                <th>Friday Start Time</th>
+
+                                                <th>Friday End Time</th>
+                                                <th></th>
+                                                
+                                            </tr>
+
+                                        </thead>
+
+                                        <tbody>
+
+                                            <tr ng-repeat="b in breakdatalist">
+
+                                                <td>{{b.monday_start_time}}</td>
+
+                                                <td>{{b.monday_end_time}}</td>
+
+                                                <td>{{b.tuesday_start_time}}</td>
+
+                                                <td>{{b.tuesday_end_time}}</td>
+
+                                                <td>{{b.wednesday_start_time}}</td>
+
+                                                <td>{{b.wednesday_end_time}}</td>
+
+                                                <td>{{b.thursday_start_time}}</td>
+
+                                                <td>{{b.thursday_end_time}}</td>
+
+                                                <td>{{b.friday_start_time}}</td>
+
+                                                <td>{{b.friday_end_time}}</td>
+
+                                                
+                                                <td>
+
+                                                    <a href="javascript:void(0)" ng-click="getbreakedit()" title="Edit" class="edit" >
+
+                                                       <i class="fa fa-edit" aria-hidden="true"></i>
+
+                                                    </a>
+
+                                                    
+                                                </td>
+
+                                            </tr>
+
+                                        </tbody>
+
+                                    </table>
+
+                                    </div>
+
+                                </div>
+                                
+
+                            </div>
+
+                        </div>
+                        
+                    </div>
          <!-- Admin area -->
                 <div ng-if="isAdmin">
 
@@ -1275,5 +1638,80 @@ require APPPATH.'views/__layout/footer.php';
 
 <script src="<?php echo base_url(); ?>js/settings/app.js"></script>
 
+<script src="<?php echo base_url(); ?>js/jquery-ui.js"></script>
+<script type="text/javascript" src="<?php echo base_url(); ?>js/jquery.ui.timepicker.js?v=0.3.3"></script>
+<script type="text/javascript">
+    
+    $(document).ready(function() 
+       
+    {
+           $('#inputStartitme').timepicker({
+               showLeadingZero: false,
+               onSelect: tpStartSelect,
+               
+                showNowButton: false,
+                nowButtonText: 'Now',
+                minutes: {
+                    starts: 0,                // First displayed minute
+                    ends: 59,                 // Last displayed minute
+                    interval: 5,              // Interval of displayed minutes
+                    manual: []                // Optional extra entries for minutes
+                },
+                
+                defaultTime:'<?php if(isset($start_time)){echo date('H:i',strtotime($start_time));} ?>'
 
+           });
+           $('#InputEndTime').timepicker({
+               showLeadingZero: false,
+                showNowButton: false,
+                nowButtonText: 'Now',
+
+                minutes: {
+                    starts: 0,                // First displayed minute
+                    ends: 59,                 // Last displayed minute
+                    interval: 5,              // Interval of displayed minutes
+                    manual: []                // Optional extra entries for minutes
+                },
+                
+                defaultTime:'<?php if(isset($end_time)){echo date('H:i',strtotime($end_time));} ?>'
+
+           });
+        });
+
+        // when start time change, update minimum for end timepicker
+       // when start time change, update minimum for end timepicker
+        function tpStartSelect( time, endTimePickerInst ) {
+
+           $('#InputEndTime').timepicker('option', {
+               minTime: {
+                   hour: endTimePickerInst.hours,
+                   minute: endTimePickerInst.minutes
+               }
+           });
+        }
+       
+            
+        // Break Timing
+        $('.breaktimepicker').timepicker({
+               showLeadingZero: false,
+               onSelect: tpStartSelect,
+               
+                showNowButton: false,
+                nowButtonText: 'Now',
+                minutes: {
+                    starts: 0,                // First displayed minute
+                    ends: 59,                 // Last displayed minute
+                    interval: 5,              // Interval of displayed minutes
+                    manual: []                // Optional extra entries for minutes
+                },
+                
+                
+
+           });    
+            
+           
+            
+            
+        
+</script>
 

@@ -121,7 +121,8 @@
             
             getsessionlist:$scope.shama_api_path+'sessions',
             savesession:$scope.shama_api_path+'session',
-            removesession:$scope.shama_api_path+'session',
+            removesession:$scope.shama_api_path+'removesession',
+
             getsessiondetail:$scope.shama_api_path+'session',
             makesessionactive:$scope.shama_api_path+'active_session',
             
@@ -156,6 +157,17 @@
             getgradedetail:$scope.shama_api_path+'grade',
             
             loadreleasettable:'loadreleasettable',
+            // Shama v2.0
+            saveassemblydata:$scope.shama_api_path+'saveassembly',
+            getAssemblylist:$scope.shama_api_path+'getassemblydata',
+            getassemblyedit:$scope.shama_api_path+'getassemblyupdate',
+
+            getLoadBreaklist:$scope.shama_api_path+'getbreakdata',
+            getbreakedit:$scope.shama_api_path+'getbreakupdate',
+
+            savebreakdata:$scope.shama_api_path+'savebreak',
+            
+            
         }
 
         $scope.citylist = [];
@@ -255,6 +267,22 @@
                         $scope.sessionobj.serial = ''
                     
                     }
+                    else
+
+                    {
+                    if(response.date_not_match == "DateNotMatch")
+                    {
+                        message('Session not create in these days','show')
+                    }
+                    else if(response.exists == "Exists")
+                    {
+                        message('Session Date already Exists','show')
+                    }
+                       $scope.usersavebtntext = "Save";
+                        $scope.semesterdetail = {};
+                        
+                        defaultdate();
+                    }
                     $scope.usersavebtntext = "Save";
                 });
             }
@@ -289,15 +317,16 @@
         {
             $("#delete_dialog").modal('show');
             $scope.dialogItemName = "session"
-            $scope.sid = sessionid
+            $scope.sid = sessionid;
+
         }
 
-        $(document).on('click','#save',function(){
+        $(document).on('click','#remove_session',function(){
             $("#delete_dialog").modal('hide');
             var data = ({
                 session_id:$scope.sid
             })
-
+           
            $myUtils.httpdeleterequest(urlist.removesession,data).then(function(response){
                 if(response != null)
                 {
@@ -336,6 +365,7 @@
 
          $scope.savesemester = function()
         {
+
             if($scope.inputSemester != null && $scope.inputSemester != '')
             {
                 var data = ({
@@ -1044,6 +1074,7 @@
         
         $scope.savesemesterdetail = function(semesterdetail)
         {
+
             try{
                 if(semesterdetail.date != '' && semesterdetail.semester)
                 {
@@ -1077,6 +1108,14 @@
                           
                             $scope.semesterdetail.semester = $scope.semesterlist[0].id;
                         }else{
+                            if(response.exists == "Exists")
+                                {
+                                    message('Semester Date already Exists','show');
+                                }
+                            else
+                                {
+                                    message('Semester Date not mateched in session dates','show');
+                                }
                            $scope.usersavebtntext = "Save";
                             $scope.semesterdetail = {};
                             defaultdate();
@@ -1257,6 +1296,7 @@
 
         $scope.setSemesterActive = function()
         {
+
             try{
                 if($scope.semesterdetail.activeid != null)
                 {
@@ -1283,5 +1323,129 @@
             }
             catch(ex){}
         }
+        // Shama v2.0
+        if($scope.isPrincipal){
+            getAssembly();
+        }
+        
+        function getAssembly()
+        {
+            var data = ({
+                school_id:$scope.school_id
+            })
+            
+            $myUtils.httprequest(urlist.getAssemblylist,data).then(function(response){
+                if(response != null && response.length > 0)
+                {
+                    $scope.assemblylist = response;
+                }else{
+                   $scope.assemblylist = []
+                }
+            });
+        }
 
+        $scope.getassemblyedit = function()
+        
+        {
+            var data = ({
+                school_id:$scope.school_id
+            })
+            
+            $myUtils.httprequest(urlist.getassemblyedit,data).then(function(response){
+                if(response != null && response.length > 0)
+                {
+                    
+                       $scope.assemblyobj = response[0];
+                    
+                }else{
+                  // $scope.assemblylist = []
+                }
+            });
+        }
+        
+        $scope.saveassembly = function()
+        
+        {
+            var data = ({
+                school_id:$scope.school_id,
+                starttime:$scope.assemblyobj.start_time,
+                endtime:$scope.assemblyobj.end_time
+            })
+            
+            $myUtils.httppostrequest(urlist.saveassemblydata,data).then(function(response){
+                if(response)
+                {
+                    message('Successfully updated','show')
+                    getAssembly();
+                    $scope.assemblyobj = "";
+                }else{
+                  // $scope.assemblylist = []
+                }
+            });
+        }
+        if($scope.isPrincipal){
+            getBreaklist();
+        }
+        
+        function getBreaklist()
+        {
+            var data = ({
+                school_id:$scope.school_id
+            })
+            
+            $myUtils.httprequest(urlist.getLoadBreaklist,data).then(function(response){
+                if(response != null && response.length > 0)
+                {
+                    $scope.breakdatalist = response;
+                }else{
+                   $scope.breakdatalist = []
+                }
+            });
+        }
+
+        $scope.getbreakedit = function()
+        {
+            var data = ({
+                school_id:$scope.school_id
+            })
+            
+
+            $myUtils.httprequest(urlist.getbreakedit,data).then(function(response){
+               if(response != null && response.length > 0)
+                {
+                    
+                    $scope.breakobj = response[0];
+                }else{
+                   $scope.breakobj = []
+                }
+            });
+        }
+        $scope.savebreak = function()
+        
+        {
+            var data = ({
+                school_id:$scope.school_id,
+                monday_start_time:$scope.breakobj.monday_start_time,
+                monday_end_time:$scope.breakobj.monday_end_time,
+                tuesday_start_time:$scope.breakobj.tuesday_start_time,
+                tuesday_end_time:$scope.breakobj.tuesday_end_time,
+                wednesday_start_time:$scope.breakobj.wednesday_start_time,
+                wednesday_end_time:$scope.breakobj.wednesday_end_time,
+                thursday_start_time:$scope.breakobj.thursday_start_time,
+                thursday_end_time:$scope.breakobj.thursday_end_time,
+                friday_start_time:$scope.breakobj.friday_start_time,
+                friday_end_time:$scope.breakobj.friday_end_time,
+            })
+            
+            $myUtils.httppostrequest(urlist.savebreakdata,data).then(function(response){
+                if(response)
+                {
+                    message('Successfully updated','show')
+                    getBreaklist();
+                    $scope.breakobj = "";
+                }else{
+                  getBreaklist();
+                }
+            });
+        }
 }

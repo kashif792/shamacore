@@ -62,7 +62,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
 	                		</div>
 	                	</div>
-	                		<div class="form-group ">
+	                		<!-- <div class="form-group ">
 	                		<div class="col-sm-12">
 	                			<label><span class="icon-clock"></span> From <span class="required">*</span></label>
 	                		</div>
@@ -74,7 +74,67 @@ require APPPATH.'views/__layout/leftnavigation.php';
 	                		</div>	
 		                		<div id="time_error" class="required row endtimeerror">End time must be greater then start time</div>
 	                		</div>
-	                	
+	                	 -->
+	                	 <div class="form-group">
+	                		<div class="col-md-12">
+	                			<table  class="table table-striped table-bordered row-border hover">
+	                				<thead>
+                                        <tr>
+                                            <th>Active</th>
+                                            <th>Day</th>
+                                            <th>Start Time</th>
+                                            <th>End Time</th>
+                                            
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    	<tr>
+                                    		<td>
+                                    			<input type="checkbox" name="mon_status" id="mon_status" ng-checked="monstatus == 'Active'" value="Active"></td>
+                                    		<td>Monday</td>
+                                    		<td><input type="text" class="form-control scheduletimepicker mon_start_time" <?php if($result['mon_status']=="Inactive") {echo 'disabled="disabled"';} ?>  autocomplete="off"  name="inputFrom" ng-model="monstarttime" placeholder="Start Time" required></td>
+                                    		<td><input type="text" class="form-control scheduletimepicker mon_end_time" <?php if($result['mon_status']=="Inactive") {echo 'disabled="disabled"';} ?> autocomplete="off"  name="inputTo"  ng-model="monendtime"  placeholder="End Time"  tabindex="1" required></td>
+                                    	</tr>
+                                    	<tr>
+                                    		<td><input type="checkbox" name="tue_status" id="tue_status" ng-checked="tuestatus == 'Active'" value="Active"></td>
+                                    		<td>Tuesday</td>
+                                    		<td><input type="text" class="form-control scheduletimepicker tue_start_time" <?php if($result['tue_status']=="Inactive") {echo 'disabled="disabled"';} ?> autocomplete="off"  name="inputFrom" ng-model="tuestarttime" placeholder="Start Time" required></td>
+                                    		<td><input type="text" class="form-control scheduletimepicker tue_end_time" <?php if($result['tue_status']=="Inactive") {echo 'disabled="disabled"';} ?> autocomplete="off"  name="inputTo"  ng-model="tueendtime"  placeholder="End Time"  tabindex="1" required></td>
+                                    	</tr>
+                                    	<tr>
+                                    		<td><input type="checkbox" name="wed_status" id="wed_status" ng-checked="wedstatus == 'Active'" value="Active"></td>
+                                    		<td>Wednesday</td>
+                                    		<td><input type="text" class="form-control scheduletimepicker wed_start_time" <?php if($result['wed_status']=="Inactive") {echo 'disabled="disabled"';} ?> autocomplete="off"  name="inputFrom" ng-model="wedstarttime" placeholder="Start Time" required></td>
+                                    		<td><input type="text" class="form-control scheduletimepicker wed_end_time" <?php if($result['wed_status']=="Inactive") {echo 'disabled="disabled"';} ?> autocomplete="off"  name="inputTo"  ng-model="wedendtime"  placeholder="End Time"  tabindex="1" required></td>
+                                    	</tr>
+                                    	<tr>
+                                    		<td><input type="checkbox" name="thu_status" id="thu_status" ng-checked="thustatus == 'Active'" value="Active"></td>
+                                    		<td>Thursday</td>
+                                    		<td><input type="text" class="form-control scheduletimepicker thu_start_time" <?php if($result['thu_status']=="Inactive") {echo 'disabled="disabled"';} ?> autocomplete="off"  name="inputFrom" ng-model="thustarttime" placeholder="Start Time" required></td>
+                                    		<td><input type="text" class="form-control scheduletimepicker thu_end_time" <?php if($result['thu_status']=="Inactive") {echo 'disabled="disabled"';} ?> autocomplete="off"  name="inputTo"  ng-model="thuendtime"  placeholder="End Time"  tabindex="1" required></td>
+                                    	</tr>
+                                    	<tr>
+                                    		<td><input type="checkbox" name="fri_status" id="fri_status" ng-checked="fristatus == 'Active'" value="Active" ></td>
+                                    		<td>Friday</td>
+                                    		<td><input type="text" class="form-control scheduletimepicker fri_start_time" <?php if($result['fri_status']=="Inactive") {echo 'disabled="disabled"';} ?> autocomplete="off"  name="inputFrom" ng-model="fristarttime" placeholder="Start Time" required></td>
+                                    		<td><input type="text" class="form-control scheduletimepicker fri_end_time" <?php if($result['fri_status']=="Inactive") {echo 'disabled="disabled"';} ?> autocomplete="off"  name="inputTo"  ng-model="friendtime"  placeholder="End Time"  tabindex="1" required></td>
+                                    	</tr>
+                                    	<tr>
+                                    		<td><input type="checkbox" name="sat_status" id="sat_status" ng-checked="satstatus == 'Active'" value="Active"></td>
+                                    		<td>Saturday</td>
+                                    		<td><input type="text" class="form-control scheduletimepicker sat_start_time" <?php if($result['sat_status']=="Inactive") {echo 'disabled="disabled"';} ?> autocomplete="off"  name="inputFrom" ng-model="satstarttime" placeholder="Start Time" required></td>
+                                    		<td><input type="text" class="form-control scheduletimepicker sat_end_time" <?php if($result['sat_status']=="Inactive") {echo 'disabled="disabled"';} ?> autocomplete="off"  name="inputTo"  ng-model="satendtime"  placeholder="End Time"  tabindex="1" required></td>
+                                    	</tr>
+                                    	<tr>
+                                    		<td><input type="checkbox" name="sun_status" id="sun_status" ng-checked="sunstatus == 'Active'" value="Active"></td>
+                                    		<td>Sunday</td>
+                                    		<td><input type="text" class="form-control scheduletimepicker sun_start_time" <?php if($result['sun_status']=="Inactive") {echo 'disabled="disabled"';} ?> autocomplete="off"  name="inputFrom" ng-model="sunstarttime" placeholder="Start Time" required></td>
+                                    		<td><input type="text" class="form-control scheduletimepicker sun_end_time" <?php if($result['sun_status']=="Inactive") {echo 'disabled="disabled"';} ?> autocomplete="off"  name="inputTo"  ng-model="sunendtime"  placeholder="End Time"  tabindex="1" required></td>
+                                    	</tr>
+                                    </tbody>
+	                			</table>
+	                		</div>
+	                	</div>
 	                	<div class="form-group">
 	                		<div class="col-sm-12">
 	                			<button type="button" tabindex="8" class="btn btn-primary"  id="save" ng-click="savetimetable()" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Saving...">Save</button>
@@ -182,12 +242,18 @@ require APPPATH.'views/__layout/leftnavigation.php';
 		{
 			loadclass()
 			loadteacherlist();
-			if($scope.serial == ''){
-				$scope.inputStartTime = '<?php if(isset($result)){echo date('H:i',strtotime($result['start_time']));}else{ $seconds = time(); $rounded_seconds = round($seconds / (15 * 60)) * (15 * 60); echo date('H:i', $rounded_seconds); } ?>'
-				$scope.inputEndTime = '<?php if(isset($result)){echo date('H:i',strtotime($result['end_time']));}else{ $seconds = time(); $rounded_seconds = round($seconds / (15 * 60)) * (15 * 60); echo date('H:i', $rounded_seconds + 900); } ?>'
-			}
+			loadStatus();
 		}
+		function loadStatus()
+		{
+			
+			$scope.monstatus = "Active";
+			$scope.tuestatus = "Active";
+			$scope.wedstatus = "Active";
+			$scope.thustatus = "Active";
+			$scope.fristatus = "Active";
 
+		}
 		function getScheduleDetail() {
 			try{
 			 	
@@ -199,6 +265,29 @@ require APPPATH.'views/__layout/leftnavigation.php';
 					  	
 					  	$scope.inputStartTime = response.start_time;
 					  	$scope.inputEndTime = response.end_time;
+					  	// Day wise timing
+					  	$scope.monstatus = response.mon_status;
+					  	$scope.monstarttime = response.mon_start_time;
+					  	$scope.monendtime = response.mon_end_time;
+					  	$scope.tuestatus = response.tue_status;
+					  	$scope.tuestarttime = response.tue_start_time;
+					  	$scope.tueendtime = response.tue_end_time;
+					  	$scope.wedstatus = response.wed_status;
+					  	$scope.wedstarttime = response.wed_start_time;
+					  	$scope.wedendtime = response.wed_end_time;
+					  	$scope.thustatus = response.thu_status;
+					  	$scope.thustarttime = response.thu_start_time;
+					  	$scope.thuendtime = response.thu_end_time;
+					  	$scope.fristatus = response.fri_status;
+					  	$scope.fristarttime = response.fri_start_time;
+						$scope.friendtime = response.fri_end_time;
+					  	$scope.satstatus = response.sat_status;
+					  	$scope.satstarttime = response.sat_start_time;
+					  	$scope.satendtime = response.sat_end_time;
+					  	$scope.sunstatus = response.sun_status;
+					  	$scope.sunstarttime = response.sun_start_time;
+					  	$scope.sunendtime = response.sun_end_time;
+					  	// End
 					  	loadclass()
 					  	loadteacherlist();
 				   }
@@ -248,14 +337,50 @@ require APPPATH.'views/__layout/leftnavigation.php';
         	loadSections();
         }
 
+        $('.scheduletimepicker').timepicker({
+               showLeadingZero: false,
+               onSelect: tpStartSelect,
+               
+                showNowButton: false,
+                nowBuscheduletimepickerttonText: 'Now',
+                minutes: {
+                    starts: 0,                // First displayed minute
+                    ends: 59,                 // Last displayed minute
+                    interval: 5,              // Interval of displayed minutes
+                    manual: []                // Optional extra entries for minutes
+                },
+                
+                
+
+           });
 
         $scope.savetimetable = function()
         {
     	 	var subj_name = $("#select_subject").val();
             var section = $("#inputSection").val();
 
-            var starttime = $("#inputStartTime").val();
-            var endtime = $("#inputEndTime").val();
+            var mon_status = $('input[name="mon_status"]:checked').val();
+            
+            var mon_start_time = $(".mon_start_time").val();
+            var mon_end_time = $(".mon_end_time").val();
+            var tue_status = $('input[name="tue_status"]:checked').val();
+            var tue_start_time = $(".tue_start_time").val();
+            var tue_end_time = $(".tue_end_time").val();
+            var wed_status = $('input[name="wed_status"]:checked').val();
+            var wed_start_time = $(".wed_start_time").val();
+            var wed_end_time = $(".wed_end_time").val();
+            var thu_status = $('input[name="thu_status"]:checked').val();
+            var thu_start_time = $(".thu_start_time").val();
+            var thu_end_time = $(".thu_end_time").val();
+            var fri_status = $('input[name="fri_status"]:checked').val();
+            var fri_start_time = $(".fri_start_time").val();
+            var fri_end_time = $(".fri_end_time").val();
+            var sat_status = $('input[name="sat_status"]:checked').val();
+            var sat_start_time = $(".sat_start_time").val();
+            var sat_end_time = $(".sat_end_time").val();
+            var sun_status = $('input[name="sun_status"]:checked').val();
+            var sun_start_time = $(".sun_start_time").val();
+            var sun_end_time = $(".sun_end_time").val();
             message("",'hide')
             $("#time_error").hide()
 
@@ -295,43 +420,25 @@ require APPPATH.'views/__layout/leftnavigation.php';
             else{
                 jQuery("#select_subject").css("border", "1px solid #C9C9C9");
             }
-            var reg = /(\d|2[0-3]):([0-5]\d)/;
-
-            if(reg.test(starttime) == false){
-                jQuery("#inputStartTime").css("border", "1px solid red");
-                return false;
-            }
-            else{
-                jQuery("#inputStartTime").css("border", "1px solid #C9C9C9");
-            }
-
-            if(reg.test(endtime) == false){
-                jQuery("#inputEndTime").css("border", "1px solid red");
-                return false;
-            }
-            else{
-                jQuery("#inputEndTime").css("border", "1px solid #C9C9C9");
-            }
 
 
 
 
+   //         	var t = new Date();
+			// d = t.getDate();
+			// m = t.getMonth() + 1;
+			// y = t.getFullYear();
 
-           	var t = new Date();
-			d = t.getDate();
-			m = t.getMonth() + 1;
-			y = t.getFullYear();
+			// var d1 = new Date(m + "/" + d + "/" + y + " " + starttime);
+			// var d2 = new Date(m + "/" + d + "/" + y + " " + endtime);
+			// var t1 = d1.getTime();
+			// var t2 = d2.getTime();
 
-			var d1 = new Date(m + "/" + d + "/" + y + " " + starttime);
-			var d2 = new Date(m + "/" + d + "/" + y + " " + endtime);
-			var t1 = d1.getTime();
-			var t2 = d2.getTime();
-
-			if(t2 <= t1)
-			{
-				$("#time_error").show()
-				return false;
-			}
+			// if(t2 <= t1)
+			// {
+			// 	$("#time_error").show()
+			// 	return false;
+			// }
 
 			 var $this = $(".btn-primary");
              $this.button('loading');
@@ -341,8 +448,31 @@ require APPPATH.'views/__layout/leftnavigation.php';
 			formdata.append('select_class',$scope.select_class.id);
 			formdata.append('inputSection',$scope.inputSection.id);
 			formdata.append('select_teacher',$scope.select_teacher.id);
-			formdata.append('inputFrom',$scope.inputStartTime);
-			formdata.append('inputTo',$scope.inputEndTime);
+			// formdata.append('inputFrom',$scope.inputStartitme);
+			// formdata.append('inputTo',$scope.InputEndTime);
+			formdata.append('serial',$scope.serial);
+			// Timing add
+			formdata.append('mon_status',mon_status);
+			formdata.append('mon_start_time',mon_start_time);
+			formdata.append('mon_end_time',mon_end_time);
+			formdata.append('tue_status',tue_status);
+			formdata.append('tue_start_time',tue_start_time);
+			formdata.append('tue_end_time',tue_end_time);
+			formdata.append('wed_status',wed_status);
+			formdata.append('wed_start_time',wed_start_time);
+			formdata.append('wed_end_time',wed_end_time);
+			formdata.append('thu_status',thu_status);
+			formdata.append('thu_start_time',thu_start_time);
+			formdata.append('thu_end_time',thu_end_time);
+			formdata.append('fri_status',fri_status);
+			formdata.append('fri_start_time',fri_start_time);
+			formdata.append('fri_end_time',fri_end_time);
+			formdata.append('sat_status',sat_status);
+			formdata.append('sat_start_time',sat_start_time);
+			formdata.append('sat_end_time',sat_end_time);
+			formdata.append('sun_status',sun_status);
+			formdata.append('sun_start_time',sun_start_time);
+			formdata.append('sun_end_time',sun_end_time);
 			formdata.append('serial',$scope.serial);
 
 			var data = {
@@ -351,12 +481,34 @@ require APPPATH.'views/__layout/leftnavigation.php';
 					class_id:$scope.select_class.id,
 					section_id:$scope.inputSection.id,
 					teacher_id:$scope.select_teacher.id,
-					start_time:$scope.inputStartTime,
-					end_time:$scope.inputEndTime,
+
+					mon_status:mon_status,
+					mon_start_time:mon_start_time,
+					mon_end_time:mon_end_time,
+					tue_status:tue_status,
+					tue_start_time:tue_start_time,
+					tue_end_time:tue_end_time,
+					wed_status:wed_status,
+					wed_start_time:wed_start_time,
+					wed_end_time:wed_end_time,
+					thu_status:thu_status,
+					thu_start_time:thu_start_time,
+					thu_end_time:thu_end_time,
+					fri_status:fri_status,
+					fri_start_time:fri_start_time,
+					fri_end_time:fri_end_time,
+					sat_status:sat_status,
+					sat_start_time:sat_start_time,
+					sat_end_time:sat_end_time,
+					sun_status:sun_status,
+					sun_start_time:sun_start_time,
+					sun_end_time:sun_end_time,
+
 					school_id:$scope.school_id,
 					id:$scope.serial
 					}
-
+			//var data = formdata;
+			//console.log(data);
 			$myUtils.httppostrequest(urlist.saveschedule,data).then(function(response){
 
                     var $this = $(".btn-primary");
@@ -374,44 +526,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
         }
 
 
-			$(document).ready(function() {
-		   $('#inputStartTime').timepicker({
-		       showLeadingZero: false,
-		       onSelect: tpStartSelect,
-		       onClose:checkTeacherSchedule,
-		        showNowButton: false,
-		        nowButtonText: 'Now',
-
-			    minutes: {
-			        starts: 0,                // First displayed minute
-			        ends: 59,                 // Last displayed minute
-			        interval: 5,              // Interval of displayed minutes
-			        manual: []                // Optional extra entries for minutes
-			    },
-				onMinuteShow: OnMinuteSShowCallback,
-		         onHourShow: OnHourShowCallback,
-		        defaultTime:'<?php if(isset($result)){echo date('H:i',strtotime($result['start_time']));} ?>'
-
-		   });
-		   $('#inputEndTime').timepicker({
-		       showLeadingZero: false,
-		       onSelect: tpEndSelect,
-		       onClose:checkTeacherSchedule,
-		        showNowButton: false,
-		        nowButtonText: 'Now',
-
-			    minutes: {
-			        starts: 0,                // First displayed minute
-			        ends: 59,                 // Last displayed minute
-			        interval: 5,              // Interval of displayed minutes
-			        manual: []                // Optional extra entries for minutes
-			    },
-				onMinuteShow: OnMinuteShowCallback,
-		        onHourShow: OnHourEShowCallback,
-		        defaultTime:'<?php if(isset($result)){echo date('H:i',strtotime($result['end_time']));} ?>'
-
-		   });
-		});
+			
 
 		// when start time change, update minimum for end timepicker
 		function tpStartSelect( time, endTimePickerInst ) {
@@ -702,7 +817,99 @@ require APPPATH.'views/__layout/leftnavigation.php';
 			$scope.altersection = true
 			//checkClass()
 		}
-
+	// checked condition
+$('#mon_status').click(function(){
+    if($(this).is(":checked"))
+    {
+	     $(".mon_start_time").removeAttr("disabled");
+	   	 $(".mon_end_time").removeAttr("disabled");
+	}
+    else
+    {
+    	$(".mon_start_time").attr("disabled" , "disabled");
+	   	$(".mon_end_time").attr("disabled" , "disabled");
+    }
+      
+});
+$('#tue_status').click(function(){
+    if($(this).is(":checked"))
+    {
+	     $(".tue_start_time").removeAttr("disabled");
+	   	 $(".tue_end_time").removeAttr("disabled");
+	}
+    else
+    {
+    	$(".tue_start_time").attr("disabled" , "disabled");
+	   	$(".tue_end_time").attr("disabled" , "disabled");
+    }
+      
+});
+$('#wed_status').click(function(){
+    if($(this).is(":checked"))
+    {
+	     $(".wed_start_time").removeAttr("disabled");
+	   	 $(".wed_end_time").removeAttr("disabled");
+	}
+    else
+    {
+    	$(".wed_start_time").attr("disabled" , "disabled");
+	   	$(".wed_end_time").attr("disabled" , "disabled");
+    }
+      
+});
+$('#thu_status').click(function(){
+    if($(this).is(":checked"))
+    {
+	     $(".thu_start_time").removeAttr("disabled");
+	   	 $(".thu_end_time").removeAttr("disabled");
+	}
+    else
+    {
+    	$(".thu_start_time").attr("disabled" , "disabled");
+	   	$(".thu_end_time").attr("disabled" , "disabled");
+    }
+      
+});
+$('#fri_status').click(function(){
+    if($(this).is(":checked"))
+    {
+	     $(".fri_start_time").removeAttr("disabled");
+	   	 $(".fri_end_time").removeAttr("disabled");
+	}
+    else
+    {
+    	$(".fri_start_time").attr("disabled" , "disabled");
+	   	$(".fri_end_time").attr("disabled" , "disabled");
+    }
+      
+});
+$('#sat_status').click(function(){
+    if($(this).is(":checked"))
+    {
+	     $(".sat_start_time").removeAttr("disabled");
+	   	 $(".sat_end_time").removeAttr("disabled");
+	}
+    else
+    {
+    	$(".sat_start_time").attr("disabled" , "disabled");
+	   	$(".sat_end_time").attr("disabled" , "disabled");
+    }
+      
+});
+$('#sun_status').click(function(){
+    if($(this).is(":checked"))
+    {
+	     $(".sun_start_time").removeAttr("disabled");
+	   	 $(".sun_end_time").removeAttr("disabled");
+	}
+    else
+    {
+    	$(".sun_start_time").attr("disabled" , "disabled");
+	   	$(".sun_end_time").attr("disabled" , "disabled");
+    }
+      
+});
+// End here
 	}
 
 </script>

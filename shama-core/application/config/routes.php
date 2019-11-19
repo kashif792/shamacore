@@ -119,6 +119,9 @@ $route['api/v(:num)/quiz_evaluations'] = "api_v$1/Lmsapi/quiz_evaluations";
 $route['api/v(:num)/quiz_evaluation_details'] = "api_v$1/Lmsapi/quiz_evaluation_details";
 $route['api/v(:num)/schedule'] = "api_v$1/Lmsapi/schedule";
 $route['api/v(:num)/schedules'] = "api_v$1/Lmsapi/schedules";
+$route['api/v(:num)/getdaylist'] = "api_v$1/Lmsapi/getdaylist";
+$route['api/v(:num)/getTimetablepdf'] = "api_v$1/Lmsapi/getTimetablepdf";
+
 $route['api/v(:num)/school'] = "api_v$1/Lmsapi/school";
 $route['api/v(:num)/schools'] = "api_v$1/Lmsapi/schools";
 $route['api/v(:num)/school_wizard'] = "api_v$1/Lmsapi/school_wizard";
@@ -135,6 +138,7 @@ $route['api/v(:num)/semester_lesson_plan'] = "api_v$1/Lesson_Plan_Controller/sem
 $route['api/v(:num)/semesters'] = "api_v$1/Lmsapi/semesters";
 $route['api/v(:num)/session'] = "api_v$1/Lmsapi/session";
 $route['api/v(:num)/sessions'] = "api_v$1/Lmsapi/sessions";
+$route['api/v(:num)/removesession'] = "api_v$1/Lmsapi/session";
 $route['api/v(:num)/student'] = "api_v$1/Lmsapi/student";
 $route['api/v(:num)/student_login'] = "api_v$1/Login_Controller/student_login";
 $route['api/v(:num)/student_promote'] = "api_v$1/Lmsapi/student_promote";
@@ -145,6 +149,8 @@ $route['api/v(:num)/students_by_class_and_section'] = "api_v$1/Lmsapi/students_b
 $route['api/v(:num)/students_by_school'] = "api_v$1/Lmsapi/students_by_school";
 $route['api/v(:num)/subject'] = "api_v$1/Lmsapi/subject";
 $route['api/v(:num)/subjects'] = "api_v$1/Lmsapi/subjects";
+$route['api/v(:num)/removesubject'] = "api_v$1/Lmsapi/subjectRemove";
+
 $route['api/v(:num)/subjects_by_class'] = "api_v$1/Lmsapi/subjects_by_class";
 $route['api/v(:num)/sync_grade_lesson_plan'] = "api_v$1/Lesson_Plan_Controller/sync_grade_lesson_plan";
 $route['api/v(:num)/sync_semester_lesson_plan'] = "api_v$1/Lesson_Plan_Controller/sync_semester_lesson_plan";
@@ -168,3 +174,13 @@ $route['api/v(:num)/active_semester_in_school'] = 'api_v$1/Lmsapi/Get_Active_Sem
 $route['api/v(:num)/active_session_in_school'] = 'api_v$1/Lmsapi/Get_Active_Session_In_School';
 $route['api/v(:num)/reset_student_progress'] = 'api_v$1/Lmsapi/Reset_Student_Progress';
 
+// Shama v2.0 
+$route['api/v(:num)/getassemblydata'] = 'api_v$1/Lmsapi/getassemblydata';
+$route['api/v(:num)/getassemblyupdate'] = 'api_v$1/Lmsapi/getassemblyupdate';
+$route['api/v(:num)/saveassembly'] = 'api_v$1/Lmsapi/saveassembly';
+
+$route['api/v(:num)/savebreak'] = 'api_v$1/Lmsapi/savebreak';
+$route['api/v(:num)/getbreakdata'] = 'api_v$1/Lmsapi/getbreakdata';
+$route['api/v(:num)/getbreakupdate'] = 'api_v$1/Lmsapi/getbreakupdate';
+// getschedule
+$route['api/v(:num)/show_schedule_list'] = 'api_v$1/Lmsapi/show_schedule_list';

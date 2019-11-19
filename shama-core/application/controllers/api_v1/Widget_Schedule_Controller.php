@@ -24,6 +24,7 @@ class Widget_Schedule_Controller extends My_Rest_Controller
      */
     function data_get()
     {
+
         try {
 
             $schedule = array();
@@ -41,7 +42,6 @@ class Widget_Schedule_Controller extends My_Rest_Controller
                 if ($role = $this->get_user_role($user_id)) {
                     $role_id = $role->role_id;
                 }
-
                 $active_session = $this->get_active_session($school_id);
                 $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
 
@@ -53,12 +53,67 @@ class Widget_Schedule_Controller extends My_Rest_Controller
                     $result = $this->operation->GetByQuery("SELECT sc.id, cl.grade, sct.section_name as section, sub.subject_name as subject, screenname as teacher,start_time,end_time FROM schedule sc  INNER JOIN classes cl ON  sc.class_id=cl.id INNER JOIN invantage_users inv ON sc.teacher_uid=inv.id INNER JOIN subjects sub ON sc.subject_id=sub.id INNER JOIN sections  sct ON sc.section_id=sct.id WHERE sc.teacher_uid=" . $user_id . " AND cl.school_id =" . $school_id . " AND sc.session_id = " . $active_session->id . " AND sc.semester_id = " . $active_semester->semester_id);
                 }
             }
+            // Assembly time fetch from database
+            $this->operation->table_name = 'assembly';
+            $is_assembly_found = $this->operation->GetByWhere(array('school_id' => $school_id));
+            if(count($is_assembly_found))
+            {
+                $assStart = $is_assembly_found[0]->start_time;
+                $assEnd = $is_assembly_found[0]->end_time;
+            }
+            else
+            {
+                $assStart = ASSEMBLY_START;
+                $assEnd = ASSEMBLY_END;
+            }
 
+            // Break time fetch from database
+            $today = strtolower(date("l"));
+            $this->operation->table_name = 'break';
+            $date = date('Y-m-d');
+        
+            $currentday = strtolower(date('D', strtotime($date)));
+            //$currentday = 'fri';
+            $is_break_found = $this->operation->GetByWhere(array('school_id' => $school_id));
+            if(count($is_break_found))
+            {
+                if($today=="monday")
+                {
+                    $breakStart = $is_break_found[0]->monday_start_time;
+                    $breakEnd  = $is_break_found[0]->monday_end_time;
+                }
+                else if($today=="tuesday")
+                {
+                    $breakStart = $is_break_found[0]->tuesday_start_time;
+                    $breakEnd  = $is_break_found[0]->tuesday_end_time;
+                }
+                else if($today=="wednesday")
+                {
+                    $breakStart = $is_break_found[0]->wednesday_start_time;
+                    $breakEnd  = $is_break_found[0]->wednesday_end_time;
+                }
+                else if($today=="thursday")
+                {
+                    $breakStart = $is_break_found[0]->thursday_start_time;
+                    $breakEnd  = $is_break_found[0]->thursday_end_time;
+                }
+                else
+                {
+                    $breakStart = $is_break_found[0]->friday_start_time;
+                    $breakEnd  = $is_break_found[0]->friday_end_time;
+                }
+
+            }
+            else
+                {
+                    $breakStart = BREAK_START;
+                    $breakEnd  = BREAK_END;
+                }
             if (count($result)) {
-                $assStart = date('H:i',DateTime::createFromFormat('H:i', "08:00")->getTimestamp());
-                $assEnd = date('H:i',DateTime::createFromFormat('H:i', "08:20")->getTimestamp());
-                $breakStart = date('H:i',DateTime::createFromFormat('H:i', "10:11")->getTimestamp());
-                $breakEnd = date('H:i',DateTime::createFromFormat('H:i', "10:45")->getTimestamp());
+                //$assStart = date('H:i',DateTime::createFromFormat('H:i', "08:00")->getTimestamp());
+                //$assEnd = date('H:i',DateTime::createFromFormat('H:i', "08:20")->getTimestamp());
+                //$breakStart = date('H:i',DateTime::createFromFormat('H:i', "10:11")->getTimestamp());
+                //$breakEnd = date('H:i',DateTime::createFromFormat('H:i', "10:45")->getTimestamp());
                 
                 foreach ($result as $value) {                    
                     $start_time = date('H:i', $value->start_time);
