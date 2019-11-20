@@ -432,3 +432,9 @@ $route['(?i)task'] = "TaskController/add_task_form";
 $route['(?i)task/(:any)'] = "TaskController/add_task_form/$1";
 $route['(?i)gettasklist'] = "TaskController/GetTasks";
 $route['(?i)gettask'] = "TaskController/GetTask";
+
+// Datesheet
+$route['datesheetlist'] = 'Principal_controller/getDatesheetList';
+$route['add_datesheet'] = 'Principal_controller/AddDatesheet';
+$route['getdatesheetedit'] = "Principal_controller/DatesheetUpdate/";
+$route['update_datesheet/(:any)'] = "Principal_controller/getDatesheetUpdate/$1";

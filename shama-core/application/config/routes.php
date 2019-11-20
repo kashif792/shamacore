@@ -184,3 +184,24 @@ $route['api/v(:num)/getbreakdata'] = 'api_v$1/Lmsapi/getbreakdata';
 $route['api/v(:num)/getbreakupdate'] = 'api_v$1/Lmsapi/getbreakupdate';
 // getschedule
 $route['api/v(:num)/show_schedule_list'] = 'api_v$1/Lmsapi/show_schedule_list';
+
+// Details Datesheet
+$route['api/v(:num)/getsessiondetail'] = 'api_v$1/Lmsapi/GetSessionDetail';
+$route['api/v(:num)/getsemesterdata'] = 'api_v$1/Lmsapi/GetSemesterData';
+$route['api/v(:num)/add_datesheet'] = 'api_v$1/Lmsapi/AddDatesheet';
+$route['api/v(:num)/getdatesheetdata'] = 'api_v$1/Lmsapi/getDatesheetData';
+$route['api/v(:num)/getclasslist'] = 'api_v$1/Lmsapi/getclasslist';
+$route['api/v(:num)/saveMainDatesheet'] = 'api_v$1/Lmsapi/saveMainDatesheet';
+$route['api/v(:num)/getDatesheet'] = 'api_v$1/Lmsapi/getDatesheet';
+
+
+$route['api/v(:num)/update_datesheet/(:any)'] = "api_v$1/Lmsapi/getDatesheetUpdate/$1";
+$route['api/v(:num)/getdatesheetedit'] = "api_v$1/Lmsapi/DatesheetUpdate/";
+$route['api/v(:num)/getdatesheetdetailedit'] = "api_v$1/Lmsapi/getDatesheetDetailInfo/";
+$route['api/v(:num)/getdetaildatesheet'] = "api_v$1/Lmsapi/getDatesheetDetailList/";
+$route['api/v(:num)/getsubjectlistbyclass'] = "api_v$1/Lmsapi/getsubjectlistbyclass/";
+$route['api/v(:num)/saveDatesheetDetail'] = "api_v$1/Lmsapi/saveDatesheetDetail/";
+$route['api/v(:num)/removeDetailDatesheet'] = "api_v$1/Lmsapi/removeDetailDatesheet/";
+$route['api/v(:num)/removeDatesheets'] = "api_v$1/Lmsapi/removeDatesheets/";
+
+

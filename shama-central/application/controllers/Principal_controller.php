@@ -167,7 +167,7 @@ class Principal_controller extends MY_Controller
     {
         $result = array('mon_status'=>"Active",'tue_status'=>"Active",'wed_status'=>"Active",'thu_status'=>"Active",'fri_status'=>"Active",'sat_status'=>"Inactive",'sun_status'=>"Inactive",'mon_start_time'=>"00:00:00",'mon_end_time'=>"00:00:00",'tue_start_time'=>"00:00:00",'tue_end_time'=>"00:00:00",'wed_start_time'=>"00:00:00",'wed_end_time'=>"00:00:00",'thu_start_time'=>"00:00:00",'thu_end_time'=>"00:00:00",'fri_start_time'=>"00:00:00",'fri_end_time'=>"00:00:00",'sat_start_time'=>"00:00:00",'sat_end_time'=>"00:00:00",'sun_start_time'=>"00:00:00",'sun_end_time'=>"00:00:00");
         $this->data['result'] = $result;
-        
+
         $this->load->view('principal/exam_timetable',$this->data);
 
     }
@@ -179,6 +179,7 @@ class Principal_controller extends MY_Controller
         $this->load->view('principal/exam_timetble_list',$this->data);
     }
 
+    
 
     public function show_quizz_list()
     {
@@ -1418,6 +1419,22 @@ class Principal_controller extends MY_Controller
             }
         }
         echo json_encode($is_principal);
+    }
+    function getDatesheetList()
+    {
+        
+        
+        $this->data['logo'] = parent::ImageConvertorToBase64(base_url()."images/logo_nr_school.png");
+        $this->load->view('principal/datesheet/show_datesheet_list',$this->data);
+    }
+    function AddDatesheet()
+    {
+        
+        $this->load->view('principal/datesheet/add_datesheet');
+    }
+    function getDatesheetUpdate()
+    {
+        $this->load->view('principal/datesheet/edit_datesheet');
     }
 }
 

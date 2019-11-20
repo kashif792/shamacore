@@ -8538,7 +8538,7 @@ class LMSApi extends MY_Rest_Controller
                 }
                
                 
-                $query = $this->operation->GetRowsByQyery("SELECT sch.* FROM schedule sch  Where class_id =".$is_class[0]->id." AND sch.semsterid = " . $active_semester[0]->semester_id . " AND sch.sessionid =" . $active_session[0]->id . " Order by sch.id,sch.start_time");
+                $query = $this->operation->GetByWhere("SELECT sch.* FROM schedule sch  Where class_id =".$is_class[0]->id." AND sch.semsterid = " . $active_semester[0]->semester_id . " AND sch.sessionid =" . $active_session[0]->id . " Order by sch.id,sch.start_time");
                 
                 if (count($query))
                 {
@@ -8590,4 +8590,777 @@ class LMSApi extends MY_Rest_Controller
         $this->response($listarray, REST_Controller::HTTP_OK);
         //echo json_encode($listarray);
     }
+    // Datesheet
+
+    function GetSessionDetail_get()
+    {
+        $this->operation->table_name = 'sessions';
+        $sessionarray = array();
+        $this->operation->order_by = 'desc';
+        $school_id = $this->input->get('school_id');
+        $sessionlist = $this->operation->GetByWhere(array('school_id' => $school_id));
+        if (count($sessionlist))
+        {
+            foreach ($sessionlist as $key => $value)
+            {
+                $sessionarray[] = array('id' => $value->id, 'name' => date('M d, Y', strtotime($value->datefrom)) . ' - ' . date('M d, Y', strtotime($value->dateto)), 'status' => $value->status);
+            }
+        }
+        $this->response($sessionarray, REST_Controller::HTTP_OK);
+        //echo json_encode($sessionarray);
+    }
+    function GetSemesterData_get()
+    {
+        $this->operation->table_name = 'semester';
+        $semesterlist = $this->operation->GetRows();
+        $school_id = $this->input->get('school_id');
+        $active_session = $this->get_active_session($school_id);
+        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+
+        $semesterarray = array();
+        if (count($semesterlist))
+        {
+            foreach ($semesterlist as $key => $value)
+            {
+                $semesterarray[] = array('id' => $value->id, 'name' => $value->semester_name,
+                
+                'status' => ($value->id == $active_semester->semester_id ? 'a' : 'i'), 'active_semster' => ($value->id == $active_semester->semester_id ? 'a' : 'i'));
+            }
+        }
+        if (!is_null($this->input->get('inputsemesterid')))
+        {
+            $resultlist = $this->operation->GetByWhere(array('id' => $this->input->get('inputsemesterid'),));
+            if (count($resultlist))
+            {
+                $semesterarray = array();
+                foreach ($resultlist as $key => $value)
+                {
+                    $semesterarray[] = array('id' => $value->id, 'name' => $value->semester_name, 'status' => $value->status,);
+                }
+            }
+        }
+        $this->response($semesterarray, REST_Controller::HTTP_OK);
+        
+    }
+    function AddDatesheet()
+    {
+        if(!($this->session->userdata('id')))
+        {
+
+                parent::redirectUrl('signin');
+
+            }
+
+        if($this->uri->segment(2) AND $this->uri->segment(2) != "page" )
+        {
+
+            $schedule_single = $this->operation->GetRowsByQyery("Select * from quize where id= ".$this->uri->segment(2));
+
+            $this->data['schedule_single'] = $schedule_single;
+
+
+
+        }
+
+        $this->operation->table_name = "subjects";
+
+        $subjectslist = $this->operation->GetRows();
+
+        $subjects = array();
+
+        if(count($subjectslist))
+
+        {
+
+            foreach ($subjectslist as $key => $value) {
+
+                $subjects[] = array(
+
+                    'subid'=>$value->id,
+
+                    'name'=>$value->subject_name,
+
+                    'class'=>parent::getClass($value->class_id),
+
+                );
+
+            }
+
+        }
+
+
+        $roles = $this->session->userdata('roles');
+        $locations = $this->session->userdata('locations');
+
+        if( $roles[0]['role_id'] == 3)
+        {
+
+
+
+        $classlist = $this->operation->GetRowsByQyery("SELECT  * FROM classes c where school_id =".$locations[0]['school_id']);
+
+        }
+         else if ($roles[0]['role_id'] == 4 OR $this->session->userdata('is_master_teacher') == '1') {
+
+            $classlist = $this->operation->GetRowsByQyery("SELECT c.id as classid,c.grade FROM schedule sch INNER JOIN classes c on c.id = sch.class_id  WHERE sch.teacher_uid = ".$this->session->userdata('id')." GROUP by c.id ORDER by c.id asc");
+        }
+
+       
+        $this->load->view('principal/datesheet/add_datesheet', $this->data);
+    }
+    function saveMainDatesheet_post()
+    {
+    
+    
+        
+
+        $result['message'] = false;
+        $request = $this->parse_params();
+        $id = $request->id;
+        
+        $class_id = $request->select_class;
+        $school_id = $request->school_id;
+        $end_date = $request->enddate;
+        $start_date = $request->startdate;
+        $notes = $request->notes;
+        $exam_type = $request->exam_type;
+        $starttime = $request->starttime;
+        $endtime = $request->endtime;
+        $active_session = $this->get_active_session($school_id);
+        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+        $session_id = $active_session->id;
+            if($id)
+            {
+                $subject_schedual_check = true;
+                $data =  array(
+                            'class_id'=>$class_id,
+                            'session_id'=>$active_session->id,
+                            'school_id'=>$school_id,
+                            'semester_id'=>$active_semester->semester_id,
+                            'start_time'=>date('H:i',strtotime($starttime)),
+                            'end_time'=>date('H:i',strtotime($endtime)),
+                            'notes'=>$notes,
+                            'exam_type'=>$exam_type,
+                            'start_date'=> date('Y-m-d',strtotime($start_date)),
+                            'end_date'=> date('Y-m-d',strtotime($end_date)),
+                            'updated_at'=> date('Y-m-d H:i'),
+                        );
+                $this->operation->table_name = 'datesheets';
+                //$id = $this->operation->Create($data);
+                //$id = $this->operation->Create($data,$this->input->post('serial'));
+                $this->db->where('id',$id);
+                $this->db->update('datesheets',$data);
+                if(count($id))
+                {
+                    $result['message'] = true;
+                    $result['lastid'] = $id;
+                }
+            }
+            else
+            {
+                $subject_schedual_check = true;
+                // Check Validation
+                $this->operation->table_name = 'datesheets';
+                $is_datesheet = $this->operation->GetByWhere(array('class_id' => $class_id,'session_id' => $active_session->id,'semester_id' => $active_semester->semester_id,'exam_type' => $exam_type,'school_id' => $school_id));
+                
+                if(count($is_datesheet)>0)
+                {
+                    $result['message'] = false;
+                    
+                }
+                else
+                {
+
+                    $data2 =  array(
+                                'class_id'=>$class_id,
+                                'session_id'=>$active_session->id,
+                                'school_id'=>$school_id,
+                                'semester_id'=>$active_semester->semester_id,
+                                'start_time'=>date('H:i',strtotime($starttime)),
+                                'end_time'=>date('H:i',strtotime($endtime)),
+                                'notes'=>$notes,
+                                'exam_type'=>$exam_type,
+                                'start_date'=> date('Y-m-d',strtotime($start_date)),
+                                'end_date'=> date('Y-m-d',strtotime($end_date)),
+                                'created_at'=> date('Y-m-d H:i'),
+                            );
+
+                    // $this->operation->table_name = 'datesheets';
+                    // $id = $this->operation->Create($data2);
+                    $this->db->insert('datesheets',$data2);
+                    $id = $this->db->insert_id();
+                    if(count($id))
+                    {
+                        $result['message'] = true;
+                        $result['lastid'] = $id;
+                    }
+                }
+            }
+                
+        $this->set_response($result, REST_Controller::HTTP_OK);
+        //echo json_encode($result);
+    }
+    function getDatesheet_get()
+    {
+        $id = $this->input->get('serial');
+        
+        $schedulararray = array();
+        
+        
+            $this->operation->table_name = 'datesheets';
+            $schedulalist = $this->operation->GetByWhere(array(
+                'id' => $id
+            ));
+            
+            if (count($schedulalist)) {
+                
+                foreach ($schedulalist as $key => $value) {
+                    
+                    $result = array(
+                        'class_id' => $value->class_id,
+                        'exam_type' => $value->exam_type,
+                        'start_date' => date('d F, Y',strtotime($value->start_date)),
+                        'end_date' => date('d F, Y',strtotime($value->end_date)),
+                        
+                        'start_time' => date('H:i',strtotime($value->start_time)),
+                        'end_time' => date('H:i',strtotime($value->end_time)),
+                        'notes' => $value->notes,
+                        
+                        
+                    );
+                }
+            }
+        
+        $this->set_response($result, REST_Controller::HTTP_OK);
+    }
+    function getdatesheetdata_get()
+    {
+        $listarray = array();
+        $data_array = array();
+        
+        $request = json_decode(file_get_contents('php://input'));
+        $school_id = $this->input->get('school_id');
+        ///$inputclassid =  $this->input->get('inputclassid');
+        $inputsessionid =  $this->input->get('inputsessionid');
+        $inputsemesterid = $this->input->get('inputsemesterid');
+        //$inputtype = $this->security->xss_clean(trim($request->inputtype));
+        // get active session
+        $this->operation->table_name = 'sessions';
+        $active_session = $this->operation->GetByWhere(array('school_id'=>$school_id,'status'=>'a'));
+
+        if (!is_null($inputsessionid) && !is_null($inputsemesterid))
+        {
+            $datesheelist = $this->operation->GetByQuery("SELECT
+                            d.id
+                            ,d.start_time
+                            ,d.end_time
+                            ,d.start_date
+                            ,d.end_date
+                            ,classes.grade
+                            , semester.semester_name
+                            , d.exam_type
+                            , sessions.datefrom
+                            , sessions.dateto
+                            FROM
+                            datesheets as d
+                            INNER JOIN classes 
+                                ON (d.class_id = classes.id)
+                            INNER JOIN semester 
+                                ON (semester.id = d.semester_id)
+                            
+                            INNER JOIN sessions 
+                                ON (d.session_id = sessions.id)
+                            WHERE
+                            d.session_id  = ".$inputsessionid." AND
+                            d.semester_id  = ".$inputsemesterid." AND
+                            
+                            d.school_id =".$school_id." ORDER BY d.created_at desc");
+            if (count($datesheelist))
+            {   
+
+                foreach ($datesheelist as $key => $value)
+                {
+                    // Hide Edit and delete option
+                    $icon_hide =true;
+                    if($inputsessionid==$active_session[0]->id)
+                    {
+                        $icon_hide = false;
+                    }
+                    // End here
+
+                    $listarray[] =array('id' => $value->id,'hide' =>$icon_hide ,'start_date'=>date('M d, Y',strtotime($value->start_date)),'end_date'=>date('M d, Y',strtotime($value->end_date)),'start_time'=>date('H:i',strtotime($value->start_time)),'end_time'=>date('H:i',strtotime($value->end_time)),'grade'=>$value->grade,'type'=>$value->exam_type,'semester_name'=>$value->semester_name,'subject_name'=>$value->subject_name,'subject_name'=>$value->subject_name,'exam_date'=>date("M d, Y",strtotime($value->exam_date)),'exam_day'=>date("l",strtotime($value->exam_date)),'action'=>'');
+                }
+
+            }
+             
+            
+            // get session date
+            $this->operation->table_name = 'sessions';
+
+            $is_session = $this->operation->GetByWhere(array('id'=>$inputsessionid));
+            $session_dates =date("Y",strtotime($is_session[0]->datefrom)).' - '.date("Y",strtotime($is_session[0]->dateto));
+            
+            
+            // get semester dates
+            $this->operation->table_name = 'semester_dates';
+
+            $semester_date_q = $this->operation->GetByWhere(array('semester_id'=>$inputsemesterid,'session_id'=>$inputsessionid));
+            
+            $semester_dates =date("M d, Y",strtotime($semester_date_q[0]->start_date)).' - '.date("M d, Y",strtotime($semester_date_q[0]->end_date));
+            // get semester name
+            $this->operation->table_name = 'semester';
+
+            $semester_name_q = $this->operation->GetByWhere(array('id'=>$inputsemesterid));
+            //get school name
+            $this->operation->table_name = 'schools';
+
+            $school_name_q = $this->operation->GetByWhere(array('id'=>$school_id));
+            
+            
+
+            $data_array = array('type'=>$inputtype,'grade'=>$is_class[0]->grade,'session_dates'=>$session_dates,'semester_dates'=>$semester_dates,'semester_name' =>$semester_name_q[0]->semester_name,'school_name'=>$school_name_q[0]->name);
+            
+             $result[] = array(
+                        'listarray'=>$listarray,
+                        
+                        'data_array'=>$data_array
+                    );
+
+            //echo json_encode($result);
+            $this->response($result, REST_Controller::HTTP_OK);
+        }
+        
+    }
+    function saveDatesheetDetail_post()
+    {
+       
+        $result['message'] = false;
+        //$this->uri->segment(2)
+        $request = $this->parse_params();
+        
+        $school_id = $request->school_id;
+        
+        $active_session = $this->get_active_session($school_id);
+        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+        
+            if($request->detail_id)
+            {
+
+                $data =  array(
+                            'start_time'=>date('H:i',strtotime($request->inputFrom)),
+                            'end_time'=>date('H:i',strtotime($request->inputTo)),
+                            'exam_date'=>date('Y-m-d',strtotime($request->exam_date)),
+                            'subject_id'=>$request->subject_id,
+                            'updated_at'=> date('Y-m-d H:i'),
+                        );
+                $this->operation->table_name = 'datesheet_details';
+                $id = $this->operation->Create($data,$request->detail_id);
+            }
+            else
+            {
+                 
+                
+                $data =  array(
+                            'datesheet_id'=>$request->datesheet_id,
+                            'start_time'=>date('H:i',strtotime($request->inputFrom)),
+                            'end_time'=>date('H:i',strtotime($request->inputTo)),
+                            'exam_date'=>date('Y-m-d',strtotime($request->exam_date)),
+                            'subject_id'=>$request->subject_id,
+                            'created_at'=> date('Y-m-d H:i'),
+                        );
+                $this->operation->table_name = 'datesheet_details';
+                $id = $this->operation->Create($data);
+            }
+                
+                if(count($id))
+                {
+                    $result['message'] = true;
+                }
+        
+        echo json_encode($result);
+    }
+    function getDatesheetUpdate()
+    {
+
+        if(!($this->session->userdata('id'))){
+
+                parent::redirectUrl('signin');
+
+            }
+
+        $locations = $this->session->userdata('locations');
+
+            $roles = $this->session->userdata('roles');
+
+            $result = array();
+
+            if($this->uri->segment(2) AND $this->uri->segment(2) != "page" ){
+
+                $schedule_single = $this->operation->GetRowsByQyery("Select * from datesheets where id= ".$this->uri->segment(2));
+                if(Count($schedule_single))
+                {
+                    $this->data['schedule_single'] = $schedule_single;
+
+                    $result['class_id'] = $schedule_single[0]->class_id;
+
+                    $result['semester_id'] = $schedule_single[0]->semester_id;
+
+                    $result['type'] = $schedule_single[0]->exam_type;
+                    $result['start_time'] = date('H:i',strtotime($schedule_single[0]->start_time));
+
+                    $result['end_time'] = date('H:i',strtotime($schedule_single[0]->end_time));
+
+                    $result['start_date'] = date('Y-m-d',strtotime($schedule_single[0]->start_date));
+                    $result['end_date'] = date('Y-m-d',strtotime($schedule_single[0]->end_date));
+
+                }
+
+                $this->data['result'] = $result;
+
+        }
+
+        $this->operation->table_name = "subjects";
+
+        $subjectslist = $this->operation->GetRows();
+
+        $subjects = array();
+
+        if(count($subjectslist))
+
+        {
+
+            foreach ($subjectslist as $key => $value) {
+
+
+
+                $subjects[] = array(
+
+                    'subid'=>$value->id,
+
+                    'name'=> $value->subject_name." (".$value->subject_code." )",
+
+                    'class'=>parent::getClass($value->class_id),
+
+                );
+
+            }
+
+        }
+
+        // get Detail sheet data
+                  
+        //$this->operation->table_name = "datesheet_details";
+        //$datesheet_list = $this->operation->GetByWhere(array('datesheet_id'=>$this->uri->segment(2)));
+        
+        $datesheet_list = $this->operation->GetRowsByQyery("Select * from datesheet_details where datesheet_id= ".$this->uri->segment(2)." ORDER BY exam_date");
+
+        $details = array();
+
+        if(count($datesheet_list))
+
+        {
+
+            foreach ($datesheet_list as $key => $value) {
+
+
+
+                $details[] = array(
+
+                    'detail_id'=>$value->id,
+                    'datesheet_id'=>$value->datesheet_id,
+                    'exam_date'=>date('M d, Y',strtotime($value->exam_date)),
+                    'exam_day'=>date('l',strtotime($value->exam_date)),
+                    'start_time'=>date('H:i',strtotime($value->start_time)),
+                    'end_time'=>date('H:i',strtotime($value->end_time)),
+                    'subject_name'=>getName('subjects','subject_name',$value->subject_id),
+                );
+
+            }
+
+        }
+
+//print_r($details);
+
+        $classlist = $this->operation->GetRowsByQyery("SELECT  * FROM classes c where school_id=".$locations[0]['school_id']);
+        
+        $this->data['classlist'] = $classlist;
+
+
+
+        $this->data['subjects'] = $subjects;
+
+        $this->data['details'] = $details;
+
+        $this->load->view('principal/datesheet/edit_datesheet', $this->data);
+        
+    }
+    function getDatesheetDetailList_post()
+    {
+        
+        $details = array();
+        $request = $this->parse_params();
+        
+        $serial = $request->datesheet_id;
+        $datesheet_list = $this->operation->GetByQuery("Select * from datesheet_details where datesheet_id= ".$serial." ORDER BY exam_date");
+
+        $details = array();
+        $data_array = array();
+        if(count($datesheet_list))
+
+        {
+
+            foreach ($datesheet_list as $key => $value) {
+
+
+
+                $details[] = array(
+
+                    'detail_id'=>$value->id,
+                    'datesheet_id'=>$value->datesheet_id,
+                    'exam_date'=>date('M d, Y',strtotime($value->exam_date)),
+                    'exam_day'=>date('l',strtotime($value->exam_date)),
+                    'start_time'=>date('H:i',strtotime($value->start_time)),
+                    'end_time'=>date('H:i',strtotime($value->end_time)),
+                    'subject_name'=>getName('subjects','subject_name',$value->subject_id),
+                );
+
+            }
+
+        }
+        // Datesheet information
+        $datesheet_single = $this->operation->GetByQuery("Select * from datesheets where id= ".$serial);
+        if(Count($datesheet_single))
+        {
+            
+
+            $class_id= $datesheet_single[0]->class_id;
+
+            $semester_id = $datesheet_single[0]->semester_id;
+
+            $session_id = $datesheet_single[0]->session_id;
+            if($datesheet_single[0]->notes)
+            {
+                $notes = $datesheet_single[0]->notes;
+                $notes_text = "Notes:";
+            }
+            
+
+            $type = $datesheet_single[0]->exam_type;
+            $start_time = date('H:i',strtotime($datesheet_single[0]->start_time));
+
+            $end_time = date('H:i',strtotime($datesheet_single[0]->end_time));
+
+        }
+
+        // Get class Name
+            $this->operation->table_name = 'classes';
+
+            $is_class = $this->operation->GetByWhere(array('id'=>$class_id));
+            
+            
+            // get session date
+            $this->operation->table_name = 'sessions';
+
+            $is_session = $this->operation->GetByWhere(array('id'=>$session_id));
+            $session_dates =date("Y",strtotime($is_session[0]->datefrom)).' - '.date("Y",strtotime($is_session[0]->dateto));
+            $session_dates_file_name =date("Y",strtotime($is_session[0]->datefrom)).'-'.date("Y",strtotime($is_session[0]->dateto));
+            // get semester dates
+            $this->operation->table_name = 'semester_dates';
+
+            $semester_date_q = $this->operation->GetByWhere(array('semester_id'=>$semester_id,'session_id'=>$session_id));
+            
+            $semester_dates =date("M d, Y",strtotime($semester_date_q[0]->start_date)).' - '.date("M d, Y",strtotime($semester_date_q[0]->end_date));
+            // get semester name
+            $this->operation->table_name = 'semester';
+
+            $semester_name_q = $this->operation->GetByWhere(array('id'=>$semester_id));
+            //get school name
+            //$this->operation->table_name = 'schools';
+
+            //$school_name_q = $this->operation->GetByWhere(array('id'=>$locations[0]['school_id']));
+            // Create file name
+            //$file_name = $session_dates_file_name.'-'.$semester_name_q[0]->semester_name.'-'.$type.'-'.$is_class[0]->grade; 
+            $file_name = $type.'-Term-Datesheet'.'-'.$semester_name_q[0]->semester_name.'-'.$session_dates_file_name.'-'.str_replace(' ','-',$is_class[0]->grade); 
+            $data_array = array('type'=>$type,'notes_text'=>$notes_text,'notes'=>$notes,'grade'=>$is_class[0]->grade,'session_dates'=>$session_dates,'semester_dates'=>$semester_dates,'semester_name' =>$semester_name_q[0]->semester_name,'school_name'=>$school_name_q[0]->name,'file_name'=>$file_name);
+            
+             
+        // End here
+        
+        $result[] = array(
+                        'details'=>$details,
+                        
+                        'data_array'=>$data_array
+                    );
+        $this->response($result, REST_Controller::HTTP_OK);
+        
+    }
+    function DatesheetUpdate ()
+    {
+        
+        
+        $locations = $this->session->userdata('locations');
+        $request = json_decode(file_get_contents('php://input'));
+
+        $serial = $this->input->get('datesheetinfo');
+        $listarray = array();
+        $data_array = array();
+        $datesheelist = $this->operation->GetRowsByQyery("Select * from datesheets where id= ".$serial);
+        if (count($datesheelist))
+            {   
+
+                foreach ($datesheelist as $key => $value)
+                {
+
+                    $listarray[] =array('id' => $value->id,'notes' => $value->notes,'start_time'=>date('H:i',strtotime($value->start_time)),'end_time'=>date('H:i',strtotime($value->end_time)),'class_id'=>$value->class_id,'type'=>$value->exam_type,'semester_id'=>$value->semester_id,'session_id'=>$value->session_id);
+                }
+
+            }
+        
+        echo json_encode($listarray);
+    }
+    
+    function GetClassList_get()
+    {
+        $this->operation->table_name = 'classes';
+        $classarray = array();
+        $school_id = $this->input->get('school_id');
+        
+        if ($this->input->get('inputclassid'))
+        {
+            $classlist = $this->operation->GetByWhere(array('id' => $this->input->get('inputclassid')));
+        }
+        else
+        {
+            $classlist = $this->operation->GetByQuery("Select c.* from classes c  where  c.school_id =" . $school_id);
+        }
+        
+        if (count($classlist))
+        {
+            foreach ($classlist as $key => $value)
+            {
+                //$school = parent::GetSchoolDetail($value->school_id);
+                $sectionlist = array();
+                $is_section_found = $this->operation->GetByQuery("Select s.id as sectionid,s.section_name,assi.status from assign_sections assi INNER JOIN sections s ON s.id = assi.section_id  where  assi.class_id =" . $value->id);
+                if (count($is_section_found))
+                {
+                    foreach ($is_section_found as $key => $svalue)
+                    {
+                        $sectionlist[] = array('sectionid' => $svalue->sectionid, 'section_name' => $svalue->section_name, 'status' => $svalue->status,);
+                    }
+                }
+                $classarray[] = array('id' => $value->id, 'name' => $value->grade, 'status' => $value->status, 'sections' => $sectionlist);
+            }
+        }
+        $this->response($classarray, REST_Controller::HTTP_OK);
+        //echo json_encode($classarray);
+    }
+    function getDatesheetDetailInfo_post()
+    {
+        $request = $this->parse_params();
+        
+        $serial = $request->id;
+        $detail_id = $request->detail_id;
+        
+        
+        $listarray = array();
+        $datesheelist = $this->operation->GetByQuery("Select * from datesheet_details where id= ".$detail_id);
+        if (count($datesheelist))
+            {   
+
+                foreach ($datesheelist as $key => $value)
+                {
+
+                    $listarray[] =array('id' => $value->id,'subject_id' => $value->subject_id,'start_time'=>date('H:i',strtotime($value->start_time)),'end_time'=>date('H:i',strtotime($value->end_time)),'exam_date'=>date('d F, Y',strtotime($value->exam_date)));
+                }
+
+            }
+        $this->response($listarray, REST_Controller::HTTP_OK);
+       
+    }
+    function GetSubjectListByClass_post()
+
+    {
+
+        $sections = array();
+
+        
+        
+        $request = $this->parse_params();
+        
+        $school_id = $request->school_id;
+        $class_id = $request->class_id;
+        $active_session = $this->get_active_session($school_id);
+        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+        
+        if(!empty($class_id))
+
+        {
+
+            $is_student_found = $this->operation->GetByQuery("Select s.* from subjects s  where S.class_id = ".$class_id."  AND s.session_id = ".$active_session->id." AND s.semester_id = ".$active_semester->semester_id);
+
+
+
+            if(count($is_student_found)){
+
+                foreach ($is_student_found as $key => $value) {
+
+                    $sections[] = array(
+
+                        'id'=>$value->id,
+
+                        'name'=>$value->subject_name.' ( '.$value->subject_code.' )',
+                        'title'=>$value->subject_name
+
+                    );
+
+                }
+
+            }
+
+        }
+
+       
+
+       
+
+
+        $this->response($sections, REST_Controller::HTTP_OK);
+        
+
+    }
+    function removeDetailDatesheet_get()
+    {
+        
+        $result['message'] = false;
+
+        $removeStudent = $this->db->query("Delete from datesheet_details where id = ".$this->input->get('id'));
+        
+
+
+            if($removeStudent == TRUE):
+
+                $result['message'] = true;
+
+            endif;
+
+            echo json_encode($result);
+    }
+    function removeDatesheets_get()
+    {
+    
+
+    $result['message'] = false;
+
+    $removeStudent = $this->db->query("Delete from datesheets where id = ".$this->input->get('id'));
+    
+
+
+        if($removeStudent == TRUE):
+
+            $result['message'] = true;
+
+        endif;
+
+        echo json_encode($result);
+}
 }

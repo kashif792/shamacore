@@ -180,6 +180,12 @@
 				<span class="link_text"> Reports</span>
 			</a>
 		</li>
+		<li class="">
+			<a  href="<?php echo base_url(); ?>datesheetlist">
+				<i class="fa fa-question-circle" aria-hidden="true"></i>
+				<span class="link_text"> Datesheets</span>
+			</a>
+		</li>
   </ul>
 
 </div>
