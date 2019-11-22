@@ -200,8 +200,22 @@ $route['api/v(:num)/getdatesheetedit'] = "api_v$1/Lmsapi/DatesheetUpdate/";
 $route['api/v(:num)/getdatesheetdetailedit'] = "api_v$1/Lmsapi/getDatesheetDetailInfo/";
 $route['api/v(:num)/getdetaildatesheet'] = "api_v$1/Lmsapi/getDatesheetDetailList/";
 $route['api/v(:num)/getsubjectlistbyclass'] = "api_v$1/Lmsapi/getsubjectlistbyclass/";
+$route['api/v(:num)/getsectionbyclass'] = "api_v$1/Lmsapi/GetSectionsByClass/";
 $route['api/v(:num)/saveDatesheetDetail'] = "api_v$1/Lmsapi/saveDatesheetDetail/";
 $route['api/v(:num)/removeDetailDatesheet'] = "api_v$1/Lmsapi/removeDetailDatesheet/";
 $route['api/v(:num)/removeDatesheets'] = "api_v$1/Lmsapi/removeDatesheets/";
+// Quize Section
+$route['api/v(:num)/getclasslistTeacher'] = 'api_v$1/Lmsapi/getclasslistTeacher';
+$route['api/v(:num)/savequiz'] = 'api_v$1/Lmsapi/save_quize_info';
+$route['api/v(:num)/savequestion'] = 'api_v$1/Lmsapi/save_quize_Question';
+$route['api/v(:num)/getquestionlist'] = 'api_v$1/Lmsapi/getquestionlist';
+$route['api/v(:num)/getquestionbyid'] = 'api_v$1/Lmsapi/getquestionbyid';
+$route['api/v(:num)/removeQuestion'] = 'api_v$1/Lmsapi/removeQuestion';
+$route['api/v(:num)/getQuizList'] = 'api_v$1/Lmsapi/getQuizList';
+$route['api/v(:num)/getselectedsubject'] = 'api_v$1/Lmsapi/getselectedsubject';
+$route['api/v(:num)/getselectequiz'] = 'api_v$1/Lmsapi/getselectequiz';
+
+
+
 
 

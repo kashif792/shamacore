@@ -21,7 +21,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
 <link href="<?php echo $path_url; ?>css/easy-responsive-tabs.css" rel="stylesheet">
 
 <link rel="stylesheet" href="<?php echo $path_url; ?>css/intlTelInput.css">
-
+<div ng-controller="class_quiz_ctrl">
 <div id="myUserModal" class="modal fade">
 
     <div class="modal-dialog">
@@ -131,89 +131,69 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
 <?php
 
-	// require_footer 
+    // require_footer 
 
-	require APPPATH.'views/__layout/filterlayout.php';
+    require APPPATH.'views/__layout/filterlayout.php';
 
 ?>
-	<div class="col-lg-12 widget">
-		<div class="panel-heading plheading" id="widget-header">
-			<!-- widget title -->
-  				<!-- <div class="widget-title"> -->
-	  				<h4>Quiz list
-	  					<!-- <a href="<?php echo $path_url; ?>addquizz" class="btn btn-primary" id="add-action">Add New Quiz</a> -->
-              <a href="#" class="btn btn-primary" id="update-action">Update Quizzes</a>
-	  					</h4>
-  				<!-- </div> -->
-			</div>
-			<div class="widget-body">
-				<div class="setting-container">
-					<div id="setting">          
-				  		<ul class="resp-tabs-list vert">
-			      			<?php if(count($roles_right) > 0){ ?>
-					      	<li>Subjects</li>
-					      	
-					      	<?php } ?>
-					  	</ul> 
-			  			<div class="resp-tabs-container vert">                                                        
-			      			<?php //if(count($roles_right) > 0){ ?>
-			      			<div id="user-managment-tab">
-			      				<div class="action-element">
-		  						
-		  						</div>
-			      				<table class="table-body" id="table-body-phase-tow" >
-			                        <thead>
-				                        <tr>
-				                            <th>Grade</th>
-				                            <th>Subject</th>
-				                            <th>Quiz Name</th>
-				                             <th>Options</th>
-				                        </tr>
-				                    </thead>
-				                    <tfoot>
-				                     <tr>
-				                            <th>Grade</th>
-				                            <th>Subject</th>
-				                            <th>Quiz Title</th>
-				                             <th>Options</th>
-				                        </tr>
-				                    </tfoot>
-									<tbody id="reporttablebody-phase-two" class="report-body">
-			                        	<?php $i = 1 ; if(isset($quiz_list)){ ?>
-			                                <?php foreach ($quiz_list as $key => $value) {?>
-			                                <tr <?php if($i%2 == 0){echo "class='green-bar row-update'";}
-                                             else
-                                            {
-                                                echo "class='yellow-bar row-update'";} ?> id="tr_<?php echo $value->id ;?>" data-view="<?php echo $this->encrypt->encode($value->row_slug) ;?>">
-			                                    <td class="row-bar-user" ><?php echo $value->grade; ?></td>
-			                         			<td class="row-bar-user" ><?php echo ucwords($value->subject_name); ?></td>
-			                                   <td class="row-bar-user" ><?php echo $value->qname; ?></td>
-			                                  
-			                                    <td>
-			                                        <a href="<?php echo $path_url; ?>addquizz/<?php echo $value->id ;?>" id="<?php echo $value->id ;?>" class='edit' title="Edit">
-			                                            <i class="fa fa-edit" aria-hidden="true"></i>
-			                                        </a>
-			                                    </td>
-			                                </tr>
-			                                <?php $i++;} ?>
-			                                <?php }  ?>
+    <div class="col-lg-12 widget">
+        <div class="panel-heading plheading" id="widget-header">
+            <!-- widget title -->
+                <!-- <div class="widget-title"> -->
+                    <h4>Quiz list
+                        <a href="<?php echo $path_url; ?>addquizz" class="btn btn-primary" id="add-action">Add New Quiz</a>
+                        </h4>
+                <!-- </div> -->
+            </div>
+            <div class="widget-body">
+                <div class="setting-container">
+                    <div id="setting">          
+                        
+                        <div class="resp-tabs-container vert">                                                        
+                            <?php //if(count($roles_right) > 0){ ?>
+                            <div id="user-managment-tab">
+                                <div class="action-element">
+                                
+                                </div>
+                                <table class="table-body" id="table-body-phase-tow" >
+                                    <thead>
+                                        <tr>
+                                    <th>Date</th>
+                                            <th>Grade(Section) Name</th>
+                                            <th>Subject Name</th>
+                                            <th>Quiz Name</th>
+                                           <!--  <th>Status</th> -->
+                                             <th>Options</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                     <tr>
+                                  <th>Date</th>
+                                            <th>Grade(Section) Name</th>
+                                            <th>Subject Name</th>
+                                            <th>Quiz Name</th>
+                                           <!--  <th>Status</th> -->
+                                             <th>Options</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody >
 
-					                </tbody>
+                                    </tbody>
 
-			                    </table>
+                                </table>
 
-			      			</div>
+                            </div>
 
-			      			<?php// } ?>
+                            <?php// } ?>
 
-		  				</div>
+                        </div>
 
-					</div>  
+                    </div>  
 
-				</div>
+                </div>
 
-			</div>
-	</div>
+            </div>
+    </div>
 </div>
 
 <div class="modal fade" id="myModal" role="dialog">
@@ -241,280 +221,139 @@ require APPPATH.'views/__layout/leftnavigation.php';
 require APPPATH.'views/__layout/footer.php';
 
 ?>
+</div>
+<script src="<?php echo base_url(); ?>js/angular-datatables.min.js"></script>
+<script src="<?php echo base_url(); ?>js/pdfmake.min.js"></script>
+<script src="<?php echo base_url(); ?>js/vfs_fonts.js"></script>
+<script src="<?php echo  base_url(); ?>js/ui-bootstrap-tpls-2.5.0.js"></script>
 
 <script src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
 
-<script type="text/javascript">
-
-	var dvalue ;
-
-	$(document).ready(function(){
-
-		$(".table-choice").show();
-
-	
-
-		loaddatatable();
-
-	  	/**
-
-     	 * ---------------------------------------------------------
-
-	     *   load table
-
-	     * ---------------------------------------------------------
-
-	     */
-
-	    function loaddatatable()
-
-	    {
-
-	        $('#table-body-phase-tow').DataTable( {
-
-	            responsive: true,
-
-	             "order": [[ 0, "desc"  ]],
-
-	            initComplete: function () {
-
-	                this.api().columns().every( function () {
-
-	                    var column = this;
-                      if(column.index() != 3){
-  	                    var select = $('<select><option value=""></option></select>')
-
-  	                        .appendTo( $(column.footer()).empty() )
-
-  	                        .on( 'change', function () {
-
-  	                            var val = $.fn.dataTable.util.escapeRegex(
-
-  	                                $(this).val()
-
-  	                            );
-
-  	     
-
-  	                            column
-
-  	                                .search( val ? '^'+val+'$' : '', true, false )
-
-  	                                .draw();
-
-  	                        });
-
-  	                    column.data().unique().sort().each( function ( d, j ) {
-                          select.append( '<option value="'+d+'">'+d+'</option>' )
-
-  	                    });
-                      }
-	                });
-
-	            }
-
-	        });
-
-	    }
-
-
-
-
-	     $(document).on('change','.checkbox',function(){
-                var id = $(this).attr('id');
-                var check=$(this).is(':checked');
-                checkinput = '0'
-                if(check == true){
-                    checkinput = '1'
-                }
-               	
-                    $.ajax({
-                        url: "<?php echo $path_url;?>markquizz", //The url where the server req would we made.
-                        async: false,
-                        type: "POST", //The type which you want to use: GET/POST
-                        data:{'id': id, 'checkinput': checkinput}, //The variables which are going.
-                        dataType: "JSON", //Return data type (what we expect).
-                          
-                        //This is the function which will be called if ajax call is successful.
-                        success: function(data) {
-                            //data is the html of the page where the request is made.
-                             
-                        }
-                    })
-            })
-
-
-
-	});
-
-</script>
-
-<script src="<?php echo $path_url; ?>js/jquery.easyResponsiveTabs.js"></script>
-
 
 
 <script type="text/javascript">
+    app.controller('class_quiz_ctrl',['$scope','$myUtils','$filter', class_quiz_ctrl]);
 
-	$(document).ready(function(){
+   function class_quiz_ctrl($scope, $myUtils,$filter) {
+        $scope.user_id = $myUtils.getUserId();
+        $scope.name = $myUtils.getUserName();
+        $scope.email = $myUtils.getUserEmail();
+        $scope.roles = $myUtils.getUserRoles();
+        $scope.school_id = $myUtils.getDefaultSchoolId();
+        $scope.session_id = $myUtils.getDefaultSessionId();
+        
 
+        var urlist = {
+            getQuizList:'<?php echo SHAMA_CORE_API_PATH; ?>getQuizList',
+            
+        }
 
-
-      	
-
-
-
-
-        function loadClassByIdReponseError(){}
-
-        function loadClassByIdResponse(data)
+        function getQuizListData()
         {
-            if(data.message == true)
-            {
-                $("#class_name").html(data.grade);
-                $("#section_name").html(data.section_name);
-                
+            try{
+                //console.log(data);
+                    $scope.data = [];
+                    $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getQuizList',({school_id:$scope.school_id,user_id:$scope.user_id})).then(function(response){
+                    //httppostrequest('getdatesheetdata',data).then(function(response){
+                        $scope.data = [];
+                        if(response.length > 0 && response != null)
+                        {
+                            for (var i=0; i<response[0]['listarray'].length; i++) {
+                                $scope.data.push(response[0]['listarray'][i]);
+                                
+                                
+                            }
+                            //$("#inputDay").val(response[0]['data_array']['select_day']);
+                            $("#table-body-phase-tow").dataTable().fnDestroy();
+                            loaddatatable($scope.data);
                             
-                $("#myModal").modal('show');
+                        }
+                        else{
+                            loaddatatable($scope.data);
+                         
+                        }
+                    });
+                
             }
-
+            catch(e){}
         }
-
-         /*
-
-         * ---------------------------------------------------------
-
-         *   Delete User
-
-         * ---------------------------------------------------------
-
-         */
-
-        $(document).on('click','.del',function(){
-
-            $("#myUserModal").modal('show');
-
-            dvalue =  $(this).attr('id');
-
-         
-
-            row_slug =   $(this).parent().parent().attr('id');
-
-            
-
-        });
-
-        
-
-        /*
-
-         * ---------------------------------------------------------
-
-         *   User notification on deleting user 
-
-         * ---------------------------------------------------------
-
-         */
-
-        $(document).on('click','#UserDelete',function(){
-
-            $("#myUserModal").modal('hide');
-
-    		ajaxType = "GET";
-
-            urlpath = "<?php echo $path_url; ?>Principal_controller/removeQuiz";
-
-            var dataString = ({'id':dvalue});
-
-            ajaxfunc(urlpath,dataString,quizDeleteFailureHandler,loadQuizDeleteResponse);
-
-    	});
-
-        $(document).on('click','#update-action',function(){
-
-            
-        ajaxType = "GET";
-
-            urlpath = "<?php echo $path_url; ?>Principal_controller/updatequiz";
-
-            var dataString = '';
-
-            ajaxfunc(urlpath,dataString, function(){
-              // on failed
-            },
-              function(){
-                if (response.message === true){
-
-                  $(".user-message").show();
-
-                  $(".message-text").text("Quiz data has been updated").fadeOut(2000);
-
-                  $window.refresh();
-
-                }else{
-
-                }
-            });
-
-            
-
-        });
-
-
-
-
-        function quizDeleteFailureHandler()
-
+        function loaddatatable(data)
         {
+            var listdata= data;
+            
+            var table = $('#table-body-phase-tow').DataTable( {
+                data: listdata,
+                responsive: true,
+                "order": [[ 0, "asc"  ]],
+                rowId: 'id',
+                columns: [
+                    { data: 'quiz_date' },
+                    { data: 'grade' },
+                    { data: 'subject_name' },
+                    { data: 'qname' },
+                   
+                    {
+                     "className": '',
+                     "orderable": false,
+                     "data": null,
 
- 		 	$(".user-message").show();
+                     "defaultContent": "",
+                     "render" : function ( data, type, full, meta ) {
+                          if ( data != null && data != '') {
+                             
+                             return "<a href='<?php echo $path_url; ?>addquizz/"+data['id']+"'  ><i class='fa fa-edit' aria-hidden='true'></i></a> <a href='javascript:void(0)' id="+data['id']+" class='del'><i class='fa fa-remove' aria-hidden='true'></i></a>";
+                         }
+                         else {
+                                 return;
+                         }
+                      }
+                    },
+                ],
 
-	    	$(".message-text").text("Quiz has been not deleted").fadeOut(10000);
+                "pageLength": 10,
+
+            })
+            
+          
+            table.columns(1).every( function () {
+                var column = this;
+                var select = $('<select id="grade_id"><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+            table.columns(2).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+
 
         }
-
-
-
-        function loadQuizDeleteResponse(response)
-
-        {
-
-        	if (response.message === true){
-
-                $("#tr_"+dvalue).remove();
-
-     		 	$(".user-message").show();
-
-		    	$(".message-text").text("Quiz has been deleted").fadeOut(10000);
-
-         	} 
-
-        }
-
-        
-
-	});
-
-</script>
-
-<script type="text/javascript">
-
-	var app = angular.module('invantage', []);
-	function check(str)
-    {
-        var selState = str;
-        $.ajax({
-            url: "Check/ajax_call", //The url where the server req would we made.
-            async: false,
-            type: "POST", //The type which you want to use: GET/POST
-            data: "state="+selState, //The variables which are going.
-            dataType: "JSON", //Return data type (what we expect).
-            //This is the function which will be called if ajax call is successful.
-            success: function(data) {
-         		alert("Quize successfully added");
-          	}
-        })
-   }
-
+        getQuizListData();
+   }    
 </script>
 
 

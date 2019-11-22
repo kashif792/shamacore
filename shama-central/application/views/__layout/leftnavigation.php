@@ -105,7 +105,7 @@
 			</a>
 		</li>
 
-<!-- 
+
 	 	<li ng-if="isTeacher" ng-class="(segment1 == 'show_quiz_list' || 
 	 	segment1 == 'addquizz')? 'active' : ''">
 			<a  href="{{baseUrl}}show_quiz_list">
@@ -113,7 +113,7 @@
 				<span class="link_text"> Quizzes</span>
 			</a>
 		</li>
- -->
+
 
 	 	<li ng-if="isPrincipal" ng-class="(segment1 == 'lesson_plan_form')? 'active' : ''">
 			<a  href="{{baseUrl}}lesson_plan_form">
@@ -180,7 +180,7 @@
 				<span class="link_text"> Reports</span>
 			</a>
 		</li>
-		<li class="">
+		<li class="" ng-if="isPrincipal">
 			<a  href="<?php echo base_url(); ?>datesheetlist">
 				<i class="fa fa-question-circle" aria-hidden="true"></i>
 				<span class="link_text"> Datesheets</span>

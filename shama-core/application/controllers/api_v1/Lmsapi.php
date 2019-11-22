@@ -3750,7 +3750,7 @@ class LMSApi extends MY_Rest_Controller
                         $quizdetailarray = array();
                         foreach ($studentprogress as $spvalue) {
                             
-                            $correctlist = $this->operation->GetByQuery('SELECT qz.quizid,qz.questionid as quesid,qo.qoption_id  FROM quiz_evaluation qz INNER JOIN quizeoptions qo ON qo.qoption_id = qz.optionid WHERE qz.student_id =' . $value->student_id . " AND qz.quizid=" . $spvalue->id);
+                            $correctlist = $this->operation->GetByQuery('SELECT qz.quizid,qz.questionid as quesid,qo.qoption_id  FROM quiz_evaluation qz INNER JOIN quiz_options qo ON qo.qoption_id = qz.optionid WHERE qz.student_id =' . $value->student_id . " AND qz.quizid=" . $spvalue->id);
                             $quizid = 0;
                             
                             if (count($correctlist)) {
@@ -3919,16 +3919,16 @@ class LMSApi extends MY_Rest_Controller
         
         $quizdetailarray = array();
         if (! is_null($student_id) && ! is_null($quiz_id)) {
-            $quizequestions = $this->operation->GetByQuery('SELECT * FROM quizequestions  WHERE quizeid = ' . $quiz_id . ' ORDER BY id ASC');
-            if (count($quizequestions)) {
-                foreach ($quizequestions as $key => $value) {
+            $quiz_questions = $this->operation->GetByQuery('SELECT * FROM quiz_questions  WHERE quizeid = ' . $quiz_id . ' ORDER BY id ASC');
+            if (count($quiz_questions)) {
+                foreach ($quiz_questions as $key => $value) {
                     $optionarray = array();
                     
-                    $quizeoptions = $this->operation->GetByQuery('SELECT qo.*,qp.questionid FROM quizeoptions qp INNER JOIN qoptions qo On qo.id = qp.qoption_id   WHERE qp.questionid = ' . $value->id . ' ORDER BY id ASC');
-                    if (count($quizeoptions)) {
+                    $quiz_options = $this->operation->GetByQuery('SELECT qo.*,qp.questionid FROM quiz_options qp INNER JOIN qoptions qo On qo.id = qp.qoption_id   WHERE qp.questionid = ' . $value->id . ' ORDER BY id ASC');
+                    if (count($quiz_options)) {
                         $correct_index = 1;
                         $i = 1;
-                        foreach ($quizeoptions as $key => $ovalue) {
+                        foreach ($quiz_options as $key => $ovalue) {
                             $is_correct_answer_matched = $this->operation->GetByQuery('SELECT * FROM correct_option  WHERE question_id =' . $ovalue->questionid);
                             $option_value = '';
                             if ($value->type == 't') {
@@ -9277,6 +9277,35 @@ class LMSApi extends MY_Rest_Controller
         $this->response($listarray, REST_Controller::HTTP_OK);
        
     }
+    function GetSelectedSubject_get()
+
+    {
+        $selected_subject = array();
+
+        if ($this->input->get('class_id') != null && is_numeric($this->input->get('class_id'))) 
+        {
+            $is_student_found = $this->operation->GetByQuery("Select s.* from subjects s  where s.class_id = ".$this->input->get('class_id')."  ");
+            if(count($is_student_found)){
+
+                foreach ($is_student_found as $key => $value) {
+
+                    $sections[] = array(
+
+                        'id'=>$value->id,
+
+                        'name'=>$value->subject_name.' ( '.$value->subject_code.' )',
+                        'title'=>$value->subject_name
+
+                    );
+
+                }
+
+            }
+            
+        }
+
+        echo json_encode($sections);
+    }
     function GetSubjectListByClass_post()
 
     {
@@ -9362,5 +9391,658 @@ class LMSApi extends MY_Rest_Controller
         endif;
 
         echo json_encode($result);
+    }
+    function getselectequiz_get()
+    {
+
+         $q = $this->operation->GetByQuery("SELECT * FROM quiz WHERE id = ".$this->input->get('inputrowid')." ");
+        
+
+       //$this->data['classlist'] = $classlist;
+       echo json_encode($q);
+    }
+    // Quiz
+    function getclasslistTeacher_get()
+    {
+        
+
+            $classlist = $this->operation->GetByQuery("SELECT c.id as id,c.grade FROM schedule sch INNER JOIN classes c on c.id = sch.class_id  WHERE sch.teacher_uid = ".$this->input->get('user_id')." GROUP by c.id ORDER by c.id asc");
+        
+
+       //$this->data['classlist'] = $classlist;
+       echo json_encode($classlist);
+    }
+    function GetSectionsByClass_post()
+
+    {
+
+
+
+        $sections = array();
+        $request = $this->parse_params();
+        $request = $this->parse_params();
+        
+        $school_id = $request->school_id;
+        $class_id = $request->class_id;
+        $user_id = $request->user_id;
+
+        if(!empty($class_id))
+
+        {
+
+            
+
+                $is_student_found = $this->operation->GetByQuery("SELECT s.*,ass.id as sid  FROM schedule sc INNER JOIN sections s On s.id = sc.section_id INNER JOIN assign_sections ass on ass.section_id = s.id   where sc.teacher_uid = ".$user_id." AND ass.status = 'a' AND sc.class_id = ".$class_id." Group BY s.id");
+
+            }
+
+            if(count($is_student_found)){
+
+                foreach ($is_student_found as $key => $value) {
+
+                    $sections[] = array(
+
+                        'id'=>$value->id,
+
+                        'name'=>$value->section_name,
+
+                    );
+
+                }
+
+            }
+
+       
+        echo json_encode($sections);
+        //$this->response($sections, REST_Controller::HTTP_OK);
+
+
+    }
+    public function save_quize_info_post()
+
+    {
+
+    
+
+    $postdata = file_get_contents("php://input");
+
+    $request = json_decode($postdata);
+
+    $inputquizname =$this->security->xss_clean(html_escape($request->inputquizname));
+
+    $inputclass =$this->security->xss_clean(html_escape($request->inputclass));
+
+    $inputsection =$this->security->xss_clean(html_escape($request->inputsection));
+
+    $inputsubject =$this->security->xss_clean(html_escape($request->inputsubject));
+
+    $serialinput =$this->security->xss_clean(html_escape($request->serial));
+
+    $input_term_type =$this->security->xss_clean(html_escape($request->input_term_type));
+
+    $inputquizdate =$this->security->xss_clean(html_escape($request->inputquizdate));
+
+    $result['message'] = $serialinput;
+    $user_id = $request->user_id;
+    //$serialinput = $request->serial;
+      
+
+        if(!is_null($serialinput) && !empty($serialinput))
+    
+                {
+
+                    $quize_array = array(
+
+                    'qname'=>$inputquizname,
+
+                    'class_id'=>$inputclass,
+
+                    'section_id'=>$inputsection,
+
+                    'subject_id'=>$inputsubject,
+
+                    'quiz_term'=>$input_term_type,
+
+                    'quiz_date'=>date('Y-m-d',strtotime($inputquizdate)),
+
+                    'isdone'=>0,
+
+                    'last_update'=>date("Y-m-d H:i"),
+
+                    'datetime'=>date("Y-m-d H:i"),
+
+                    'tacher_uid'=>$user_id,
+                    
+                    'unique_code'=>''
+
+                );
+
+                $this->operation->table_name = 'quiz';
+
+                $id = $this->operation->Create($quize_array,$serialinput);
+                //$this->db->where('id',$serialinput);
+                //$this->db->update('quiz',$quize_array);
+                //$id = $serialinput
+                
+                if(count($id)){
+
+                        $result['lastid'] = $id;
+
+                        $result['message'] = true;
+
+                    }
+
+
+
+                }
+
+
+
+        else if((is_null($serialinput) == true ||  empty($serialinput)) &&!empty($inputquizname) && !empty($inputclass) && !empty($inputsection) && !empty($inputsubject) && !empty($input_term_type) && !empty($inputquizdate))
+
+                    {
+
+
+                        $school_id = $request->school_id;
+                    $active_session = $this->get_active_session($school_id);
+                    $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+    
+
+
+                    $quize_array = array(
+
+                        'qname'=>$inputquizname,
+
+                        'class_id'=>$inputclass,
+
+                        'section_id'=>$inputsection,
+
+                        'subject_id'=>$inputsubject,
+
+                        'quiz_term'=>$input_term_type,
+
+                        'quiz_date'=>date('Y-m-d',strtotime($inputquizdate)),
+
+                        'isdone'=>0,
+
+                        'last_update'=>date("Y-m-d H:i"),
+
+                        'datetime'=>date("Y-m-d H:i"),
+
+                        'tacher_uid'=>$user_id,
+                        'semester_id'=>$active_semester->semester_id,
+                        'session_id'=>$active_session->id,
+                        'school_id'=>$school_id,
+                        'unique_code'=>''
+
+                    );
+
+
+                    
+                    $this->operation->table_name = 'quiz';
+
+                    //$id = $this->operation->Create($quize_array);
+                    $this->db->insert('quiz',$quize_array);
+                    $id = $this->db->insert_id();
+                    if(count($id)){
+
+                        $result['lastid'] = $id;
+
+                        $result['message'] = true;
+
+                    }
+
+                }
+
+
+
+
+
+
+
+    echo json_encode($result);
+
 }
+    function save_quize_Question_post()
+    {
+        
+        
+        
+            $this->load->library('image_lib');
+            if ($this->input->post('questionid'))
+            {
+                $title_image_name = '';
+                $filename_thumb = '';
+                $title_image_uploaded = false;
+                if (isset($_FILES['title_image']))
+                {
+                    $valid_formats = array("jpg", "png", "gif", "bmp", "jpeg");
+                    if (strlen($_FILES['title_image']['name']))
+                    {
+                        list($txt, $ext) = explode(".", strtolower($_FILES['title_image']['name']));
+                        if (in_array(strtolower($ext), $valid_formats))
+                        {
+                            if ($_FILES['title_image']["size"] < 5000000)
+                            {
+                                $title_image_name = time() . $_FILES['title_image']['name'];
+                                if (is_uploaded_file($_FILES['title_image']['tmp_name']))
+                                {
+                                    $path = UPLOAD_PATH . 'quiz_images/';
+                                    $filename = $path . $title_image_name;
+                                    if (move_uploaded_file($_FILES['title_image']['tmp_name'], $filename))
+                                    {
+                                        $title_image_uploaded = true;
+                                        chmod($filename, 0777);
+                                        $config = array('image_library' => 'gd2', 'source_image' => $filename, 'new_image' => $filename, 'create_thumb' => true, 'maintain_ratio' => true, 'quality' => 100, 'width' => 350, 'height' => 350);
+                                        $this->image_lib->initialize($config);
+                                        $this->image_lib->resize();
+                                        $thumbname = explode('.', $title_image_name);
+                                        $quize_array = array('img_src' => $title_image_name, 'thumbnail_src' => $thumbname[0] . '_thumb.' . $thumbname[1],);
+                                        $this->operation->table_name = 'quiz_questions';
+                                        $update_query = $this->operation->Create($quize_array, $this->input->post('questionid'));
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                $quize_array = array('question' => $this->input->post('title'), 'last_update' => date("Y-m-d H:i"), 'type' => ($this->input->post('q_type') == 1 ? 't' : 'i'),);
+                $this->operation->table_name = 'quiz_questions';
+                $qid = $this->operation->Create($quize_array, $this->input->post('questionid'));
+                if ($this->input->post('q_type') == 1)
+                {
+                    $option_name = array('inputoption_one', 'inputoption_two', 'inputoption_three', 'inputoption_four');
+                    $optionlist = $this->operation->GetByQuery("SELECT o.* FROM qoptions o INNER JOIN quiz_options qo ON o.id = qo.qoption_id where qo.questionid =" . $this->input->post('questionid') . " order by id asc");
+                    for ($i = 0;$i <= count($optionlist) - 1;$i++)
+                    {
+                        $cur_iter = $i + 1;
+                        $option_array = array('option_value' => $this->input->post($option_name[$i]), 'edited' => date("Y-m-d H:i"),);
+                        $this->operation->table_name = 'qoptions';
+                        $qoid = $this->operation->Create($option_array, $optionlist[$i]->id);
+                        $this->operation->table_name = "correct_option";
+                        $correct_option_is_found = $this->operation->GetByWhere(array('question_id' => $this->input->post('questionid')));
+                        if ($this->input->post('inputoption_true') == $cur_iter && count($correct_option_is_found))
+                        {
+                            $correct_option = array('correct_id' => $qoid, 'question_id' => $qid,);
+                            $this->operation->table_name = 'correct_option';
+                            $correct_id = $this->operation->Create($correct_option, $correct_option_is_found[0]->id);
+                        }
+                    }
+                }
+                $optionlist = $this->operation->GetByQuery("SELECT o.* FROM qoptions o INNER JOIN quiz_options qo ON o.id = qo.qoption_id where qo.questionid =" . $this->input->post('questionid') . " order by id asc");
+                for ($i = 0;$i <= count($optionlist) - 1;$i++)
+                {
+                    $cur_iter = $i + 1;
+                    $this->operation->table_name = "correct_option";
+                    $correct_option_is_found = $this->operation->GetByWhere(array('question_id' => $this->input->post('questionid')));
+                    if ($this->input->post('inputoption_true') == $cur_iter)
+                    {
+                        $correct_option = array('correct_id' => $optionlist[$i]->id,);
+                        $this->operation->table_name = 'correct_option';
+                        $correct_id = $this->operation->Create($correct_option, $correct_option_is_found[0]->id);
+                    }
+                }
+                if ($this->input->post('q_type') == 2)
+                {
+                    $optionlist = $this->operation->GetByQuery("SELECT o.* FROM qoptions o INNER JOIN quiz_options qo ON o.id = qo.qoption_id where qo.questionid =" . $this->input->post('questionid') . " order by id asc");
+                    $option_imag_name = array('option_image_1', 'option_image_2', 'option_image_3', 'option_image_4');
+                    for ($i = 0;$i < 4;$i++)
+                    {
+                        if (isset($_FILES[$option_imag_name[$i]]))
+                        {
+                            $valid_formats = array("jpg", "png", "gif", "bmp", "jpeg");
+                            if (strlen($_FILES[$option_imag_name[$i]]['name']))
+                            {
+                                list($txt, $ext) = explode(".", strtolower($_FILES[$option_imag_name[$i]]['name']));
+                                if (in_array(strtolower($ext), $valid_formats))
+                                {
+                                    if ($_FILES[$option_imag_name[$i]]["size"] < 5000000)
+                                    {
+                                        $title_image_name = time() . $_FILES[$option_imag_name[$i]]['name'];;
+                                        $biger_thumbnail = time() . trim(basename($txt . "bigger_thumb." . $ext));
+                                        if (is_uploaded_file($_FILES[$option_imag_name[$i]]['tmp_name']))
+                                        {
+                                            $path = UPLOAD_PATH . 'option_images/';
+                                            $filename = $path . $title_image_name;
+                                            if (move_uploaded_file($_FILES[$option_imag_name[$i]]['tmp_name'], $filename))
+                                            {
+                                                $title_image_uploaded = true;
+                                                chmod($filename, 0777);
+                                                $config = array('image_library' => 'gd2', 'source_image' => $filename, 'new_image' => $filename, 'create_thumb' => true, 'maintain_ratio' => true, 'quality' => 100, 'width' => 350, 'height' => 350);
+                                                $this->image_lib->initialize($config);
+                                                $this->image_lib->resize();
+                                                $cur_iter = $i + 1;
+                                                $option_array = array('option_value' => $title_image_name, 'created' => date("Y-m-d H:i"), 'edited' => date("Y-m-d H:i"), 'thumbnail_src' => $biger_thumbnail,);
+                                                $this->operation->table_name = 'qoptions';
+                                                $qoid = $this->operation->Create($option_array, $optionlist[$i]->id);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                $result['message'] = true;
+            }
+            else if ($this->input->post('quiz_id'))
+            {
+                // add question
+                $title_image_name = '';
+                $filename_thumb = '';
+                $title_image_uploaded = false;
+                if (isset($_FILES['title_image']))
+                {
+                    $valid_formats = array("jpg", "png", "gif", "bmp", "jpeg");
+                    if (strlen($_FILES['title_image']['name']))
+                    {
+                        list($txt, $ext) = explode(".", strtolower($_FILES['title_image']['name']));
+                        if (in_array(strtolower($ext), $valid_formats))
+                        {
+                            if ($_FILES['title_image']["size"] < 5000000)
+                            {
+                                $title_image_name = time() . $_FILES['title_image']['name'];
+                                if (is_uploaded_file($_FILES['title_image']['tmp_name']))
+                                {
+                                    $path = UPLOAD_PATH . 'quiz_images/';
+                                    $filename = $path . $title_image_name;
+                                    if (move_uploaded_file($_FILES['title_image']['tmp_name'], $filename))
+                                    {
+                                        $title_image_uploaded = true;
+                                        chmod($filename, 0777);
+                                        $config = array('image_library' => 'gd2', 'source_image' => $filename, 'new_image' => $filename, 'create_thumb' => true, 'maintain_ratio' => true, 'quality' => 100, 'width' => 350, 'height' => 350);
+                                        $this->image_lib->initialize($config);
+                                        $this->image_lib->resize();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                $thumbname = explode('.', $title_image_name);
+                $quize_array = array('quiz_id' => $this->input->post('quiz_id'), 'question' => $this->input->post('title'), 'last_update' => date("Y-m-d H:i"), 'img_src' => $title_image_name, 'thumbnail_src' => $thumbname[0] . '_thumb.' . $thumbname[1], 'type' => ($this->input->post('q_type') == 1 ? 't' : 'i'),);
+                $this->operation->table_name = 'quiz_questions';
+                $qid = $this->operation->Create($quize_array);
+                if ($this->input->post('q_type') == 1)
+                {
+                    $option_name = array('inputoption_one', 'inputoption_two', 'inputoption_three', 'inputoption_four');
+                    for ($i = 0;$i < 4;$i++)
+                    {
+                        $cur_iter = $i + 1;
+                        $option_array = array('option_value' => $this->input->post($option_name[$i]), 'created' => date("Y-m-d H:i"), 'edited' => date("Y-m-d H:i"),);
+                        $this->operation->table_name = 'qoptions';
+                        $qoid = $this->operation->Create($option_array);
+                        $qoption_array = array('questionid' => $qid, 'qoption_id' => $qoid, 'last_update' => date("Y-m-d H:i"), 'created' => date("Y-m-d H:i"),);
+                        $this->operation->table_name = 'quiz_options';
+                        $q_option_id = $this->operation->Create($qoption_array);
+                        if ($this->input->post('inputoption_true') == $cur_iter)
+                        {
+                            $correct_option = array('correct_id' => $qoid, 'question_id' => $qid,);
+                            $this->operation->table_name = 'correct_option';
+                            $correct_id = $this->operation->Create($correct_option);
+                        }
+                    }
+                }
+                if ($this->input->post('q_type') == 2)
+                {
+                    $option_imag_name = array('option_image_1', 'option_image_2', 'option_image_3', 'option_image_4');
+                    for ($i = 0;$i < 4;$i++)
+                    {
+                        if (isset($_FILES[$option_imag_name[$i]]))
+                        {
+                            $valid_formats = array("jpg", "png", "gif", "bmp", "jpeg");
+                            if (strlen($_FILES[$option_imag_name[$i]]['name']))
+                            {
+                                list($txt, $ext) = explode(".", strtolower($_FILES[$option_imag_name[$i]]['name']));
+                                if (in_array(strtolower($ext), $valid_formats))
+                                {
+                                    if ($_FILES[$option_imag_name[$i]]["size"] < 5000000)
+                                    {
+                                        $title_image_name = time() . $_FILES[$option_imag_name[$i]]['name'];;
+                                        $biger_thumbnail = time() . trim(basename($txt . "bigger_thumb." . $ext));
+                                        if (is_uploaded_file($_FILES[$option_imag_name[$i]]['tmp_name']))
+                                        {
+                                            $path = UPLOAD_PATH . 'option_images/';
+                                            $filename = $path . $title_image_name;
+                                            if (move_uploaded_file($_FILES[$option_imag_name[$i]]['tmp_name'], $filename))
+                                            {
+                                                $title_image_uploaded = true;
+                                                chmod($filename, 0777);
+                                                $config = array('image_library' => 'gd2', 'source_image' => $filename, 'new_image' => $filename, 'create_thumb' => true, 'maintain_ratio' => true, 'quality' => 100, 'width' => 350, 'height' => 350);
+                                                $this->image_lib->initialize($config);
+                                                $this->image_lib->resize();
+                                                $cur_iter = $i + 1;
+                                                $option_array = array('option_value' => $title_image_name, 'created' => date("Y-m-d H:i"), 'edited' => date("Y-m-d H:i"), 'thumbnail_src' => $biger_thumbnail,);
+                                                $this->operation->table_name = 'qoptions';
+                                                $qoid = $this->operation->Create($option_array);
+                                                $qoption_array = array('questionid' => $qid, 'qoption_id' => $qoid, 'last_update' => date("Y-m-d H:i"), 'created' => date("Y-m-d H:i"),);
+                                                $this->operation->table_name = 'quiz_options';
+                                                $q_option_id = $this->operation->Create($qoption_array);
+                                                if ($this->input->post('inputoption_true') == $cur_iter)
+                                                {
+                                                    $correct_option = array('correct_id' => $qoid, 'question_id' => $qid,);
+                                                    $this->operation->table_name = 'correct_option';
+                                                    $correct_id = $this->operation->Create($correct_option);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                $result['message'] = true;
+            }
+        
+        echo json_encode($result);
+    }
+    function GetQuestionList_get()
+    {
+        
+        
+        if(!is_null($this->input->get('id')) && is_numeric($this->input->get('id')))
+        {
+            $questionlist = $this->operation->GetByQuery("SELECT * FROM  quiz_questions where quiz_id = ".$this->input->get('id')."  order by id desc");
+            
+        }
+        else
+        {
+            exit();
+            // $questionlist = $this->operation->GetRowsByQyery("SELECT * FROM quizequestions  order by id desc");
+        }
+
+        $qlist = array();
+        if(count($questionlist)){
+            foreach ($questionlist as $key => $value) {
+                $optionlist = $this->operation->GetByQuery("SELECT o.* FROM qoptions o INNER JOIN quiz_options qo ON o.id = qo.qoption_id where qo.questionid =".$value->id);
+                $temp = array();
+                $this->operation->table_name = "correct_option";
+                $correct_index = 1;
+                $correct_option = $this->operation->GetByWhere(array('question_id'=>$value->id));
+                if(count($optionlist)){
+                    $i = 1 ;
+                    foreach ($optionlist as $key => $ovalue) {
+                        $temp1 = array();
+                        if($value->type == 't')
+                        {
+
+                            $temp1['option'] = $ovalue->option_value;
+                            $temp1['image_src'] = '';
+                        }
+                        else{
+                            $thumbname = explode('.', $ovalue->option_value);
+                            $temp1['option'] = base_url().'upload/option_images/'.$thumbname[0].'_thumb.'.$thumbname[1];
+                            $temp1['image_src'] = base_url().'upload/option_images/'.$ovalue->option_value;
+                        }
+
+                        if($correct_option[0]->correct_id == $ovalue->id)
+                        {
+                            $correct_index = $i;
+                        }
+                        else{
+                            $i++;
+                        }
+                        array_push($temp, $temp1);
+                    }
+                }
+
+                $thumbname = '';
+                if(!is_null($value->img_src)){
+                    $thumbname = explode('.', $value->img_src);
+                }
+
+
+                $qlist[]  = array(
+                    'id'=>$value->id,
+                    'quiz_id'=>$value->quiz_id,
+                    'thumbnail_src'=>(count($thumbname) == 2 ? base_url().'upload/quiz_images/'.$thumbname[0].'_thumb.'.$thumbname[1] : ''),
+                    'image_src'=>($value->img_src != '' ? base_url().'upload/quiz_images/'.$value->img_src : ''),
+                    'question'=>$value->question,
+                    'options'=>$temp,
+                    'quiz_type'=>$value->type,
+                    'correct'=>$correct_index,
+                );
+            }
+        }
+
+
+        //echo json_encode($qlist);
+        $this->response($qlist, REST_Controller::HTTP_OK);
+    }
+    function GetQuestionById_get()
+    {
+
+       
+        $response = array();
+
+        if(!is_null($this->input->get('qid')) && is_numeric($this->input->get('qid')))
+        {
+
+            $is_question_found = $this->operation->GetByQuery("SELECT * FROM quiz_questions where id =".$this->input->get('qid'));
+
+
+
+            if(count($is_question_found))
+
+            {
+
+                $is_question_option_found = $this->operation->GetByQuery("SELECT o.* FROM qoptions o INNER JOIN quiz_options qo ON o.id = qo.qoption_id where qo.questionid = ".$this->input->get('qid'));
+
+                if(count($is_question_option_found))
+
+                {
+
+                    $options = array();
+                    $this->operation->table_name = "correct_option";
+                    $correct_index = 1;
+                    $correct_option = $this->operation->GetByWhere(array('question_id'=>$this->input->get('qid')));
+                    $i = 1 ;
+                    foreach ($is_question_option_found as $key => $value) {
+
+                        $option = '';
+                        if($is_question_found[0]->type == 't')
+                        {
+
+                            $option = $value->option_value;
+                        }
+                        else{
+                            $thumbname = explode('.', $value->option_value);
+                            $option = base_url().'upload/option_images/'.$thumbname[0].'_thumb.'.$thumbname[1];
+                        }
+
+
+                        $options[] = array(
+
+                            'optionid'=>$value->id,
+
+                            'option'=>$option,
+
+
+
+                        );
+
+                        if($correct_option[0]->correct_id == $value->id)
+                        {
+                            $correct_index = $i;
+                        }
+                        else{
+                            $i++;
+                        }
+
+                    }
+
+                    $thumbname = '';
+                    if(!is_null($is_question_found[0]->img_src)){
+                        $thumbname = explode('.', $is_question_found[0]->img_src);
+                    }
+
+
+                    $response[] = array(
+
+                        'question'=>$is_question_found[0]->question,
+                        'thumbnail_src'=>(count($thumbname) == 2 ? base_url().'upload/quiz_images/'.$thumbname[0].'_thumb.'.$thumbname[1] : ''),
+                        'questionid'=>$is_question_found[0]->id,
+                        'options'=>$options,
+                        'correct'=>$correct_index,
+                        'type'=>($is_question_found[0]->type == 't' ? 1 : 2),
+
+                    );
+
+                }
+
+            }
+
+        }
+
+        echo json_encode($response);
+
+    }
+    function removeQuestion_get()
+
+            {
+
+
+
+        $result['message'] = false;
+
+
+
+        $removeSubject = $this->db->query("Delete from quiz_questions where id =".trim($_GET['id']));
+
+
+
+
+
+
+
+        if($removeSubject == TRUE):
+
+
+
+            $result['message'] = true;
+
+
+
+        endif;
+
+
+
+        echo json_encode($result);
+
+
+
+    }
+    public function getQuizList_get()
+    {
+        
+
+            $quiz_list = $this->operation->GetByQuery("SELECT q.id,grade,section_name,subject_name,qname,isdone,q.quiz_date from quiz q INNER JOIN classes c on q.class_id=c.id INNER JOIN sections sc on q.section_id=sc.id INNER JOIN subjects sb on q.subject_id=sb.id  Where    q.tacher_uid=".$this->input->get('user_id')." group by q.id");
+       $result[] = array(
+                        'listarray'=>$quiz_list,
+                        
+                        
+                    );
+       $this->response($result, REST_Controller::HTTP_OK);
+    }
 }

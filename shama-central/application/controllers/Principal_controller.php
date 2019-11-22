@@ -183,24 +183,24 @@ class Principal_controller extends MY_Controller
 
     public function show_quizz_list()
     {
-        if (! ($this->session->userdata('id'))) {
+        // if (! ($this->session->userdata('id'))) {
 
-            parent::redirectUrl('signin');
-        }
+        //     parent::redirectUrl('signin');
+        // }
 
-        $locations = $this->session->userdata('locations');
+        // $locations = $this->session->userdata('locations');
 
-        $roles = $this->session->userdata('roles');
+        // $roles = $this->session->userdata('roles');
 
-        if ($roles[0]['role_id'] == 3) {
+        // if ($roles[0]['role_id'] == 3) {
 
-            $this->data['quiz_list'] = $this->operation->GetRowsByQyery("SELECT q.id,grade,section_name,subject_name,qname,isdone,q.quiz_date from quize q INNER JOIN classes c on q.classid=c.id INNER JOIN subjects sb on q.subjectid=sb.id INNER JOIN user_locations ul ON ul.user_id = c.school_id Where  ul.school_id =" . $locations[0]['school_id']);
-        } 
-        else if ($roles[0]['role_id'] == 4) 
-        {
+        //     $this->data['quiz_list'] = $this->operation->GetRowsByQyery("SELECT q.id,grade,section_name,subject_name,qname,isdone,q.quiz_date from quize q INNER JOIN classes c on q.classid=c.id INNER JOIN subjects sb on q.subjectid=sb.id INNER JOIN user_locations ul ON ul.user_id = c.school_id Where  ul.school_id =" . $locations[0]['school_id']);
+        // } 
+        // else if ($roles[0]['role_id'] == 4) 
+        // {
 
-            $this->data['quiz_list'] = $this->operation->GetRowsByQyery("SELECT q.id,grade,subject_name,qname,isdone,q.quiz_date from quize q INNER JOIN classes c on q.classid=c.id INNER JOIN subjects sb on q.subjectid=sb.id  Where    q.tacher_uid=" . $this->session->userdata('id') . " group by q.id");
-        }
+        //     $this->data['quiz_list'] = $this->operation->GetRowsByQyery("SELECT q.id,grade,subject_name,qname,isdone,q.quiz_date from quize q INNER JOIN classes c on q.classid=c.id INNER JOIN subjects sb on q.subjectid=sb.id  Where    q.tacher_uid=" . $this->session->userdata('id') . " group by q.id");
+        // }
 
         $this->load->view('teacher/show_quizz_list', $this->data);
     }
@@ -223,41 +223,9 @@ class Principal_controller extends MY_Controller
     public function edit_quiz_view_form()
 
     {
-        if (! ($this->session->userdata('id'))) {
-
-            parent::redirectUrl('signin');
-        }
-
-        if ($this->uri->segment(2) and $this->uri->segment(2) != "page") {
-            $id = $this->uri->segment(2);
-            $isQuiz = $this->operation->GetRowsByQyery("SELECT * FROM quize WHERE id= " . $id);
-            if (count($isQuiz)) {
-                $class = parent::getClass($isQuiz[0]->classid);
-                $subject = parent::GetSubject($isQuiz[0]->subjectid);
-
-                $sectionslist = $this->operation->GetRowsByQyery("SELECT s.*,ass.id as sid FROM sections s INNER JOIN assignsections ass ON ass.sectionid = s.id WHERE ass.status = 'a' AND ass.classid =" . $subject[0]->class_id);
-
-                $quizSections = $this->operation->GetRowsByQyery("SELECT section_id FROM quiz_section WHERE quiz_id =" . $id);
-
-                foreach ($sectionslist as $key => $s) {
-                    $s->isselected = false;
-                    foreach ($quizSections as $key => $qs) {
-                        if ($s->id == $qs->section_id) {
-                            $s->isselected = true;
-                            break;
-                        }
-                    }
-                }
-                $this->data['sectionslist'] = $sectionslist;
-                $this->data['class'] = $class;
-                $this->data['classid'] = $subject[0]->class_id;
-                $this->data['subject'] = $subject[0]->subject_name;
-            }
-
-            $this->data['schedule_single'] = $isQuiz;
-        }
-
-        $this->load->view('teacher/addquizz', $this->data);
+        
+        
+        $this->load->view('teacher/addquizz');
     }
 
     public function update_quiz_info()
@@ -1221,34 +1189,34 @@ class Principal_controller extends MY_Controller
         echo json_encode($response);
     }
 
-    function GetSelectedSubject()
+    // function GetSelectedSubject()
 
-    {
-        $selected_subject = array();
+    // {
+    //     $selected_subject = array();
 
-        if ($this->input->get('inputrowid') != null && is_numeric($this->input->get('inputrowid'))) 
-        {
+    //     if ($this->input->get('inputrowid') != null && is_numeric($this->input->get('inputrowid'))) 
+    //     {
 
-            $is_selected_subject = $this->operation->GetRowsByQyery('SELECT s.* FROM subjects s INNER join quize q on q.subjectid = s.id  where q.id =' . $this->input->get('inputrowid'));
+    //         $is_selected_subject = $this->operation->GetRowsByQyery('SELECT s.* FROM subjects s INNER join quize q on q.subjectid = s.id  where q.id =' . $this->input->get('inputrowid'));
 
-            if (count($is_selected_subject)) 
-            {
+    //         if (count($is_selected_subject)) 
+    //         {
 
-                $selected_subject[] = array(
+    //             $selected_subject[] = array(
 
-                    'id' => $is_selected_subject[0]->id,
+    //                 'id' => $is_selected_subject[0]->id,
 
-                    'name' => $is_selected_subject[0]->subject_name,
-                    'name' => $is_selected_subject[0]->subject_name,
-                    'class' => $is_selected_subject[0]->class_id,
-                    'semester' => $is_selected_subject[0]->semesterid,
-                    'iamge' => $is_selected_subject[0]->subject_image
-                );
-            }
-        }
+    //                 'name' => $is_selected_subject[0]->subject_name,
+    //                 'name' => $is_selected_subject[0]->subject_name,
+    //                 'class' => $is_selected_subject[0]->class_id,
+    //                 'semester' => $is_selected_subject[0]->semesterid,
+    //                 'iamge' => $is_selected_subject[0]->subject_image
+    //             );
+    //         }
+    //     }
 
-        echo json_encode($selected_subject);
-    }
+    //     echo json_encode($selected_subject);
+    // }
 
     function GetQuestionList()
     {

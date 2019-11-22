@@ -254,7 +254,7 @@ require APPPATH.'views/__layout/footer.php';
                     $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getdatesheetdata',({school_id:$scope.school_id,inputsessionid:$scope.filterobj.session.id,inputsemesterid:$scope.filterobj.semester.id})).then(function(response){
                     //httppostrequest('getdatesheetdata',data).then(function(response){
                         console.log(response)
-                        if(response.length > 0 && response != null)
+                        if(response != null)
                         {
                             $scope.datesheetlist = response[0]['listarray'];
                             $scope.datesheet_type = response[0]['data_array']['type'];

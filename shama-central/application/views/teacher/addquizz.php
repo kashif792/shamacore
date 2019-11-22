@@ -197,7 +197,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <button type="submit" tabindex="8"  class="btn btn-default save-button" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Saving...">Save</button>
+                    <button type="button" tabindex="8" ng-click="savequestion()"  class="btn btn-default save-button" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Saving...">Save</button>
                 </div>
             <?php echo form_close();?>
         </div>
@@ -230,91 +230,84 @@ require APPPATH.'views/__layout/leftnavigation.php';
                 <?php $attributes = array('role'=>'form','name' => 'quizform', 'id' => 'quizform','class'=>'form-container-input');
                     echo form_open_multipart('', $attributes);?>
                     <input type="hidden" ng-model="serail" value="<?php if($this->uri->segment(2)){ echo $this->uri->segment(2);} ?>" name="serial" id="serial">
-
-                   <div class="row">
-                        <div class="col-lg-6">
-                            <div class="upper-row">
-                                <label>Grade: </label>
-                            </div>
-                            <input type="hidden" ng-model="inputclass" value="<?php if($classid){ echo $classid;} ?>" name="inputclass" id="inputclass">
-                            <span><?php if(isset($class)){echo $class;}?></span>
-                        </div>
-
-                        <div class="col-lg-6">
-                            <div class="upper-row">
-                                <label>Subject: </label>
-                            </div>
-                                <span><?php if(isset($subject)){echo $subject;}?></span>
-                        </div>
-                    </div>  
-                    <br>
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="upper-row">
                                 <label><span class="icon-user"></span> Quiz Name: <span class="required">*</span></label>
                             </div>
-                            <input type="text" id="inputquizname" name="inputquizname" placeholder="Quiz name"  tabindex="1" value="<?php if(isset($schedule_single)){echo $schedule_single[0]->qname;}?>" required="required">
+                            <input type="text" id="inputquizname" name="inputquizname" ng-model="inputquizname" placeholder="Quiz name"  tabindex="1" value="<?php if(isset($schedule_single)){echo $schedule_single[0]->qname;}?>" required="required">
                         </div>
-
+                        <div class="col-lg-6">
+                            <div class="upper-row">
+                                <label><span class="icon-user"></span> Quiz Date: <span class="required">*</span></label>
+                            </div>
+                            <input type="text" id="inputquizdate" name="inputquizdate" ng-model="inputquizdate" placeholder="Quiz Date"  tabindex="1" value="" required="required">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="upper-row">
+                                <label><span class="icon-address"></span> Grade <span class="required">*</span></label>
+                            </div>
+                                <select ng-options="item.grade for item in classlist track by item.id"  name="inputclass" id="inputclass"  ng-model="inputclass" ></select>
+                                
+                                </select>
+                        </div>
                         <div class="col-lg-6">
                             <div class="upper-row">
                                 <label><span class="icon-address"></span> Section <span class="required" >*</span></label>
                             </div>
-                            <label 
-                                ng-repeat="(key, value) in sectionslist">
-                                <input type="checkbox" name="sections" ng-model="value.isselected">&nbsp;&nbsp;&nbsp; {{value.section_name}} &nbsp;&nbsp;&nbsp;
-                            </label>
+                            <select   ng-options="item.name for item in sectionslist track by item.id"  name="inputSection" id="inputSection"  ng-model="inputSection" ></select>
                         </div>
                     </div>
-
-                    <div class="row">
-                        <br>
-                    </div>  
-
                     <div class="row">
                         <div class="col-lg-6">
-                            <div class="upper-row">
-                                <label><span class="icon-address"></span> Term Result <span class="required">*</span></label>
-                            </div>
-                            <label><input type="radio" name="input_term_type"  value="bt" <?php if(isset($schedule_single) && $schedule_single[0]->quiz_term == 'bt'){echo "checked='checked'";}?> <?php if( ! isset($schedule_single) ){echo "checked='checked'";}?> > Before Midterm</label><br>
-                            <label><input type="radio" name="input_term_type"  value="at" <?php if(isset($schedule_single) && $schedule_single[0]->quiz_term == 'at'){echo "checked='checked'";}?>> After Midterm</label>
+                        <div class="upper-row">
+                            <label><span class="icon-address"></span> Subjects <span class="required">*</span></label>
                         </div>
-                    </div>  
-                    <br>
+                            <select ng-options="item.name for item in subjectlist track by item.id" name="select_subject" id="select_subject" ng-model="inputSubject"></select>
+                        </div>
+                        <div class="col-lg-6">
+                        <div class="upper-row">
+                            <label><span class="icon-address"></span> Term Result <span class="required">*</span></label>
+                        </div>
+                            <input type="radio" name="input_term_type" id="t_bt"  value="bt" >Before Midterm <br>
+                            <input type="radio" name="input_term_type" id="t_at"  value="at" > After Midterm
+                        </div>
+                    </div>
                      <div class="row">
                         <div class="col-lg-3">
 
-                            <button type="submit" class="btn btn-primary sm" id="savequiz" name="inputQuizBtn" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Saving...">Save</button>
+                            <button type="button" class="btn btn-primary sm" id="savequiz" ng-click="savequiz()" name="inputQuizBtn" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Saving...">Save</button>
                            <a tabindex="9" href="<?php echo $path_url; ?>show_quiz_list" tabindex="6" title="cancel">Cancel</a>
                         </div>
                     </div>
                 <?php echo form_close();?>
             </div>
             <?php //}?>
-            <div class="action-element">
-                 <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Add Question</button>
+            <div class="quiston-container" style="display: none;">
+                <div class="action-element">
+                     <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Add Question</button>
+                </div>
+               
+                <table class="table-body question-table" id="table-body-phase-tow" >
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Question Name</th>
+                            <th>Option 1</th>
+                            <th>Option 2</th>
+                            <th>Option 3</th>
+                            <th>Option 4</th>
+                            <th>Type</th>
+                            <th>Correct</th>
+                             <th>Options</th>
+                        </tr>
+                    </thead>
+                    <tbody id="reporttablebody-phase-two" class="report-body">
+                    </tbody>
+                </table>
             </div>
-            <?php 
-                if($this->uri->segment(2)){
-            ?>
-            <table class="table-body question-table" id="table-body-phase-tow" >
-                <thead>
-                    <tr>
-                        <th>Image</th>
-                        <th>Question Name</th>
-                        <th>Option 1</th>
-                        <th>Option 2</th>
-                        <th>Option 3</th>
-                        <th>Option 4</th>
-                        <th>Type</th>
-                        <th>Correct</th>
-                         <th>Options</th>
-                    </tr>
-                </thead>
-                <tbody id="reporttablebody-phase-two" class="report-body">
-                </tbody>
-            </table>
-            <?php } ?>
         </div>
     </div>
 </div>
@@ -324,8 +317,58 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
 ?>
     <script>
+
+        app.controller('quiz_controller',['$scope','$myUtils','$http','$filter','$interval','$compile', quiz_controller]);
+
+        function quiz_controller($scope, $myUtils,$http,$filter,$interval,$compile) {
+        
+        $scope.filterobj = {};
+        
+        $scope.baseUrl = '<?php echo base_url() ?>'
+
+        $scope.user_id = $myUtils.getUserId();
+        $scope.name = $myUtils.getUserName();
+        $scope.email = $myUtils.getUserEmail();
+        $scope.roles = $myUtils.getUserRoles();
+        $scope.school_id = $myUtils.getDefaultSchoolId();
+        $scope.session_id = $myUtils.getDefaultSessionId();
+        $scope.role_id = $myUtils.getUserDefaultRoleId();
+        $scope.isTeacher = $myUtils.isTeacher();
+
+        var urlist = {
+            getclasslistTeacher:'<?php echo SHAMA_CORE_API_PATH; ?>getclasslistTeacher',
+        }
+        $scope.select_class = "";
         var app = angular.module('invantage', []);
-        app.controller('quiz_controller', function($scope, $http, $interval,$compile) {
+        // Shama Core API
+        function getclasslist()
+        {
+            try{
+                //console.log(data);
+                    var serail = '<?php if($this->uri->segment(2)){ echo $this->uri->segment(2) ; } ?>';
+                    $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getclasslistTeacher',({school_id:$scope.school_id, role_id:$scope.role_id,user_id:$scope.user_id,serail:serail})).then(function(response){
+                    
+                        //console.log(response)
+                        if(response.length > 0 && response != null)
+                        {
+                            $scope.classlist = response;
+                            
+                                $scope.inputclass = response[0];
+                            
+                            getSubjectList();
+                            loadSections();
+                        }
+                        else{
+                            $scope.datesheetlist = [];
+                         
+                        }
+                    });
+                
+            }
+            catch(e){}
+        }
+        getclasslist();
+        // End Shama Core API
         $scope.lastid = parseInt('<?php echo $this->uri->segment(2); ?>');
         $scope.is_edit = false;
         $scope.questionid = 0
@@ -411,21 +454,17 @@ require APPPATH.'views/__layout/leftnavigation.php';
         }
 
         angular.element(function(){
-            loadSections();
-            getQuestionsList();
             
-            $scope.sectionslist = <?php echo json_encode($sectionslist); ?>;
-            console.log($scope.sectionslist);
         });
         function getQuestionsList()
         {
             try{
 
-                httprequest('<?php echo $path_url; ?>getquestionlist',({id:$scope.lastid})).then(function(response){
-
+                //httprequest('<?php echo $path_url; ?>getquestionlist',({id:$scope.lastid})).then(function(response){
+                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getquestionlist',({id:$scope.lastid})).then(function(response){
                     if(response.length > 0 && response != null)
                     {
-
+                        $('.quiston-container').show();
                         var cont_str = ''
                         for (var i = 0; i < response.length; i++) {
                             cont_str += '<tr id="'+response[i].id+'">'
@@ -477,12 +516,13 @@ require APPPATH.'views/__layout/leftnavigation.php';
             catch(ex){}
         }
 
+        $scope.savequiz = function()
+        {
 
-        $("#quizform").submit(function(){
             var inputquizname = $("#inputquizname").val();
-            //var inputclass = $("#inputclass").val();
+            var inputclass = $("#inputclass").val();
             var inputSection = $("#inputSection").val();
-            //var select_subject = $("#select_subject").val();
+            var select_subject = $("#select_subject").val();
             var input_term_type = $('input[name=input_term_type]:checked').val();
             var inputquizdate=$('input[name="inputquizdate"]').val();
             var reg = new RegExp(/^[A-Za-z0-9\s\-_+*/=,\?.;:() ]{3,256}$/);
@@ -493,36 +533,38 @@ require APPPATH.'views/__layout/leftnavigation.php';
             else{
                 jQuery("#inputquizname").css("border", "1px solid #C9C9C9");
             }
-            
+            if(inputclass=="? undefined:undefined ?")
+            {
+
+                jQuery("#inputclass").css("border", "1px solid #C9C9C9");
+                $('#inputclass').focus();
+                return false;
+            }
             if(inputSection=="? undefined:undefined ?")
             {
 
                 $('#inputSection').focus();
             }
 
+            if(select_subject=="? undefined:undefined ?")
+            {
+
+                $('#select_subject').focus();
+            }
             var $this = $(".sm");
             $this.button('loading');
 
-
-            var selected_sections = [];
-            angular.forEach($scope.sectionslist, function(value, key){
-                if(value.isselected)
-                {
-                    selected_sections.push(value.id)
-                }
-            });
-            
-
-            var url = '<?php echo $path_url; ?>savequiz';
+            var url = '<?php echo SHAMA_CORE_API_PATH; ?>savequiz';
             var data = ({
                 'inputquizname':inputquizname,
-                //'inputclass':inputclass,
-                //'inputsection':inputSection,
-                //'inputsubject':select_subject,
-                'inputsections': selected_sections,
+                'inputclass':inputclass,
+                'inputsection':inputSection,
+                'inputsubject':select_subject,
                 'input_term_type':input_term_type,
                 'inputquizdate':inputquizdate,
                 'serial':parseInt($("#serial").val()),
+                'school_id': $scope.school_id,
+                'user_id':$scope.user_id,
                 '<?php echo $this->security->get_csrf_token_name(); ?>':'<?php echo $this->security->get_csrf_hash(); ?>'
 
             })
@@ -541,7 +583,10 @@ require APPPATH.'views/__layout/leftnavigation.php';
             });
 
             return false;
-        })  ;
+        }
+        // $("#quizform").submit(function(){
+            
+        // })  ;
 
         function removeImageConfirmation(currentelementid)
         {
@@ -583,8 +628,9 @@ require APPPATH.'views/__layout/leftnavigation.php';
         }
 
 
-        $("#addquestionform").submit(function(){
-
+        //$("#addquestionform").submit(function(){
+            $scope.savequestion = function()
+            {
             var inputQuestion = $("#inputQuestion").val();
             var inputoption1 = $("#inputoption1").val();
             var inputoption2 = $("#inputoption2").val();
@@ -685,7 +731,8 @@ require APPPATH.'views/__layout/leftnavigation.php';
             var $this = $(".save-button");
             $this.button('loading');
 
-            var url = '<?php echo $path_url; ?>savequestion';
+            //var url = '<?php echo $path_url; ?>savequestion';
+            var url = '<?php echo SHAMA_CORE_API_PATH; ?>savequestion';
             if($scope.is_edit == true){
 
                 var formdata = new FormData();
@@ -745,6 +792,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                            $this.button('reset');
                             emptyinputvalues()
                             getQuestionsList();
+
                             $("#myModal").modal('hide');
                         }
                         else{
@@ -828,7 +876,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
             }
 
             return false;
-        })  ;
+        }
 
         $scope.uploadelemntid = ''
 
@@ -865,53 +913,53 @@ require APPPATH.'views/__layout/leftnavigation.php';
             });
         }
 
-        function saveprofileUpload(uploadelemntid,isquizimage)
-        {
-            var files = $('input[type="file"][id="inputFile_'+uploadelemntid+'"]')[0].files[0];
+        // function saveprofileUpload(uploadelemntid,isquizimage)
+        // {
+        //     var files = $('input[type="file"][id="inputFile_'+uploadelemntid+'"]')[0].files[0];
 
-            var size, ext ;
-            file = files;
+        //     var size, ext ;
+        //     file = files;
 
-            size = file.size;
-            ext = file.name.toLowerCase().trim();
-            ext = ext.substring(ext.lastIndexOf('.') + 1);
-            ext = ext.toLowerCase();
-            var validExt = ["png","jpg","bmp","gif","jpeg"];
-            if($.inArray(ext,validExt) == -1){
-                message("Please must upload image file","show");
-                return false;
-            }
-            else{
-                message("","hide");
-            }
+        //     size = file.size;
+        //     ext = file.name.toLowerCase().trim();
+        //     ext = ext.substring(ext.lastIndexOf('.') + 1);
+        //     ext = ext.toLowerCase();
+        //     var validExt = ["png","jpg","bmp","gif","jpeg"];
+        //     if($.inArray(ext,validExt) == -1){
+        //         message("Please must upload image file","show");
+        //         return false;
+        //     }
+        //     else{
+        //         message("","hide");
+        //     }
 
-            if(size > 5000000 ){
-                alert("File must be less than 5MB")
-                return false;
-            }
+        //     if(size > 5000000 ){
+        //         alert("File must be less than 5MB")
+        //         return false;
+        //     }
 
-            var data = new FormData();
-            data.append('<?php echo $this->security->get_csrf_token_name(); ?>','<?php echo $this->security->get_csrf_hash(); ?>');
-            data.append('file',$('input[type="file"][id="inputFile_'+uploadelemntid+'"]')[0].files[0])
-            data.append('isquizimage',isquizimage)
-            $.ajax({
-                url: '<?php echo $path_url;?>Principal_controller/uploadStudentProfile?files',
-                type: 'POST',
-                data: data,
-                cache: false,
-                dataType: 'json',
-                mimeType:"multipart/form-data",
-                processData: false, // Don't process the files
-                contentType: false, // Set content type to false as jQuery will tell the server its a query string request
-                success: function(data) {
-                    if(data.message == true)
-                    {
-                        window.location.href = "<?php echo $path_url;?>show_std_list";
-                    }
-                }
-            });
-            return false;
-        }
+        //     var data = new FormData();
+        //     data.append('<?php echo $this->security->get_csrf_token_name(); ?>','<?php echo $this->security->get_csrf_hash(); ?>');
+        //     data.append('file',$('input[type="file"][id="inputFile_'+uploadelemntid+'"]')[0].files[0])
+        //     data.append('isquizimage',isquizimage)
+        //     $.ajax({
+        //         url: '<?php echo $path_url;?>Principal_controller/uploadStudentProfile?files',
+        //         type: 'POST',
+        //         data: data,
+        //         cache: false,
+        //         dataType: 'json',
+        //         mimeType:"multipart/form-data",
+        //         processData: false, // Don't process the files
+        //         contentType: false, // Set content type to false as jQuery will tell the server its a query string request
+        //         success: function(data) {
+        //             if(data.message == true)
+        //             {
+        //                 window.location.href = "<?php echo $path_url;?>show_std_list";
+        //             }
+        //         }
+        //     });
+        //     return false;
+        // }
 
         function httppostrequest(url,data)
       {
@@ -949,7 +997,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
 
 setTimerForWidget('section',1)
-    $scope.select_class = $scope.ini;
+   // $scope.select_class = $scope.ini;
     function setTimerForWidget(crname,ctime)
     {
 
@@ -972,26 +1020,163 @@ setTimerForWidget('section',1)
     },300)
       }
 
+      function getSubjectList()
+      {
+        try{
+            var data = ({
+                            school_id:$scope.school_id,
+                            class_id:$scope.inputclass.id,
+
+                            })
+                $myUtils.httppostrequest('<?php echo SHAMA_CORE_API_PATH; ?>getsubjectlistbyclass',data).then(function(response){
+                if(response.length > 0 && response != null)
+                {
+                    $scope.subjectlist = response;
+                    $scope.inputSubject =  response[0];
+
+                    var q_id = '<?php if($this->uri->segment(2)){ echo $this->uri->segment(2) ; } ?>'
+                    if(q_id != '' )
+                    {
+                       
+                    }
+                    else
+                    {
+                        $('#t_bt').attr('checked', true);
+                    }
+                }
+                else{
+                    $scope.subjectlist = [];
+                }
+            })
+        }
+        catch(ex){}
+    }
+
+    function getSelectedSubject(class_id,select_subject)
+    {
+        try{
+            var data = ({class_id:class_id })
+            var select_subject = select_subject;
+            httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getselectedsubject',data).then(function(response){
+                if(response.length > 0 && response != null)
+                {
+
+                    
+                    $scope.subjectlist = response;
+                    
+                    for (var i=0; i<response.length; i++) {
+                        
+                        
+                        if(response[i].id==select_subject)
+                        {
+                            
+                            $scope.inputSubject =  response[i];
+                        }
+                    }
+                    
+                    
+                }
+                else{
+                    return false
+                }
+            })
+        }
+        catch(ex){}
+    }
+    // Edit case
+    function getQuizEdit(rowid)
+    {
+        try{
+            var data = ({inputrowid:rowid })
+
+            httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getselectequiz',data).then(function(response){
+                if(response.length > 0 && response != null)
+                {
+                    $scope.inputSubject =  response[0];
+                    
+                    
+                    $scope.inputquizname =  response[0].qname;
+                    $scope.inputquizdate =  response[0].quiz_date;
+                    //$scope.classlist = response;
+                           
+                    $("#inputclass").val(response[0].class_id);
+
+                    $("#inputSection").val(response[0].section_id);
+                    $("#select_subject").val(response[0].subject_id);
+                    if(response[0].quiz_term=='bt')
+                    {
+                        $('#t_bt').attr('checked', true);
+                        
+                    }
+                    else
+                    {
+                        
+                        $('#t_at').attr('checked', true);
+                       
+                    }
+                    
+
+                    getSelectedSubject(response[0].class_id,response[0].subject_id);
+                    //console.log(response[0].class_id);        
+                    getQuestionsList();
+                }
+                else{
+                    return false
+                }
+            })
+        }
+        catch(ex){}
+    }
+    <?php if($this->uri->segment(2)){  
+
+    ?>
+    getQuizEdit(parseInt(<?php if($this->uri->segment(2)){ echo $this->uri->segment(2) ; } ?>))
+    <?php } ?>
+    $scope.testme = function()
+    {
+        alert()
+    }
+    
+        
         function loadSections()
         {
 
-            try{/*
-                var data = ({inputclassid:parseInt($("#inputclass").val())})
-
-                httprequest('<?php echo $path_url; ?>getsectionbyclass',data).then(function(response){
+            try{
+                 
+                var data = ({
+                            school_id:$scope.school_id, 
+                            role_id:$scope.role_id,
+                            user_id:$scope.user_id,
+                            class_id:$scope.inputclass.id,
+                            })
+                $myUtils.httppostrequest('<?php echo SHAMA_CORE_API_PATH; ?>getsectionbyclass',data).then(function(response){
+                
                     if(response.length > 0 && response != null)
                     {
-                        //$scope.inputSection = response[0];
+                        $scope.inputSection = response[0];
                         $scope.sectionslist = response;
                         //getSubjectList()
                     }
                     else{
                         $scope.sectionslist = [];
                     }
-                })*/
+                })
             }
             catch(ex){}
         }
+        //loadSections();
+        
+
+        
+
+           $(document).on('change','#inputclass',function(){
+             try{
+
+                getSubjectList()
+                loadSections()
+            }
+            catch(ex){}
+        })
 
         function httprequest(url,data)
       {
@@ -1023,7 +1208,7 @@ setTimerForWidget('section',1)
             $scope.inputQestionSerail = $(this).attr('id')
             $("#inputQestionSerail").val($(this).attr('id'))
             $scope.is_edit_list_found = []
-            httprequest('<?php echo $path_url; ?>getquestionbyid',({qid:$(this).attr('id')})).then(function(response){
+            httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getquestionbyid',({qid:$(this).attr('id')})).then(function(response){
                 if(response != null){
                     $scope.is_edit_list_found = response
                     $("#inputQuestion").val($scope.is_edit_list_found[0].question)
@@ -1133,7 +1318,7 @@ setTimerForWidget('section',1)
         $(document).on('click','#UserDelete',function(){
             $("#myUserModal").modal('hide');
             ajaxType = "GET";
-            urlpath = "<?php echo $path_url; ?>Teacher/removeQuestion";
+            urlpath = "<?php echo SHAMA_CORE_API_PATH?>removeQuestion";
             var dataString = ({'id':dvalue});
             ajaxfunc(urlpath,dataString,userDeleteFailureHandler,loadUserDeleteResponse);
         });
@@ -1160,7 +1345,7 @@ setTimerForWidget('section',1)
         }
 
 
-    });
+    };
 
 
 
