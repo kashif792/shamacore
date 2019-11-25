@@ -223,5 +223,12 @@ $route['api/v(:num)/savestudentmidquizmarks'] = 'api_v$1/Lmsapi/savestudentmidqu
 $route['api/v(:num)/savestudentmarks'] = 'api_v$1/Lmsapi/SetStudentMarks';
 $route['api/v(:num)/getevulationheader'] = 'api_v$1/Lmsapi/GetEvulationHeader';
 $route['api/v(:num)/getsubjectresult'] = 'api_v$1/Lmsapi/GetSubjectResult';
+$route['api/v(:num)/getstudentbyclass'] = 'api_v$1/Lmsapi/GetStudentByClass';
+$route['api/v(:num)/midstudentreportdata'] = 'api_v$1/Lmsapi/MidStudentReportBySubjectwize';
+$route['api/v(:num)/finalstudentreportdata'] = 'api_v$1/Lmsapi/FinalStudentReportBySubjectwize';
+
+//$route['midreport'] = 'Reports/MidReportView';
+//$route['finalreport'] = 'Reports/FinalReportView';
+
 
 

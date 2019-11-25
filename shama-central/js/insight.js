@@ -54,7 +54,28 @@ $(document).ready(function(){
         $("#lsubmenu").slideToggle('slow')
      })
     
-
+$("#reports").click(function(){
+       
+        if($("#midresult").css('display') == 'block')
+        {
+            $(".result-icon").removeClass('lsubmenu-icon-rotate')
+        }
+        if($("#midresult").css('display') == 'none'){
+            $(".result-icon").addClass('lsubmenu-icon-rotate')
+        }
+        $("#midresult").slideToggle('slow')
+     })
+     $("#exams").click(function(){
+       
+        if($("#datasheet").css('display') == 'block')
+        {
+            $(".exams-icon").removeClass('lsubmenu-icon-rotate')
+        }
+        if($("#datasheet").css('display') == 'none'){
+            $(".exams-icon").addClass('lsubmenu-icon-rotate')
+        }
+        $("#datasheet").slideToggle('slow')
+     })
     /**
      * ---------------------------------------------------------
      *   Enable/Disable filter inputs

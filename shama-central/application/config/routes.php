@@ -438,3 +438,6 @@ $route['datesheetlist'] = 'Principal_controller/getDatesheetList';
 $route['add_datesheet'] = 'Principal_controller/AddDatesheet';
 $route['getdatesheetedit'] = "Principal_controller/DatesheetUpdate/";
 $route['update_datesheet/(:any)'] = "Principal_controller/getDatesheetUpdate/$1";
+/* Reports */
+$route['midreport'] = 'Reports/MidReportView';
+$route['finalreport'] = 'Reports/FinalReportView';

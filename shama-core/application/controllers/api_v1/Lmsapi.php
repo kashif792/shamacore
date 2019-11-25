@@ -9410,8 +9410,14 @@ class LMSApi extends MY_Rest_Controller
         {
 
             
-
-                $is_student_found = $this->operation->GetByQuery("SELECT s.*,ass.id as sid  FROM schedule sc INNER JOIN sections s On s.id = sc.section_id INNER JOIN assign_sections ass on ass.section_id = s.id   where sc.teacher_uid = ".$user_id." AND ass.status = 'a' AND sc.class_id = ".$class_id." Group BY s.id");
+                if($user_id)
+                {
+                    $is_student_found = $this->operation->GetByQuery("SELECT s.*,ass.id as sid  FROM schedule sc INNER JOIN sections s On s.id = sc.section_id INNER JOIN assign_sections ass on ass.section_id = s.id   where sc.teacher_uid = ".$user_id." AND ass.status = 'a' AND sc.class_id = ".$class_id." Group BY s.id");
+                }
+                else
+                {
+                    $is_student_found = $this->operation->GetByQuery("SELECT s.*,ass.id as sid  FROM schedule sc INNER JOIN sections s On s.id = sc.section_id INNER JOIN assign_sections ass on ass.section_id = s.id   where  ass.status = 'a' AND sc.class_id = ".$class_id." Group BY s.id");
+                }
 
             }
 
@@ -10240,31 +10246,427 @@ class LMSApi extends MY_Rest_Controller
         }
         echo json_encode($result);
     }
-    // function GetEvulationHeader_get()
-    // {
-    //     $quizlist = array();
+    function GetStudentByClass_get()
+    {
 
-    //     if (!is_null($this->input->get('subjectlist')) && !is_null($this->input->get('inputsemester')) && !is_null($this->input->get('inputsession')))
-    //     {
+        $studentarray = array();
+        if (!is_null($this->input->get('inputclassid')) && !is_null($this->input->get('inputsectionid')) && !is_null($this->input->get('inputsemesterid')) && !is_null($this->input->get('inputsessionid')))
+        {
             
-    //         $roles = $this->session->userdata('roles');
+            if ($this->input->get('inputsemesterid') == 'b')
+            {
+                $studentlist = $this->operation->GetByQuery("Select ss.student_id,iv.screenname,um.meta_value,iv.profile_image from student_semesters ss  INNER JOIN invantage_users iv on iv.id = ss.student_id INNER JOIN user_meta um on um.user_id = ss.student_id   where ss.class_id = " . $this->input->get('inputclassid') . " AND ss.section_id =" . $this->input->get('inputsectionid') . " AND ss.session_id = " . $this->input->get('inputsessionid') . " AND um.meta_key = 'roll_number'");
+            }
+            else
+            {
+                $studentlist = $this->operation->GetByQuery("Select ss.student_id,iv.screenname,um.meta_value,iv.profile_image from student_semesters ss  INNER JOIN invantage_users iv on iv.id = ss.student_id INNER JOIN user_meta um on um.user_id = ss.student_id   where ss.class_id = " . $this->input->get('inputclassid') . " AND ss.section_id =" . $this->input->get('inputsectionid') . " AND ss.semester_id = " . $this->input->get('inputsemesterid') . " AND ss.session_id = " . $this->input->get('inputsessionid') . " AND um.meta_key = 'roll_number'");
+            }
+            if (count($studentlist))
+            {
+                foreach ($studentlist as $key => $value)
+                {
+                    $studentarray[] = array('id' => $value->student_id, 'name' => $this->GetStudentName($value->student_id) . " (" . $value->meta_value . ")", 'rollnumber' => $value->meta_value, 'fathername' => parent::getUserMeta($value->student_id, 'father_name'), 'profile' => $value->profile_image, 'sdob' => parent::getUserMeta($value->student_id, 'sdob'));
+                }
+            }
+        }
+        echo json_encode($studentarray);
+    }
+    function MidStudentReportBySubjectwize_post()
+    {
+        $request = json_decode( file_get_contents('php://input'));
+        $inputclassid = $this->security->xss_clean(trim($request->inputclassid));
+        $inputsectionid = $this->security->xss_clean(trim($request->inputsectionid));
+        $inputsemesterid = $this->security->xss_clean(trim($request->inputsemesterid));
+        //$inputsemesterid = 1;
+        $inputsessionid = $this->security->xss_clean(trim($request->inputsessionid));
+        $student_id = $this->security->xss_clean(trim($request->inputstudentid));
+        $school_id = $this->security->xss_clean(trim($request->school_id));
+        $error_array = array();
+        if (!is_int((int) $inputclassid) || !is_int((int) $inputsectionid)  || !is_int((int) $inputsessionid) || !is_int((int) $studentid) ) {
+            array_push($error_array,"Invalid data");
+        }
+             
+        if(count($error_array))
+        {
+            echo json_encode($error_array);
+            exit();
+        }
 
-    //         if ($roles[0]['role_id'] == 4)
-    //         {
-    //             $query = $this->operation->GetRowsByQyery("SELECT q.* FROM quize q INNER JOIN semester s ON s.id = q.semsterid INNER JOIN sessions se ON se.id = q.sessionid Where q.subjectid = " . $this->input->get('subjectlist') . " AND q.classid = " . $this->input->get('inputclassid') . " AND q.sectionid = " . $this->input->get('inputsectionid') . " AND q.tacher_uid = " . $this->session->userdata('id') . " AND q.semsterid = " . $this->input->get('inputsemester') . " AND q.sessionid = " . $this->input->get('inputsession') . "  order by q.quiz_term asc");
-    //         }
-    //         else
-    //         {
-    //             $query = $this->operation->GetRowsByQyery("SELECT q.* FROM quize q INNER JOIN semester s ON s.id = q.semsterid INNER JOIN sessions se ON se.id = q.sessionid Where q.subjectid = " . $this->input->get('subjectlist') . " AND q.classid = " . $this->input->get('inputclassid') . " AND q.sectionid = " . $this->input->get('inputsectionid') . " AND q.semsterid = " . $this->input->get('inputsemester') . " AND q.sessionid = " . $this->input->get('inputsession') . "  order by q.quiz_term asc");
-    //         }
-    //         if (count($query))
-    //         {
-    //             foreach ($query as $key => $value)
-    //             {
-    //                 $quizlist[] = array('id' => $value->id, 'name' => $value->qname, 'term_status' => $value->quiz_term, 'class' => $value->classid, 'section' => $value->sectionid, 'subject' => $value->subjectid, 'semesterid' => $value->semsterid, 'sessionid' => $value->sessionid);
-    //             }
-    //         }
-    //     }
-    //     echo json_encode($quizlist);
-    // }
+        $studentresult = array();
+        if(count($error_array) == false)
+        {
+            $iteration = 0;
+            if($inputsemesterid == 'b')
+            {
+                $iteration = 1;
+            }
+            else{
+              
+                
+                $this->operation->table_name = 'semester';
+                $is_semester_dates_found = $this->operation->GetByWhere(array('id'=>$inputsemesterid));
+                
+            }
+            $subjectlist = parent::GetSubjectsByClass($inputclassid,(int)$inputsemesterid,$inputsessionid,$school_id);
+             //$subjectlist = parent::GetSubjectsByClass($inputclassid,$inputsemesterid);
+             //print_r($subjectlist);
+        //exit;
+             
+            if(count($subjectlist))
+            {   
+                $semesterlist = array('Fall','Spring');
+                $student_obtain_marks = 0;
+                $semester_name = "Fall";
+                for ($i=0; $i <= $iteration ; $i++) { 
+                    
+                   $result = array();
+                   if($inputsemesterid == 'b')
+                    {
+                        $inputsemesterid = parent::GetSemesterByName($semesterlist[$i]);
+                        $inputsemesterid = $inputsemesterid[0]->id;
+                        $semester_name =  $inputsemesterid[0]->semester_name;
+                    }
+                    else{
+                        if($is_semester_dates_found[0]->semester_name == 'Fall')
+                        {
+                            $semester_name = "Fall";
+                        }
+                        else{
+                            $semester_name = "Spring";
+                        }
+                    }
+                    $countread = 0;
+                    $total_lesson = 0;
+                    foreach ($subjectlist as $key => $value) {
+                        $sum_subject = array();
+                        $student_quiz = array();
+                        
+                        
+
+                        $student_quiz[0] = (array_sum($sum_subject)/count($subjectlist));
+                        $student_quiz[1] = (array_sum($sum_subject)); 
+
+                        // Get Attendance made
+                        $studentprogress = $this->operation->GetByQuery('SELECT s.id as semid,s.read_date FROM `semester_lesson_plan` s WHERE subject_id = ' . $value->id . ' AND semester_id = ' . $inputsemesterid . ' AND section_id = ' . $inputsectionid . ' order by s.read_date asc');
+                        if (count($studentprogress))
+                            {
+                                $sparray = array();
+                                
+                                foreach ($studentprogress as $key => $spvalue)
+                                {
+                                    $ar = $this->GetStudentProgress($spvalue->semid, $studentid);
+                                    $show = false;
+                                    if ($datetime1 != null)
+                                    {
+                                        $datetime2 = new DateTime($spvalue->read_date);
+                                        $show = $datetime1 >= $datetime2;
+                                    }
+                                    $ar['show'] = $show ? 1 : 0;
+                                    //
+                                    if($ar['status']=='read')
+                                    {
+                                        $countread++;
+                                    }
+                                    
+                                    $sparray[] = $ar;
+                                }
+                                $total_lesson += count($sparray);
+                            }
+                            
+                        // ENd here
+                      
+                        $evalution_array = array();
+    
+                        
+                        $mid = $this->operation->GetByQuery('SELECT * FROM term_exam_result  where subject_id = '.$value->id.' AND student_id= '.$student_id."");
+                       
+                        $total_marks = $mid[0]->marks;
+                        $obtain_marks = $mid[0]->marks;
+                        $student_obtain_marks += $total_marks;
+                        $all_total_marks += MID_TOTAL_MARKS;
+                        
+                        $evalution_array[] = array(
+                            
+                            'mid'=>(count($mid) ? $mid[0]->marks : 0),
+                            'grade'=>(parent::GetGradeBySemesterDates((double)(($obtain_marks/MID_TOTAL_MARKS)*100),$inputsessionid,$inputsemesterid)) ,
+                            'obtain_marks'=> $obtain_marks == NULL ? 0:$obtain_marks,
+                            'total_marks'=>MID_TOTAL_MARKS,
+                        );    
+                        $result[] = array(
+                            'serail'=>$value->id,
+                            'subject'=>$value->subject_name,
+                            'evalution'=>$evalution_array,
+                          
+                        );
+                    }
+                    if($student_obtain_marks==0)
+                    {
+                        $total_obtain_mid_marks = 0;
+                    }
+                    else
+                    {
+                        $total_obtain_mid_marks = round($student_obtain_marks,2);
+                    }
+                    // Get Session Date and Semester Dates
+                    //exit;
+                    $session_date_q = $this->operation->GetByQuery("SELECT * FROM sessions  where id = ".$inputsessionid);
+                    $session_dates =date("Y",strtotime($session_date_q[0]->datefrom)).' - '.date("Y",strtotime($session_date_q[0]->dateto));
+                    $semester_date_q = $this->operation->GetByQuery("SELECT * FROM semester_dates  where semester_id = ".$inputsemesterid. " AND session_id =".$inputsessionid);
+                    $semester_dates =date("M d, Y",strtotime($semester_date_q[0]->start_date)).' - '.date("M d, Y",strtotime($semester_date_q[0]->end_date));
+                    // Calculation Attendence 
+                    $total_attendence = 0;
+                    if($total_lesson){
+                        $total_attendence = ($countread/$total_lesson)*100;
+                    }
+                   
+                     
+                    // ENd Here
+                    $studentresult[] = array(
+                        'result'=>$result,
+                        'semester'=>$semester_name,
+                        'session_dates'=>$session_dates,
+                        'semester_dates'=>$semester_dates,
+                        'count_attendence'=>$countread,
+                        'total_attendence'=>round($total_attendence,2),
+                        'total_lesson'=>(int)($total_lesson),
+                        'obtain_marks'=> $total_obtain_mid_marks == NULL ? 0:$total_obtain_mid_marks,
+                        'total_marks'=>round($all_total_marks,2),
+                        'percent'=>round((float)(($student_obtain_marks/((count($all_total_marks)*100)))*100),2),
+                        'grade'=>parent::GetGradeBySemesterDates((float)(($student_obtain_marks/$all_total_marks)*100),$inputsessionid,$inputsemesterid),
+                    ); 
+                }
+            }
+        }
+        
+        echo json_encode($studentresult);
+    }
+    function GetStudentProgress($lessonid, $studentid)
+    {
+        $studentprogress = $this->operation->GetRowsByQyery('SELECT * FROM `lessonprogress` where lessonid =' . $lessonid . " AND studentid=" . $studentid);
+        $sparray = array();
+        if (count($studentprogress))
+        {
+            foreach ($studentprogress as $key => $spvalue)
+            {
+                $sparray = array('lessonid' => $spvalue->lessonid, 'status' => $spvalue->status, 'last_updated' => $spvalue->last_updated,);
+            }
+        }
+        else
+        {
+            $sparray = array('lessonid' => $lessonid, 'status' => 'unread',);
+        }
+        return $sparray;
+    }
+    function FinalStudentReportBySubjectwize()
+    {
+        $request = json_decode( file_get_contents('php://input'));
+        $inputclassid = $this->security->xss_clean(trim($request->inputclassid));
+        $inputsectionid = $this->security->xss_clean(trim($request->inputsectionid));
+        $inputsemesterid = $this->security->xss_clean(trim($request->inputsemesterid));
+        //$inputsemesterid = 1;
+        $inputsessionid = $this->security->xss_clean(trim($request->inputsessionid));
+        $studentid = $this->security->xss_clean(trim($request->inputstudentid));
+
+        $error_array = array();
+        
+        
+        if (!is_int((int) $inputclassid) || !is_int((int) $inputsectionid)  || !is_int((int) $inputsessionid) || !is_int((int) $studentid) ) {
+            array_push($error_array,"Invalid data");
+        }
+             
+        if(count($error_array))
+        {
+            echo json_encode($error_array);
+            exit();
+        }
+
+        $studentresult = array();
+        if(count($error_array) == false)
+        {
+            $iteration = 0;
+            if($inputsemesterid == 'b')
+            {
+                $iteration = 1;
+            }
+            else{
+              
+                
+                $this->operation->table_name = 'semester';
+                $is_semester_dates_found = $this->operation->GetByWhere(array('id'=>$inputsemesterid));
+                
+            }
+            $subjectlist = parent::GetSubjectsByClass($inputclassid,(int)$inputsemesterid,$inputsessionid);
+            
+        //exit;
+             
+            if(count($subjectlist))
+            {   
+                $semesterlist = array('Fall','Spring');
+                $student_obtain_marks = 0;
+                $semester_name = "Fall";
+                $session_total_marks = 0;
+                $final_count_subject_total_marks = 0;
+                $final_result = "FAIL";
+                for ($i=0; $i <= $iteration ; $i++) { 
+                    
+                   $result = array();
+                   if($inputsemesterid == 'b')
+                    {
+                        $inputsemesterid = parent::GetSemesterByName($semesterlist[$i]);
+                        $inputsemesterid = $inputsemesterid[0]->id;
+                        $semester_name =  $inputsemesterid[0]->semester_name;
+                    }
+                    else{
+                        if($is_semester_dates_found[0]->semester_name == 'Fall')
+                        {
+                            $semester_name = "Fall";
+                        }
+                        else{
+                            $semester_name = "Spring";
+                        }
+                    }
+            
+                    foreach ($subjectlist as $key => $value) {
+                        
+
+                        $evalution_array = array();
+                        
+                        
+                        $mid = $this->operation->GetRowsByQyery('SELECT * FROM temr_exam_result  where subjectid = '.$value->id.' AND studentid= '.$studentid." AND termid = 1");
+                        $final = $this->operation->GetRowsByQyery('SELECT * FROM temr_exam_result  where subjectid = '.$value->id.' AND studentid= '.$studentid." AND termid = 2");
+                        // Get Total Sessional Marks
+                        $sessional_marks = $this->operation->GetRowsByQyery('SELECT sum(q.marks) as total_sessional FROM quizzes_marks as q INNER JOIN quize as qi ON qi.id = q.quiz_id WHERE q.subject_id = '.$value->id.' AND q.student_id= '.$studentid.' AND q.section_id = '.$inputsectionid.' AND q.semester_id = '.$inputsemesterid.' AND q.session_id = '.$inputsessionid);
+                        // Get Total Quizes of subject
+                        $total_subject_sessional_marks = $this->operation->GetRowsByQyery('SELECT count(*) AS total_quize  FROM quize q INNER JOIN semester s ON s.id = q.semsterid INNER JOIN sessions se ON se.id = q.sessionid WHERE q.subjectid = '.$value->id.'  AND q.classid = '.$inputclassid.' AND q.sectionid = '.$inputsectionid.' AND q.semsterid = '.$inputsemesterid.' AND q.sessionid = '.$inputsessionid);
+                        
+                        // End here
+                        $mid_total_marks = $mid[0]->marks;
+                        $obtain_marks = $mid[0]->marks;
+                        $student_mid_obtain_marks += $mid_total_marks;
+                        $fin_total_marks += $final[0]->marks;
+                        $all_total_marks += MID_TOTAL_MARKS;
+                        $final_total_marks += FINAL_TOTAL_MARKS;
+
+                        // Calculate Total Sessional Marks
+                        $total_quize_marks = $total_subject_sessional_marks[0]->total_quize*QUIZ_TOTAL_MARKS;
+                        $subject_sessional_marks = ($sessional_marks[0]->total_sessional/$total_quize_marks)*SISSIONAL_MARKS;
+                        $session_total_marks += (int)(round($subject_sessional_marks));
+                        $final_subject_total_marks = MID_TOTAL_MARKS+FINAL_TOTAL_MARKS+SISSIONAL_MARKS;
+                        $final_count_subject_total_marks += MID_TOTAL_MARKS+FINAL_TOTAL_MARKS+SISSIONAL_MARKS;
+                         // Calculate Obtain Marks
+                        $student_obtain_subject_marks = (int)$mid[0]->marks+(int)$final[0]->marks+(int)$subject_sessional_marks;
+                        $student_total_obtain_subject_marks += (int)$student_obtain_subject_marks;
+                        // Pass AND Fail Condition
+                        if($value->subject_name=='English')
+                        {
+                            if(parent::GetGradeBySemesterDates((double)(($student_obtain_subject_marks/$final_subject_total_marks)*100),$inputsessionid,$inputsemesterid)!="F")
+                            {
+                                $final_result = "PASS";
+                            }
+                        }
+                        if($value->subject_name=='Math')
+                        {
+                            if(parent::GetGradeBySemesterDates((double)(($student_obtain_subject_marks/$final_subject_total_marks)*100),$inputsessionid,$inputsemesterid)!="F")
+                            {
+                                $final_result = "PASS";
+                            }
+                        }
+                        if($value->subject_name=='Science')
+                        {
+                            if(parent::GetGradeBySemesterDates((double)(($student_obtain_subject_marks/$final_subject_total_marks)*100),$inputsessionid,$inputsemesterid)!="F")
+                            {
+                                $final_result = "PASS";
+                            }
+                        }
+                        // End here
+                        // Get Attendance made
+                        $studentprogress = $this->operation->GetRowsByQyery('SELECT s.id as semid,s.read_date FROM `semester_lesson_plan` s WHERE subjectid = ' . $value->id . ' AND semsterid = ' . $inputsemesterid . ' AND sectionid = ' . $inputsectionid . ' order by s.read_date asc');
+                        if (count($studentprogress))
+                            {
+                                $sparray = array();
+                                
+                                foreach ($studentprogress as $key => $spvalue)
+                                {
+                                    $ar = $this->GetStudentProgress($spvalue->semid, $studentid);
+                                    $show = false;
+                                    if ($datetime1 != null)
+                                    {
+                                        $datetime2 = new DateTime($spvalue->read_date);
+                                        $show = $datetime1 >= $datetime2;
+                                    }
+                                    $ar['show'] = $show ? 1 : 0;
+                                    //
+                                    if($ar['status']=='read')
+                                    {
+                                        $countread++;
+                                    }
+                                    
+                                    $sparray[] = $ar;
+                                }
+                                $total_lesson += count($sparray);
+                            }
+                            
+                            
+                        // ENd here 
+                        $evalution_array[] = array(
+                            
+                            'mid'=>(count($mid) ? $mid[0]->marks : 0),
+                            'final'=>(count($final) ? $final[0]->marks : 0),
+                            'sessional_marks'=>(int)($subject_sessional_marks),
+                            'student_obtain_subject_marks'=>$student_obtain_subject_marks,
+                            
+                            'grade'=>parent::GetGradeBySemesterDates((double)(($student_obtain_subject_marks/$final_subject_total_marks)*100),$inputsessionid,$inputsemesterid),
+                            'obtain_marks'=>$obtain_marks,
+                            'total_marks'=>MID_TOTAL_MARKS,
+                            'final_subject_total_marks' => (int)($final_subject_total_marks),
+                        );    
+                        $result[] = array(
+                            'serail'=>$value->id,
+                            'subject'=>$value->subject_name,
+                            'evalution'=>$evalution_array,
+                          
+                        );
+                    }
+                    
+                    // Get Session Date and Semester Dates
+                    
+                    $session_date_q = $this->operation->GetRowsByQyery("SELECT * FROM sessions  where id = ".$inputsessionid);
+                    $session_dates =date("Y",strtotime($session_date_q[0]->datefrom)).' - '.date("Y",strtotime($session_date_q[0]->dateto));
+                    $semester_date_q = $this->operation->GetRowsByQyery("SELECT * FROM semester_dates  where semester_id = ".$inputsemesterid. " AND session_id =".$inputsessionid);
+                    $semester_dates =date("M d, Y",strtotime($semester_date_q[0]->start_date)).' - '.date("M d, Y",strtotime($semester_date_q[0]->end_date));
+                    // Calculation Attendence 
+                    
+                    $total_attendence = 0;
+                    if($total_lesson){
+                        $total_attendence = ($countread/$total_lesson)*100;
+                    }
+
+                    
+                    // ENd Here
+                    $studentresult[] = array(
+                        'result'=>$result,
+                        'semester'=>$semester_name,
+                        'obtain_marks'=> round($student_mid_obtain_marks,2),
+                        'total_marks'=>round($all_total_marks,2),
+                        'session_total_marks'=>round($session_total_marks,2),
+                        'final_total_marks'=>round($fin_total_marks,2),
+                        'final_count_subject_total_marks'=>round($final_count_subject_total_marks,2),
+                        'student_total_obtain_subject_marks'=>round($student_total_obtain_subject_marks,2),
+                        //'percent'=>round((float)(($student_obtain_marks/((count($all_total_marks)*100)))*100),2),
+                        'total_mid_marks'=>(int)MID_TOTAL_MARKS,
+                        'total_final_marks'=>(int)FINAL_TOTAL_MARKS,
+                        'total_sessional_marks'=>(int)SISSIONAL_MARKS,
+                        //'grade'=>parent::GetGrade((float)(($student_total_obtain_subject_marks/$final_count_subject_total_marks)*100),$inputsessionid),
+                        'grade'=>$final_result,
+                        'session_dates'=>$session_dates,
+                        'semester_dates'=>$semester_dates,
+                        'total_attendence'=>round($total_attendence,2),
+                        'total_lesson'=>(int)($total_lesson),
+                        'count_attendence'=>$countread == NULL ? 0 :$countread,
+                    ); 
+                }
+            }
+        }
+        echo json_encode($studentresult);
+    }
 }

@@ -17,6 +17,10 @@ else{
 defined('UPLOAD_CAT_PROFILE') OR define('UPLOAD_CAT_PROFILE', 'profile');
 defined('UPLOAD_CAT_CONTENT') OR define('UPLOAD_CAT_CONTENT', 'content');
 
+defined('QUIZ_TOTAL_MARKS') OR define('QUIZ_TOTAL_MARKS', '10');
+defined('MID_TOTAL_MARKS') OR define('MID_TOTAL_MARKS', '30');
+defined('FINAL_TOTAL_MARKS') OR define('FINAL_TOTAL_MARKS', '50');
+defined('SISSIONAL_MARKS') OR define('SISSIONAL_MARKS', '20');
 
 
 /*

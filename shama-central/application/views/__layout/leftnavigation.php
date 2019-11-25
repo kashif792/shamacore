@@ -174,11 +174,37 @@
 		</li>
 
 
-	 	<li ng-if="isPrincipal" ng-class="(segment1 == 'classreport' || segment1 == 'studentreport')? 'active' : ''">
+	 	<!-- <li >
 			<a  href="{{baseUrl}}classreport">
 				<i class="fa fa-signal" aria-hidden="true"></i>
 				<span class="link_text"> Reports</span>
 			</a>
+		</li> -->
+		<li ng-if="isPrincipal" ng-class="(segment1 == 'classreport' || segment1 == 'studentreport')? 'active' : ''">
+			<a  href="javascript:void(0)" id="reports">
+				<i class="fa fa-user" aria-hidden="true"></i>
+				<span class="link_text"> Reports</span>
+				<i class="fa fa-chevron-down result-icon pull-right"></i>
+			</a>
+			<ul class="nav nav-pills nav-stacked" id="midresult" style="display: none">
+				<li><a  href="{{baseUrl}}classreport">
+				<i class="fa fa-signal" aria-hidden="true"></i>
+				<span class="link_text"> Class Reports</span>
+				</a>
+			</li>
+				<li>
+					<a  href="{{baseUrl}}midreport">
+					<i class="fa fa-snowflake-o" aria-hidden="true"></i>
+					<span class="link_text"> Mid Term Result</span>
+					</a>
+				</li>
+				<li>
+					<a  href="{{baseUrl}}finalreport">
+					<i class="fa fa-wpforms" aria-hidden="true"></i>
+					<span class="link_text"> Final Result</span>
+					</a>
+				</li>
+			</ul>
 		</li>
 		<li class="" ng-if="isPrincipal">
 			<a  href="<?php echo base_url(); ?>datesheetlist">

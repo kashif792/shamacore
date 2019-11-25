@@ -1288,7 +1288,7 @@ class MY_Rest_Controller extends REST_Controller
 
     function get_quiz_option($student_id, $quizid, $questionid)
     {
-        return $this->operation->GetByQuery('SELECT * FROM quiz_evaluation  WHERE  	student_id = ' . $student_id . ' AND quizid = ' . $quizid . ' AND questionid = ' . $questionid . ' limit 1');
+        return $this->operation->GetByQuery('SELECT * FROM quiz_evaluation  WHERE   student_id = ' . $student_id . ' AND quizid = ' . $quizid . ' AND questionid = ' . $questionid . ' limit 1');
     }
 
     /**
@@ -1791,6 +1791,81 @@ class MY_Rest_Controller extends REST_Controller
             return false;
         }
     }
+    function GetSubjectsByClass($classid,$semesterid,$sessionid,$school_id)
+    {
+        $active_session = $this->GetUserActiveSession($school_id);
+        
+        if(!empty($semesterid))
+        {
+            $this->operation->table_name = 'subjects';
+            return $this->operation->GetByWhere(array('class_id'=>$classid,'semester_id'=>$semesterid,"session_id"=>$sessionid));
+        }
+        else{
+            $this->operation->table_name = 'subjects';
+            return $this->operation->GetByWhere(array('class_id'=>$classid,'semsterid'=>$semesterid,"session_id"=>$sessionid));
+        }
 
-    
+    }
+    public function GetUserActiveSession($school_id)
+    {
+        try{
+            $location_id = $this->GetLogedinUserLocation($school_id);
+            if(is_int($location_id))
+            {
+                return $this->operation->GetByQuery("SELECT  * FROM sessions where status = 'a' AND school_id =".$school_id);        
+            }
+        }
+        catch(Exception $e){}
+    }
+    function GetLogedinUserLocation($school_id)
+    {
+        //$locations = $this->session->userdata('locations');
+        return (int) $school_id;
+    }
+
+
+
+    function GetCurrentActiveSemesterByUserLocation($sessionid = null)
+    {
+        if(is_null($sessionid))
+        {
+            $location_id = $this->GetLogedinUserLocation();
+            $this->operation->table_name = 'semester_dates';
+            $is_semester_dates_found = $this->operation->GetByWhere(array('school_id'=>$location_id));
+        }
+        else{
+
+            $this->operation->table_name = 'semester_dates';
+            $this->operation->primary_key ='session_id';
+            $is_semester_dates_found = $this->operation->GetByWhere(array('session_id'=>$sessionid,'status'=>'a'));
+            
+        }
+      
+        return (int) $is_semester_dates_found[0]->id;
+    }
+    function GetGradeBySemesterDates($number,$sessionid,$semesterid)
+    {   
+        $obtain_grade = 'F';
+        
+        
+        $this->operation->table_name = 'semester_dates';
+        $this->operation->primary_key ='session_id';
+        $is_semester_dates_found = $this->operation->GetByWhere(array('session_id'=>$sessionid,'semester_id'=>$semesterid));
+        $this->operation->table_name = 'grades';
+        $grades = $this->operation->GetByWhere(array('semester_date_id'=>$is_semester_dates_found[0]->id));
+
+        if(count($grades) && $number > 0)
+        {
+            $grades = unserialize($grades[0]->option_value);
+        
+            foreach ($grades as $key => $value) {
+         
+                if($number >= (double) $value['lower_limit']   && $number <= (double) $value['upper_limit'])
+               {
+                    $obtain_grade = $value['title'];
+               }
+            }
+        }
+        return $obtain_grade;
+    }
 }

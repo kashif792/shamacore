@@ -745,7 +745,27 @@ class Reports extends MY_Controller
         }
         echo json_encode($result);
     }
-    
+    /** Result Card **/
+
+    public function MidReportView()
+    {
+        
+        $this->data['logo'] = parent::ImageConvertorToBase64(base_url()."images/logo_nr_school.png");
+        $this->data['schoolname'] = $this->campus;
+        $this->data['campuscity'] = $this->usercity;
+        $this->load->view("reports/mid_report",$this->data);
+    }
+    public function FinalReportView()
+    {
+        if(!($this->session->userdata('id')))
+        {
+            parent::redirectUrl('signin');
+        }
+        $this->data['logo'] = parent::ImageConvertorToBase64(base_url()."images/logo_nr_school.png");
+        $this->data['schoolname'] = $this->campus;
+        $this->data['campuscity'] = $this->usercity;
+        $this->load->view("reports/final_report",$this->data);
+    }
     /**
      * Class report
      */

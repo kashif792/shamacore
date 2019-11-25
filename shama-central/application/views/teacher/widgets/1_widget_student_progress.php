@@ -534,7 +534,7 @@
         {
             var data = ({school_id:$scope.school_id});
             
-            $myUtils.httprequest(urlist.getsessionlist,data).then(function(response){
+            $myUtils.httprequest(urlist.getsessiondetail,data).then(function(response){
                 if(response != null && response.length > 0)
                 {
                     $scope.rsessionlist = response
