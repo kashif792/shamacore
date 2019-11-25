@@ -1775,5 +1775,22 @@ class MY_Rest_Controller extends REST_Controller
             return false;
         }
     }
+    /**
+     * Get all meta
+     */
+    function getUserMeta($userid,$metakey)
+    {
+        $is_meta_found = $this->operation->GetByQuery("Select * from user_meta where user_id = ".$userid." AND meta_key LIKE '%".$metakey."%'");
+
+        if(count($is_meta_found)){
+
+            return $is_meta_found[0]->meta_value;
+
+        }
+        else{
+            return false;
+        }
+    }
+
     
 }

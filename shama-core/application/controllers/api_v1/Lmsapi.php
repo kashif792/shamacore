@@ -3672,54 +3672,43 @@ class LMSApi extends MY_Rest_Controller
         $subject_id = $this->input->get('subject_id');
         $class_id = $this->input->get('class_id');
         $section_id = $this->input->get('section_id');
-        $semester_id = $this->input->get('semester_id');
-        $session_id = $this->input->get('session_id');
+        //$semester_id = $this->input->get('semester_id');
+        //$session_id = $this->input->get('session_id');
         $user_id = $this->input->get('user_id');
-        
+        $school_id  =$this->input->get('school_id');
         $quizlist = array();
         
+        $active_session = $this->get_active_session($school_id);
+        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+
+        $session_id = $active_session->id;
+        $semester_id = $active_semester->semester_id;
+
+
         if (! empty($subject_id) && ! empty($semester_id) && ! empty($class_id) && ! empty($section_id) && ! empty($session_id)) {
-            
-            $role_id = FALSE;
+        
+          
+             $role_id = FALSE;
             if ($role = $this->get_user_role($user_id)) {
                 $role_id = $role->role_id;
             }
-            
-            if ($role_id == 4) {
-                $query = $this->operation->GetByQuery("SELECT q.* FROM quiz q INNER JOIN semester s ON s.id = q.semester_id INNER JOIN sessions se ON se.id = q.session_id WHERE q.subject_id = " . $subject_id . " AND q.class_id = " . $class_id . " AND q.section_id = " . $section_id . " AND s.status = 'a' AND se.status = 'a' AND q.tacher_uid = " . $user_id . " AND q.semester_id = " . $semester_id . " AND q.session_id = " . $session_id . "  ORDER BY q.quiz_term ASC");
-            } else {
-                $query = $this->operation->GetByQuery("SELECT q.* FROM quiz q INNER JOIN semester s ON s.id = q.semester_id INNER JOIN sessions se ON se.id = q.session_id WHERE q.subject_id = " . $subject_id . " AND q.class_id = " . $class_id . " AND q.section_id = " . $section_id . " AND s.status = 'a' AND se.status = 'a'  AND q.semester_id = " . $semester_id . " AND q.session_id = " . $session_id . "  ORDER BY q.quiz_term ASC");
+
+            if ($role_id == 4)
+            {
+                $query = $this->operation->GetByQuery("SELECT q.* FROM quiz q INNER JOIN semester s ON s.id = q.semester_id INNER JOIN sessions se ON se.id = q.session_id Where q.subject_id = " . $this->input->get('subject_id') . " AND q.class_id = " . $this->input->get('class_id') . " AND q.section_id = " . $this->input->get('section_id') . " AND q.tacher_uid = " . $user_id . " AND q.semester_id = " . $semester_id . " AND q.session_id = " . $session_id . "  order by q.quiz_term asc");
             }
-            
-            if (count($query)) {
-                $quizlist[] = array(
-                    'name' => 'Subject',
-                    'term_status' => 'bt'
-                );
-                
-                foreach ($query as $value) {
-                    $quizlist[] = array(
-                        'id' => $value->id,
-                        'name' => $value->qname,
-                        'term_status' => $value->quiz_term,
-                        'class' => $value->class_id,
-                        'section' => $value->section_id,
-                        'subject' => $value->subject_id,
-                        'semester_id' => $value->semester_id,
-                        'session_id' => $value->session_id
-                    );
+            else
+            {
+                $query = $this->operation->GetByQuery("SELECT q.* FROM quiz q INNER JOIN semester s ON s.id = q.semester_id INNER JOIN sessions se ON se.id = q.session_id Where q.subject_id = " . $this->input->get('subject_id') . " AND q.class_id = " . $this->input->get('class_id') . " AND q.section_id = " . $this->input->get('section_id') . " AND q.semester_id = " . $semester_id . " AND q.session_id = " . $session_id . "  order by q.quiz_term asc");
+            }
+            if (count($query))
+            {
+                foreach ($query as $key => $value)
+                {
+                    $quizlist[] = array('id' => $value->id, 'name' => $value->qname, 'term_status' => $value->quiz_term, 'class' => $value->class_id, 'section' => $value->section_id, 'subject' => $value->subject_id, 'semesterid' => $value->semester_id, 'sessionid' => $value->session_id);
                 }
             }
         }
-        $quizlist[] = array(
-            'name' => 'Mid Term'
-        );
-        
-        $quizlist[] = array(
-            'name' => 'Final Exam',
-            'term_status' => 'at'
-        );
-        
         $this->response($quizlist, REST_Controller::HTTP_OK);
     }
     
@@ -3728,180 +3717,162 @@ class LMSApi extends MY_Rest_Controller
         $subject_id = $this->input->get('subject_id');
         $class_id = $this->input->get('class_id');
         $section_id = $this->input->get('section_id');
-        $semester_id = $this->input->get('semester_id');
-        $session_id = $this->input->get('session_id');
-        $student_id = $this->input->get('student_id');
+        //$semester_id = $this->input->get('semester_id');
+        //$session_id = $this->input->get('session_id');
+        //$student_id = $this->input->get('student_id');
         $user_id = $this->input->get('user_id');
+
+        $school_id  =$this->input->get('school_id');
+        $quizlist = array();
         
+        $active_session = $this->get_active_session($school_id);
+        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+
+        $session_id = $active_session->id;
+        $semester_id = $active_semester->semester_id;
+
         $quizarray = array();
-        
-        if (! is_null($subject_id) && ! is_null($semester_id) && ! is_null($session_id) && ! is_null($class_id) && ! is_null($section_id)) {
-            
-            if ($student_id) {
-                $studentlist = $this->operation->GetByQuery('SELECT * FROM `student_semesters` WHERE class_id = ' . $class_id . " AND section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND  session_id = " . $session_id . " AND student_id = " . $student_id . " AND status = 'r'");
-            } else {
-                $studentlist = $this->operation->GetByQuery('SELECT * FROM `student_semesters` WHERE class_id = ' . $class_id . " AND section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND  session_id = " . $session_id . " AND status = 'r'");
+        $quizdetailarray = array();
+
+        if (! empty($subject_id) && ! empty($semester_id) && ! empty($class_id) && ! empty($section_id) && ! empty($session_id))
+        {
+            //$quizlist = $this->GetQuizeListBySubject($this->input->get('subjectlist'), $this->input->get('inputsession'), $this->input->get('inputsemester'), $this->input->get('inputclassid'), $this->input->get('inputsectionid'));
+            if ($this->input->get('studentid'))
+            {
+                $studentlist = $this->operation->GetByQuery('SELECT * FROM `student_semesters` where class_id = ' . $this->input->get('inputclassid') . " AND sectionid = " . $this->input->get('inputsectionid') . " AND semesterid = " . $this->input->get('inputsemester') . " AND  sessionid = " . $this->input->get('inputsession') . " AND studentid = " . $this->input->get('studentid') . " AND status = 'r'");
             }
-            
-            if (count($studentlist)) {
-                foreach ($studentlist as $value) {
-                    $studentprogress = $this->operation->GetByQuery('SELECT q.id,q.quiz_term FROM `quiz` q WHERE subject_id =' . $subject_id . " AND class_id = " . $class_id . " and section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . "  ORDER BY quiz_term");
-                    if (count($studentprogress)) {
-                        $quizdetailarray = array();
-                        foreach ($studentprogress as $spvalue) {
-                            
-                            $correctlist = $this->operation->GetByQuery('SELECT qz.quizid,qz.questionid as quesid,qo.qoption_id  FROM quiz_evaluation qz INNER JOIN quiz_options qo ON qo.qoption_id = qz.optionid WHERE qz.student_id =' . $value->student_id . " AND qz.quizid=" . $spvalue->id);
-                            $quizid = 0;
-                            
-                            if (count($correctlist)) {
-                                $total_count = 0;
-                                
-                                foreach ($correctlist as $rvalue) {
-                                    $quizid = $rvalue->quizid;
-                                    $is_correct_answer_matched = $this->operation->GetByQuery('SELECT * FROM correct_option  WHERE question_id =' . $rvalue->quesid);
-                                    
-                                    if ($is_correct_answer_matched[0]->correct_id == $rvalue->qoption_id) {
-                                        $total_count ++;
-                                    }
-                                }
-                                
-                                $quiz_result = ($total_count / count($correctlist)) * 100;
-                                $quizdetailarray[] = array(
-                                    'quizid' => $quizid,
-                                    'correct_answer' => $total_count,
-                                    'total_question' => count($correctlist),
-                                    'term_status' => $spvalue->quiz_term,
-                                    'total_percent' => $quiz_result
-                                );
-                            } else {
-                                $quizdetailarray[] = array(
-                                    'correct_answer' => 0,
-                                    'total_question' => 0,
-                                    'quiz_id' => $quizid,
-                                    'term_status' => $spvalue->quiz_term,
-                                    'total_percent' => 0
-                                );
-                            }
-                        }
-                    }
-                    
-                    $termlist = $this->operation->GetByQuery('SELECT * FROM term_exam_result  WHERE subject_id = ' . $subject_id . ' AND student_id= ' . $value->student_id . " AND session_id = " . $session_id . " AND semester_id = " . $semester_id . " ORDER BY termid ASC");
-                    $student_result = array();
-                    if (count($termlist) == 2) {
-                        foreach ($termlist as $tvalue) {
-                            $marks = is_null($tvalue->marks) ? 0 : $tvalue->marks;
-                            
-                            $student_result[] = array(
-                                'marks' => $marks
-                            );
-                        }
-                    }
-                    
-                    if (count($termlist) == 1) {
-                        if ($termlist[0]->termid == 1) {
-                            $marks = is_null($termlist[0]->marks) ? 0 : $termlist[0]->marks;
-                            
-                            $student_result[] = array(
-                                'marks' => $marks
-                            );
-                            
-                            $student_result[] = array(
-                                'marks' => 0
-                            );
-                        }
-                        
-                        if ($termlist[0]->termid == 2) {
-                            $marks = is_null($termlist[0]->marks) ? 0 : $termlist[0]->marks;
-                            
-                            $student_result[] = array(
-                                'marks' => 0
-                            );
-                            
-                            $student_result[] = array(
-                                'marks' => $marks
-                            );
-                        }
-                    }
-                    
-                    if (count($termlist) == 0) {
-                        $student_result[] = array(
-                            'marks' => 0
-                        );
-                        
-                        $student_result[] = array(
-                            'marks' => 0
-                        );
-                    }
-                    
-                    $quizarray[] = array(
-                        'student_id' => $value->student_id,
-                        'screen_name' => $this->get_student_name($value->student_id),
-                        'score' => $quizdetailarray,
-                        'term_result' => $student_result
-                    );
+            else
+            {
+
+                $this->operation->table_name = 'semester_dates';
+                $semester_status = $this->operation->GetByWhere(array('session_id' => $class_id, 'semester_id' => $semester_id));
+                $sem_status = 'u';
+                if ($semester_status[0]->status == 'a')
+                {
+                    $sem_status = 'r';
                 }
-            } else {
-                $is_subject_found = $this->operation->GetByQuery('SELECT * FROM `schedule` WHERE subject_id = ' . $subject_id . " AND class_id = " . $class_id . " AND section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . " AND teacher_uid =" . $user_id);
-                
-                if (count($is_subject_found)) {
-                    foreach ($is_subject_found as $value) {
-                        $studentlist = $this->operation->GetByQuery('SELECT * FROM `student_semesters` WHERE class_id = ' . $class_id . " AND section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . " AND status = 'r'");
-                        if (count($studentlist)) {
-                            foreach ($studentlist as $value) {
-                                
-                                $termlist = $this->operation->GetByQuery('SELECT * FROM term_exam_result  WHERE subject_id = ' . $subject_id . " AND class_id = " . $class_id . " AND section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . " AND student_id= " . $value->student_id . " ORDER BY termid ASC");
+                //$studentlist = $this->operation->GetRowsByQyery('SELECT * FROM `student_semesters` where classid = ' . $this->input->get('inputclassid') . " AND sectionid = " . $this->input->get('inputsectionid') . " AND semesterid = " . $this->input->get('inputsemester') . " AND  sessionid = " . $this->input->get('inputsession') . " AND status = '" . $sem_status . "'");
+                $studentlist = $this->operation->GetByQuery('SELECT s.* FROM `student_semesters` as s INNER JOIN  invantage_users AS i ON s.student_id = i.id where s.class_id = ' . $class_id . " AND s.section_id = " . $section_id . " AND s.semester_id = " . $semester_id . " AND s.session_id = " . $session_id . " AND s.status = '" . $sem_status . "' ORDER BY i.screenname ASC ");
+            }
+            if (count($studentlist))
+            {
+
+                foreach ($studentlist as $key => $value)
+                {
+                    $studentprogress = $this->operation->GetByQuery('SELECT q.id,q.quiz_term FROM `quiz` q where subject_id =' . $subject_id . " AND class_id = " . $class_id . " and section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . "  order by quiz_term");
+                    if (count($studentprogress))
+                    {
+                        $quizdetailarray = array();
+
+                        foreach ($studentprogress as $key => $spvalue)
+                        {
+
+                           
+                            //$studentmidresult = $this->operation->GetRowsByQyery('SELECT * FROM `quizzes_marks`  where student_id = '.$value->studentid.' AND subject_id =' . $this->input->get('subjectlist') . " AND class_id = " . $this->input->get('inputclassid') . " and section_id = " . $this->input->get('inputsectionid') . " AND semester_id = " . $this->input->get('inputsemester') . " AND session_id = " . $this->input->get('inputsession') . " AND quiz_id = ".$spvalue->id." "); 
+                            $studentmidresult = $this->operation->GetByQuery('SELECT * FROM `quizzes_marks`  where student_id = '.$value->student_id.' AND subject_id =' . $subject_id . " AND class_id = " . $class_id . " and section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . " AND quiz_id = ".$spvalue->id." "); 
+                            if(count($studentmidresult))
+                            {
+
+                                foreach ($studentmidresult as $key => $rval)
+                                {
+                                    $marks = $rval->marks;
+                                }
+                                $quizdetailarray[] = array('correntanswer' => 0, 'total_question' => 0, 'quiz_id' => $spvalue->id, 'term_status' => $spvalue->quiz_term, 'totalpercent' => $marks);
+                            
+                            }
+                            else
+                            {
+                                $quizdetailarray[] = array('correntanswer' => 0, 'total_question' => 0, 'quiz_id' => $spvalue->id, 'term_status' => $spvalue->quiz_term, 'totalpercent' => 0);
+                            }
+                            
+                        }
+                    }
+                 
+                    $termlist = $this->operation->GetByQuery('SELECT * FROM term_exam_result  where subject_id = ' . $subject_id . ' AND student_id= ' . $value->student_id . " AND session_id = " . $session_id . " AND semester_id = " . $semester_id . " order by termid asc");
+                    $student_result = array();
+                    if (count($termlist) == 2)
+                    {
+                        foreach ($termlist as $key => $tvalue)
+                        {
+                            $studenmark = '';
+                            $marks = is_null($tvalue->marks) ? 0 : $tvalue->marks;
+                            $student_result[] = array('marks' => $marks);
+                        }
+                    }
+                    if (count($termlist) == 1)
+                    {
+                        if ($termlist[0]->termid == 1)
+                        {
+                            $studenmark = '';
+                            $marks = is_null($termlist[0]->marks) ? 0 : $termlist[0]->marks;
+                            $student_result[] = array('marks' => $marks,);
+                            $student_result[] = array('marks' => 0,);
+                        }
+                        if ($termlist[0]->termid == 2)
+                        {
+                            $studenmark = '';
+                            $marks = is_null($termlist[0]->marks) ? 0 : $termlist[0]->marks;
+                            $student_result[] = array('marks' => 0,);
+                            $student_result[] = array('marks' => $marks,);
+                        }
+                    }
+                    if (count($termlist) == 0)
+                    {
+                        $student_result[] = array('marks' => 0);
+                        $student_result[] = array('marks' => 0);
+                    }
+                    
+                    $quizarray[] = array('student_id' => $value->student_id, 'screenname' => $this->GetStudentName($value->student_id), 'score' => $quizdetailarray, 'term_result' => $student_result);
+                     //print_r($quizarray);
+                }
+            }
+
+            else
+            {
+                $is_subject_found = $this->operation->GetByQuery('SELECT * FROM `schedule` where subject_id = ' . $subject_id . " AND class_id = " . $class_id . " AND section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . " AND teacher_uid =" . $user_id);
+                if (count($is_subject_found))
+                {
+                    foreach ($is_subject_found as $key => $value)
+                    {
+                        $studentlist = $this->operation->GetByQuery('SELECT * FROM `student_semesters` where class_id = ' . $class_id . " AND section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . " AND status = 'r'");
+                        if (count($studentlist))
+                        {
+                            foreach ($studentlist as $key => $value)
+                            {
+                                $termlist = $this->operation->GetByQuery('SELECT * FROM temr_exam_result  where subject_id = ' . $subject_id . " AND class_id = " . $class_id . " AND section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . " AND student_id= " . $value->studentid . " order by termid asc");
                                 $student_result = array();
-                                if (count($termlist) == 2) {
-                                    foreach ($termlist as $tvalue) {
+                                if (count($termlist) == 2)
+                                {
+                                    foreach ($termlist as $key => $tvalue)
+                                    {
+                                        $studenmark = '';
                                         $marks = is_null($tvalue->marks) ? 0 : $tvalue->marks;
-                                        
-                                        $student_result[] = array(
-                                            'marks' => $marks
-                                        );
+                                        $student_result[] = array('marks' => $marks);
                                     }
                                 }
-                                if (count($termlist) == 1) {
-                                    if ($termlist[0]->termid == 1) {
+                                if (count($termlist) == 1)
+                                {
+                                    if ($termlist[0]->termid == 1)
+                                    {
+                                        $studenmark = '';
                                         $marks = is_null($termlist[0]->marks) ? 0 : $termlist[0]->marks;
-                                        
-                                        $student_result[] = array(
-                                            'marks' => $marks
-                                        );
-                                        
-                                        $student_result[] = array(
-                                            'marks' => 0
-                                        );
+                                        $student_result[] = array('marks' => $marks);
+                                        $student_result[] = array('marks' => 0);
                                     }
-                                    
-                                    if ($termlist[0]->termid == 2) {
+                                    if ($termlist[0]->termid == 2)
+                                    {
+                                        $studenmark = '';
                                         $marks = is_null($termlist[0]->marks) ? 0 : $termlist[0]->marks;
-                                        
-                                        $student_result[] = array(
-                                            'marks' => 0
-                                        );
-                                        
-                                        $student_result[] = array(
-                                            'marks' => $marks
-                                        );
+                                        $student_result[] = array('marks' => 0);
+                                        $student_result[] = array('marks' => $marks);
                                     }
                                 }
-                                
-                                if (count($termlist) == 0) {
-                                    $student_result[] = array(
-                                        'marks' => 0
-                                    );
-                                    
-                                    $student_result[] = array(
-                                        'marks' => 0
-                                    );
+                                if (count($termlist) == 0)
+                                {
+                                    $student_result[] = array('marks' => 0);
+                                    $student_result[] = array('marks' => 0);
                                 }
-                                
-                                $quizarray[] = array(
-                                    'student_id' => $value->student_id,
-                                    'screen_name' => $this->get_student_name($value->student_id),
-                                    'term_result' => $student_result,
-                                    'score' => []
-                                );
+                                $quizarray[] = array('studentid' => $value->studentid, 'student' => $this->GetStudentName($value->student_id),'screenname' => $this->GetStudentName($value->student_id), 'term_result' => $student_result, 'score' => [],);
                             }
                         }
                     }
@@ -3909,9 +3880,17 @@ class LMSApi extends MY_Rest_Controller
             }
         }
         
+        
+       
+        
+        
         $this->response($quizarray, REST_Controller::HTTP_OK);
     }
-    
+
+    function GetStudentName($studentid)
+    {
+        return parent::getUserMeta($studentid, 'sfullname') . " " . parent::getUserMeta($studentid, 'slastname');
+    }
     function quiz_evaluation_details_get()
     {
         $quiz_id = $this->input->get('quizid');
@@ -8414,7 +8393,7 @@ class LMSApi extends MY_Rest_Controller
         if( $roles[0]['role_id'] == 3 && count($active_session) && count($active_semester))
         {
 
-            $datameta=$this->data['timetable_list'] = $this->operation->GetRowsByQyery("SELECT sc.*,sc.id,sub.id as subid,subject_name,grade,section_name,screenname,start_time,end_time FROM schedule sc INNER JOIN classes cl ON  sc.class_id=cl.id INNER JOIN invantageuser inv ON sc.teacher_uid=inv.id INNER JOIN subjects sub ON sc.subject_id=sub.id INNER JOIN sections  sct ON sc.section_id=sct.id WHERE cl.school_id =".$locations[0]['school_id']." AND sub.session_id = ".$active_session[0]->id." AND sub.semsterid = ".$active_semester[0]->semester_id." ORDER by sc.id desc");
+            $datameta=$this->data['timetable_list'] = $this->operation->GetRowsByQyery("SELECT sc.*,sc.id,sub.id as subid,subject_name,grade,section_name,screenname,start_time,end_time FROM schedule sc INNER JOIN classes cl ON  sc.class_id=cl.id INNER JOIN invantage_users inv ON sc.teacher_uid=inv.id INNER JOIN subjects sub ON sc.subject_id=sub.id INNER JOIN sections  sct ON sc.section_id=sct.id WHERE cl.school_id =".$locations[0]['school_id']." AND sub.session_id = ".$active_session[0]->id." AND sub.semsterid = ".$active_semester[0]->semester_id." ORDER by sc.id desc");
             if(count($datameta))
             {
                 foreach ($datameta as $key => $value) 
@@ -8448,7 +8427,7 @@ class LMSApi extends MY_Rest_Controller
        }
        else if( $roles[0]['role_id'] == 4 && count($active_session) && count($active_semester))
        {
-            $this->data['timetable_list'] = $this->operation->GetRowsByQyery("SELECT sc.id, subject_name,grade,section_name,username,start_time,end_time FROM schedule sc  INNER JOIN classes cl ON  sc.class_id=cl.id INNER JOIN invantageuser inv ON sc.teacher_uid=inv.id INNER JOIN subjects sub ON sc.subject_id=sub.id INNER JOIN sections  sct ON sc.section_id=sct.id where sc.teacher_uid=".$this->session->userdata('id')." AND cl.school_id =".$locations[0]['school_id']." AND sub.session_id = ".$active_session[0]->id." AND sub.semsterid = ".$active_semester[0]->semester_id);
+            $this->data['timetable_list'] = $this->operation->GetRowsByQyery("SELECT sc.id, subject_name,grade,section_name,username,start_time,end_time FROM schedule sc  INNER JOIN classes cl ON  sc.class_id=cl.id INNER JOIN invantage_users inv ON sc.teacher_uid=inv.id INNER JOIN subjects sub ON sc.subject_id=sub.id INNER JOIN sections  sct ON sc.section_id=sct.id where sc.teacher_uid=".$this->session->userdata('id')." AND cl.school_id =".$locations[0]['school_id']." AND sub.session_id = ".$active_session[0]->id." AND sub.semsterid = ".$active_semester[0]->semester_id);
             
                 
        }
@@ -10045,4 +10024,247 @@ class LMSApi extends MY_Rest_Controller
                     );
        $this->response($result, REST_Controller::HTTP_OK);
     }
+    function getmidtermsubjectresult_get()
+    {
+        
+        $resultarray = array();
+
+        if (!is_null($this->input->get('subject_id')) && !is_null($this->input->get('class_id')) && !is_null($this->input->get('section_id')) && !is_null($this->input->get('semester_id')) && !is_null($this->input->get('session_id')))
+        {
+            $school_id = $this->input->get('school_id');
+            $active_session = $this->get_active_session($school_id);
+            $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+            
+            $resultlist = $this->operation->GetByQuery('SELECT s.* FROM `student_semesters` as s INNER JOIN  invantage_users AS i ON s.student_id = i.id where s.class_id = ' . $this->input->get('class_id') . " AND s.section_id = " . $this->input->get('section_id') . " AND s.semester_id = " . $active_semester->semester_id . " AND s.session_id = " . $active_session->id . " ORDER BY i.screenname ASC ");
+            if (count($resultlist))
+            {
+
+                foreach ($resultlist as $key => $value)
+                {
+                    // get Quizes 
+
+                    // $roles = $this->session->userdata('roles');
+                    // if ($roles[0]['role_id'] == 4)
+                    // {
+                    //     $query = $this->operation->GetByQuery("SELECT q.* FROM quiz q INNER JOIN semester s ON s.id = q.semster_id INNER JOIN sessions se ON se.id = q.session_id Where q.subjec_tid = " . $this->input->get('subject_id') . " AND q.class_id = " . $this->input->get('class_id') . " AND q.section_id = " . $this->input->get('section_id') . " AND q.tacher_uid = " . $this->session->userdata('id') . " AND q.semester_id = " . $this->input->get('semester_id') . " AND q.session_id = " . $this->input->get('session_id') . "  AND q.quiz_term = '".$this->input->get('quiz_type')."'  order by q.quiz_date asc");
+                    // }
+                    // else
+                    // {
+
+                        $query = $this->operation->GetByQuery("SELECT q.* FROM quiz q INNER JOIN semester s ON s.id = q.semester_id INNER JOIN sessions se ON se.id = q.session_id Where q.subject_id = " . $this->input->get('subject_id') . " AND q.class_id = " . $this->input->get('class_id') . " AND q.section_id = " . $this->input->get('section_id') . " AND q.semester_id = " . $active_semester->semester_id . " AND q.session_id = " . $active_session->id . " AND q.quiz_term = '".$this->input->get('quiz_type')."' order by q.quiz_date asc");
+                    //}
+                    
+                    if(count($query)==0)
+                    {
+                        $resultarray[] = "";
+                        exit;
+                    }
+                    $marksarray = array();
+                    $quizidarray = array();
+                    //$quizidarray = array('quizid' => 0);
+                    if (count($query))
+                    {
+                        foreach ($query as $key => $value1)
+                        {
+                            $termlist = $this->operation->GetByQuery('SELECT * FROM quizzes_marks  where quiz_id = '.$value1->id.' AND student_id = ' . $value->student_id . "  AND subject_id = " . $this->input->get('subject_id'));
+                            if (count($termlist))
+                            {
+                                foreach ($termlist as $key => $tvalue)
+                                {
+                                    $marksarray[] = array('studentmarks' => $tvalue->marks);
+                                }
+                            }
+                            else
+                            {
+                                $marksarray[] = array('studentmarks' => 0);
+                            }
+                            $quizidarray[] = array('quizid' => $value1->id);
+                        }
+                    }
+                    else
+                    {
+                        $marksarray = array(array('studentmarks' => 0));
+                        
+                    }
+
+                    $resultarray[] = array('id' => $value->id, 'quiz_id' => $quizidarray ,'marks' => $marksarray, 'student_id' => $value->student_id, 'name' => parent::getUserMeta($value->student_id, 'sfullname') . " (" . parent::getUserMeta($value->student_id, 'roll_number') . ")",);
+                }
+            }
+          
+        }
+        $this->response($resultarray, REST_Controller::HTTP_OK);
+        //echo json_encode($resultarray);
+    }
+    function GetSubjectResult_get()
+    {
+        $resultarray = array();
+        $school_id = $this->input->get('school_id');
+        $active_session = $this->get_active_session($school_id);
+        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+        
+        if (!is_null($this->input->get('subject_id')) && !is_null($this->input->get('class_id')) && !is_null($this->input->get('section_id')) && !is_null($this->input->get('term_id')) && !is_null($this->input->get('semesterid')) && !is_null($this->input->get('sessionid')))
+        {
+            //$resultlist = $this->operation->GetRowsByQyery('SELECT * FROM `student_semesters` where classid = ' . $this->input->get('class_id') . " AND sectionid = " . $this->input->get('section_id') . " AND semesterid = " . $this->input->get('semesterid') . " AND sessionid = " . $this->input->get('sessionid') . " AND status = 'r'");
+            $resultlist = $this->operation->GetByQuery('SELECT s.* FROM `student_semesters` as s INNER JOIN  invantage_users AS i ON s.student_id = i.id where s.class_id = ' . $this->input->get('class_id') . " AND s.section_id = " . $this->input->get('section_id') . " AND s.semester_id = " . $active_semester->semester_id . " AND s.session_id = " . $active_session->id . " ORDER BY i.screenname ASC ");
+            if (count($resultlist))
+            {
+                foreach ($resultlist as $key => $value)
+                {
+                    $termlist = $this->operation->GetByQuery('SELECT * FROM term_exam_result  where student_id = ' . $value->student_id . "  AND subject_id = " . $this->input->get('subject_id'));
+                    $marksarray = array();
+                    if (count($termlist))
+                    {
+                        if (count($termlist) == 2)
+                        {
+                            foreach ($termlist as $key => $tvalue)
+                            {
+                                $marksarray[] = array('studentmarks' => $tvalue->marks);
+                            }
+                        }
+                        else
+                        {
+                            foreach ($termlist as $key => $tvalue)
+                            {
+                                $temp = array('studentmarks' => $tvalue->marks);
+                                $marksarray = array($temp, array('studentmarks' => 0));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        $marksarray = array(array('studentmarks' => 0), array('studentmarks' => 0));
+                    }
+                    $resultarray[] = array('id' => $value->id, 'marks' => $marksarray, 'studentid' => $value->student_id, 'name' => parent::getUserMeta($value->student_id, 'sfullname') . " (" . parent::getUserMeta($value->student_id, 'roll_number') . ")",);
+                }
+            }
+            else
+            {
+                $this->operation->table_name = 'student_semesters';
+                $resultlist = $this->operation->GetByWhere(array('classid' => $this->input->get('class_id'), 'section_id' => $this->input->get('section_id'), 'semester_id' => $active_semester->semster_id, 'session_id' => $active_session->id,));
+                if (count($resultlist))
+                {
+                    foreach ($resultlist as $key => $value)
+                    {
+                        $resultarray[] = array('id' => 0, 'studentid' => $value->student_id, 'marks' => array(array('studentmarks' => 0), array('studentmarks' => 0)), 'name' => parent::getUserMeta($value->student_id, 'sfullname') . " (" . parent::getUserMeta($value->student_id, 'roll_number') . ")",);
+                    }
+                }
+            }
+        }
+        echo json_encode($resultarray);
+    }
+    function SetStudentMarks_post()
+    {
+        $request = json_decode(file_get_contents('php://input'));
+
+        $cellvalue = $this->security->xss_clean(trim($request->cellvalue));
+        $cellcolumn = $this->security->xss_clean(trim($request->cellcolumn));
+        $cellid = $this->security->xss_clean(trim($request->cellid));
+        $classid = $this->security->xss_clean(trim($request->classid));
+        $section_id = $this->security->xss_clean(trim($request->sectionid));
+        $subject_id = $this->security->xss_clean(trim($request->subjectid));
+        $student_id = $this->security->xss_clean(trim($request->studentid));
+        $termid = $this->security->xss_clean(trim($request->termid));
+        $semesterid = $this->security->xss_clean(trim($request->semesterid));
+        $sessionid = $this->security->xss_clean(trim($request->sessionid));
+        $sresult['message'] = false;
+        
+        $school_id = $this->security->xss_clean(trim($request->school_id));
+        $active_session = $this->get_active_session($school_id);
+        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+        
+        if (!is_null($cellvalue) && !is_null($cellcolumn) && !is_null($cellid))
+        {
+            $this->operation->table_name = 'term_exam_result';
+            $resultlist = $this->operation->GetByWhere(array('class_id' => $classid, 'section_id' => $section_id, 'subject_id' => $subject_id, 'student_id' => $student_id, 'termid' => ($cellcolumn == 'm' ? 1 : 2), 'semester_id' => $active_semester->semester_id, 'session_id' => $active_session->id,));
+            if (count($resultlist))
+            {
+                $studentresult = array('class_id' => $classid, 'section_id' => $section_id, 'subject_id' => $subject_id, 'student_id' => $student_id, 'termid' => ($cellcolumn == 'm' ? 1 : 2), 'marks' => $cellvalue, 'semester_id' => $active_semester->semester_id, 'session_id' => $active_session->id,);
+                $this->db->where('id',$resultlist[0]->id);
+                $this->db->update('term_exam_result',$studentresult);
+                $result['message'] = true;
+            }
+            else
+            {
+                
+
+                $studentresult = array('class_id' => $classid, 'section_id' =>$section_id, 'subject_id' => $subject_id, 'student_id' => $student_id, 'termid' => ($cellcolumn == 'm' ? 1 : 2), 'marks' => $cellvalue, 'semester_id' => $active_semester->semester_id, 'session_id' => $active_session->id, 'locationid' =>$school_id,);
+                $this->db->insert('term_exam_result',$studentresult);
+                $id = $this->db->insert_id();
+            }
+        }
+        echo json_encode($result);
+    }
+    function savestudentmidquizmarks_post()
+    {
+
+        $request = json_decode(file_get_contents('php://input'));
+        $cellvalue = $this->security->xss_clean(trim($request->cellvalue));
+        $cellcolumn = $this->security->xss_clean(trim($request->cellcolumn));
+        $cellid = $this->security->xss_clean(trim($request->cellid));
+        $classid = $this->security->xss_clean(trim($request->classid));
+        $sectionid = $this->security->xss_clean(trim($request->sectionid));
+        $subjectid = $this->security->xss_clean(trim($request->subjectid));
+        $studentid = $this->security->xss_clean(trim($request->studentid));
+        $quizid = $this->security->xss_clean(trim($request->quizid));
+        $semesterid = $this->security->xss_clean(trim($request->semesterid));
+        $sessionid = $this->security->xss_clean(trim($request->sessionid));
+        $sresult['message'] = false;
+        $school_id = $this->security->xss_clean(trim($request->school_id));
+        $active_session = $this->get_active_session($school_id);
+        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+        
+
+        
+        if (!is_null($cellvalue) && !is_null($cellcolumn) && !is_null($cellid))
+        {
+            $this->operation->table_name = 'quizzes_marks';
+            $resultlist = $this->operation->GetByWhere(array('class_id' => $classid, 'section_id' => $sectionid, 'subject_id' => $subjectid, 'student_id' => $studentid, 'quiz_id' => $quizid, 'semester_id' => $active_semester->semester_id, 'session_id' => $active_session->id,));
+            if (count($resultlist))
+            {
+                $studentresult = array('class_id' => $classid, 'section_id' => $sectionid, 'subject_id' => $subjectid, 'student_id' => $studentid, 'quiz_id' => $quizid, 'marks' => $cellvalue, 'semester_id' => $active_semester->semester_id, 'session_id' => $active_session->id,);
+                //$id = $this->operation->Create($studentresult, $resultlist[0]->id);
+                //$result['message'] = true;
+                $this->db->where('id',$resultlist[0]->id);
+                $this->db->update('quizzes_marks',$studentresult);
+                $result['message'] = true;
+            }
+            else
+            {
+                
+                $studentresult = array('class_id' => $classid, 'section_id' => $sectionid, 'subject_id' => $subjectid, 'student_id' => $studentid, 'quiz_id' => $quizid, 'marks' => $cellvalue, 'semester_id' => $active_semester->semester_id, 'session_id' => $active_session->id, 'school_id' => $school_id,'created_at' => date('Y-m-d H:i:s'));
+                //$id = $this->operation->Create($studentresult);
+                $this->db->insert('quizzes_marks',$studentresult);
+                $id = $this->db->insert_id();
+                $result['message'] = true;
+            }
+        }
+        echo json_encode($result);
+    }
+    // function GetEvulationHeader_get()
+    // {
+    //     $quizlist = array();
+
+    //     if (!is_null($this->input->get('subjectlist')) && !is_null($this->input->get('inputsemester')) && !is_null($this->input->get('inputsession')))
+    //     {
+            
+    //         $roles = $this->session->userdata('roles');
+
+    //         if ($roles[0]['role_id'] == 4)
+    //         {
+    //             $query = $this->operation->GetRowsByQyery("SELECT q.* FROM quize q INNER JOIN semester s ON s.id = q.semsterid INNER JOIN sessions se ON se.id = q.sessionid Where q.subjectid = " . $this->input->get('subjectlist') . " AND q.classid = " . $this->input->get('inputclassid') . " AND q.sectionid = " . $this->input->get('inputsectionid') . " AND q.tacher_uid = " . $this->session->userdata('id') . " AND q.semsterid = " . $this->input->get('inputsemester') . " AND q.sessionid = " . $this->input->get('inputsession') . "  order by q.quiz_term asc");
+    //         }
+    //         else
+    //         {
+    //             $query = $this->operation->GetRowsByQyery("SELECT q.* FROM quize q INNER JOIN semester s ON s.id = q.semsterid INNER JOIN sessions se ON se.id = q.sessionid Where q.subjectid = " . $this->input->get('subjectlist') . " AND q.classid = " . $this->input->get('inputclassid') . " AND q.sectionid = " . $this->input->get('inputsectionid') . " AND q.semsterid = " . $this->input->get('inputsemester') . " AND q.sessionid = " . $this->input->get('inputsession') . "  order by q.quiz_term asc");
+    //         }
+    //         if (count($query))
+    //         {
+    //             foreach ($query as $key => $value)
+    //             {
+    //                 $quizlist[] = array('id' => $value->id, 'name' => $value->qname, 'term_status' => $value->quiz_term, 'class' => $value->classid, 'section' => $value->sectionid, 'subject' => $value->subjectid, 'semesterid' => $value->semsterid, 'sessionid' => $value->sessionid);
+    //             }
+    //         }
+    //     }
+    //     echo json_encode($quizlist);
+    // }
 }

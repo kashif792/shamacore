@@ -215,7 +215,13 @@ $route['api/v(:num)/getQuizList'] = 'api_v$1/Lmsapi/getQuizList';
 $route['api/v(:num)/getselectedsubject'] = 'api_v$1/Lmsapi/getselectedsubject';
 $route['api/v(:num)/getselectequiz'] = 'api_v$1/Lmsapi/getselectequiz';
 
+// Quiz Mark
 
-
+$route['api/v(:num)/getmidtermsubjectresult'] = 'api_v$1/Lmsapi/getmidtermsubjectresult';
+$route['api/v(:num)/getfinaltermsubjectresult'] = 'api_v$1/Lmsapi/getfinaltermsubjectresult';
+$route['api/v(:num)/savestudentmidquizmarks'] = 'api_v$1/Lmsapi/savestudentmidquizmarks';
+$route['api/v(:num)/savestudentmarks'] = 'api_v$1/Lmsapi/SetStudentMarks';
+$route['api/v(:num)/getevulationheader'] = 'api_v$1/Lmsapi/GetEvulationHeader';
+$route['api/v(:num)/getsubjectresult'] = 'api_v$1/Lmsapi/GetSubjectResult';
 
 

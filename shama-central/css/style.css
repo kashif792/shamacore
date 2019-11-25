@@ -3506,4 +3506,53 @@ a[href="https://froala.com/wysiwyg-editor"], a[href="https://www.froala.com/wysi
   position: absolute;
   top: -99999999px;
 }
+div#midbefore_container table th {
+    font-weight: 500;
+    background-color: #f3f3f3;
+    text-align: center;
+    padding: 5px;
+    border: 1px solid #cccccc;
+}
+div#midbefore_container table td {
+    padding: 0.5em;
+    border: 1px solid #ccc;
+}
+#result_mid_message {
+    text-align: center;
+    padding: 5px;
+    background: antiquewhite;
+    margin-bottom: 5px;
+}
+.marks_container input
+{
+    border: none;
+    width: 100%;
+    height: 30px;
+    font-family: Verdana, Helvetica, Arial, FreeSans, sans-serif;
+    font-size: 12px;
+    padding: 0 4px 0 4px;
+}
+.blue_back
+{
+    background: #1d96b2;
+    color: #fff;
+    font-weight: bold;
 
+}
+#midresult li a {
+    padding-left: 40px;
+}
+#datasheet li a {
+    padding-left: 40px;
+}
+.addmore
+{
+    color:#fff !important;
+    margin-bottom:20px;
+    float: left;
+
+}
+.colorwhite
+{
+    color:#fff !important;
+}
