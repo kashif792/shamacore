@@ -65,6 +65,18 @@ defined('FILE_WRITE_MODE') OR define('FILE_WRITE_MODE', 0666);
 defined('DIR_READ_MODE')   OR define('DIR_READ_MODE', 0755);
 defined('DIR_WRITE_MODE')  OR define('DIR_WRITE_MODE', 0755);
 
+/* Assembly times */
+defined('ASSEMBLY_START') OR define('ASSEMBLY_START', '7:30');
+defined('ASSEMBLY_END') OR define('ASSEMBLY_END', '7:50');
+defined('BREAK_START') OR define('BREAK_START', '9:36');
+defined('BREAK_END') OR define('BREAK_END', '10:10');
+
+// Mid Term Total Marks
+defined('QUIZ_TOTAL_MARKS') OR define('QUIZ_TOTAL_MARKS', '10');
+defined('MID_TOTAL_MARKS') OR define('MID_TOTAL_MARKS', '30');
+defined('FINAL_TOTAL_MARKS') OR define('FINAL_TOTAL_MARKS', '50');
+defined('SISSIONAL_MARKS') OR define('SISSIONAL_MARKS', '20');
+
 /*
 |--------------------------------------------------------------------------
 | File Stream Modes

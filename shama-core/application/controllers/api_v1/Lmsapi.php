@@ -9253,21 +9253,34 @@ class LMSApi extends MY_Rest_Controller
         $this->operation->table_name = 'classes';
         $classarray = array();
         $school_id = $this->input->get('school_id');
-        
-        if ($this->input->get('inputclassid'))
-        {
-            $classlist = $this->operation->GetByWhere(array('id' => $this->input->get('inputclassid')));
-        }
+        $user_id = $this->input->get('user_id');
+        if(empty($user_id))
+            if ($this->input->get('inputclassid'))
+            {
+                $classlist = $this->operation->GetByWhere(array('id' => $this->input->get('inputclassid')));
+            }
+            else
+            {
+                $classlist = $this->operation->GetByQuery("Select c.* from classes c  where  c.school_id =" . $school_id);
+            }
         else
         {
-            $classlist = $this->operation->GetByQuery("Select c.* from classes c  where  c.school_id =" . $school_id);
+            
+            if ($this->input->get('inputclassid'))
+            {
+                $classlist = $this->operation->GetByWhere(array('id' => $this->input->get('inputclassid')));
+            }
+            else
+            {
+                $classlist = $this->operation->GetByQuery("Select c.* from classes c INNER JOIN schedule sc On sc.class_id = c.id where  sc.teacher_uid =" . $user_id . ' group by c.id');
+            }
         }
         
         if (count($classlist))
         {
             foreach ($classlist as $key => $value)
             {
-                //$school = parent::GetSchoolDetail($value->school_id);
+                $school = parent::GetSchoolDetail($school_id);
                 $sectionlist = array();
                 $is_section_found = $this->operation->GetByQuery("Select s.id as sectionid,s.section_name,assi.status from assign_sections assi INNER JOIN sections s ON s.id = assi.section_id  where  assi.class_id =" . $value->id);
                 if (count($is_section_found))

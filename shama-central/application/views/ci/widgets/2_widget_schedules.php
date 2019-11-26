@@ -58,6 +58,7 @@ app.controller('scheduleController', function($scope, $window, $myUtils, $docume
         google.charts.load('current', {'packages':['corechart','timeline','table', 'controls']});
         $scope.baseUrl = url;
         //console.log($scope.baseUrl);
+
         $scope.getScheduleData();
       }
 
@@ -65,9 +66,9 @@ app.controller('scheduleController', function($scope, $window, $myUtils, $docume
     {
 
           var data = {user_id:$scope.user_id,school_id:$scope.school_id};
-          
+          //console.log(data);
           $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH ?>widget_schedules/data',data).then(function(response){
-
+            console.log(response);
               if(response.length > 0){
                 $scope.timetableloaded = true;
                 $scope.scheduleData = response;

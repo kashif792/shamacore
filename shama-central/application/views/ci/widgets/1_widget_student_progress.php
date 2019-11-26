@@ -1,4 +1,4 @@
-<div class="col-lg-12" ng-controller="principal_report_controller" ng-init="processfinished=false">
+<div class="col-lg-12" ng-controller="principal_report_controller" ng-init="processfinished=ture">
     <div id="resultmodel" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
@@ -76,9 +76,9 @@
             <label>Student Progress Report</label>
         </div>
         <!--  -->
-        <div class="panel-body whide" id="progress_report" ng-class="{'loader2-background': processfinished == false}">
-            <div class="loader2" ng-hide="processfinished" ></div>
-            <div class="row" ng-hide="!processfinished">
+        <div class="panel-body" id="progress_report" ng-class="{'loader2-background': processfinished == false}">
+            
+            
                 <div class="col-sm-12">
                     <form class="form-inline" >
                       <!-- <div class="form-group">
@@ -103,8 +103,8 @@
                         </div>
                     </form>
                 </div>
-            </div>
-            <div class="row padding-top" ng-hide="!processfinished">
+            
+            <div class="row padding-top" style="margin-top:30px" >
                 <div class="col-sm-12">
                     <div class="panel-group" id="accordion">
                         <div class="panel panel-default" ng-repeat="s in subjectlist">
@@ -141,13 +141,13 @@
                                                                     <tr>
                                                                         <th></th>
                                                                         <th ng-repeat="p in planheader">
-                                                                            {{p.topic}} ({{p.type}})
+                                                                            {{p.name}} ({{p.type}})
                                                                         </th>
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody id="reporttablebody-phase-two" class="report-body" >
                                                                     <tr ng-repeat="p in progresslist"  ng-init="$last && finished()">
-                                                                        <td>{{p.screen_name}}</td>
+                                                                        <td>{{p.screenname}}</td>
                                                                         <td ng-repeat="s in p.student_plan"  class="{{s.status}}">
                                                                             <i id="pi_{{sub.id}}_{{s.lesson_id}}_{{p.student_id}}"  class="fa {{s.status == 'read'?'fa-check':(s.show?'fa-times':'')}}" aria-hidden="true"></i>
                                                                         </td>
@@ -321,20 +321,26 @@
         
         function getSessionList()
         {
-            var data = ({school_id:$scope.school_id});
-            
-            $myUtils.httprequest(urlist.getsessionlist,data).then(function(response){
+            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getsessiondetail',({school_id:$scope.school_id})).then(function(response){
+            //httprequest('getsessiondetail',({})).then(function(response){
                 if(response != null && response.length > 0)
                 {
                     $scope.rsessionlist = response
-                    $scope.filterobj.session = response[0]
+                    
+                     var find_active_session = $filter('filter')(response,{status:'a'},true);
+                    
+                    if(find_active_session.length > 0)
+                    {
+                        
+                        $scope.filterobj.session = find_active_session[0]
+                        
+                    }
                 }
                 else{
-                     $scope.finished();
+                    //$scope.finished();
                 }
             });
         }
-        
         getSessionList();
 
         function getClassList()
@@ -521,6 +527,7 @@
                                         semester_id:$scope.filterobj.semester.id,
                                         session_id:$scope.filterobj.session.id,
                                         class_id:$scope.filterobj.class.id,
+                                        school_id:$scope.school_id,
                     })).then(function(response){
                     getQuizDetail();
                     if(response != null && response.length > 0)
@@ -529,7 +536,7 @@
                         
                     }else{
                         $scope.evulationarray = [];
-                        $scope.finished();
+                       // $scope.finished();
                     }
                 });
             }
@@ -545,7 +552,8 @@
                                         section_id:$scope.filterobj.section.id,
                                         semester_id:$scope.filterobj.semester.id,
                                         session_id:$scope.filterobj.session.id,
-                                        class_id:$scope.filterobj.class.id,   
+                                        class_id:$scope.filterobj.class.id,
+                                        school_id:$scope.school_id, 
                     })).then(function(response){
 
                     if(response != null)

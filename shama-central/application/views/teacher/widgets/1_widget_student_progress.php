@@ -89,7 +89,7 @@
                         
                         <div class="form-group">
                             <label for="select_class">Grade:</label>
-                            <select class="form-control" ng-options="item.name for item in classlist track by item.id"  name="select_class" id="select_class"  ng-model="filterobj.class" ng-change="chnagefilter()"></select>
+                            <select class="form-control" ng-options="item.grade for item in classlist track by item.id"  name="select_class" id="select_class"  ng-model="filterobj.class" ng-change="chnagefilter()"></select>
                         </div>
                         <div class="form-group">
                             <label for="inputSection">Section:</label>
@@ -455,7 +455,7 @@
 
         var urlist = ({
                 getsessionlist:'<?php echo SHAMA_CORE_API_PATH; ?>sessions',
-                getclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>classes',
+                getclasslistTeacher:'<?php echo SHAMA_CORE_API_PATH; ?>getclasslistTeacher',
                 getholidaytypes:'<?php echo SHAMA_CORE_API_PATH; ?>holiday_types',
                 getholidays:'<?php echo SHAMA_CORE_API_PATH; ?>holidays',
                 getsectionbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>sections_by_class',
@@ -567,11 +567,11 @@
         
         getSessionList();
 
-        function getClassList()
+        function getclasslistTeacher()
         {
 
-            var data = ({school_id:$scope.school_id});
-            $myUtils.httprequest(urlist.getclasslist,data).then(function(response){
+            var data = ({school_id:$scope.school_id,user_id:$scope.user_id});
+            $myUtils.httprequest(urlist.getclasslistTeacher,data).then(function(response){
                 if(response != null && response.length > 0)
                 {
                     $scope.classlist = response
@@ -583,7 +583,7 @@
             });
         }
 
-        getClassList();
+        getclasslistTeacher();
 
         function loadSections()
         {

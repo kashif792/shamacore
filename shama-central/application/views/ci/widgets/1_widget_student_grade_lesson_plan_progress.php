@@ -1,4 +1,4 @@
-<div class="col-lg-12" ng-controller="studentGradeLessonProgressCtrl" ng-init="gradeLessonPlanProgressLoader=false">
+<div class="col-lg-12 whide" ng-controller="studentGradeLessonProgressCtrl" ng-init="gradeLessonPlanProgressLoader=false">
     <div class="panel panel-default">
         <div class="panel-heading">
             <label>Student Progress Report</label>
@@ -9,9 +9,9 @@
                 <div class="col-sm-12">
                     <form class="form-inline" >
                         <div class="form-group">
-                            <label for="inputRSession">Session:</label>
-                            <select  class="form-control" ng-options="item.name for item in schoolSessionList track by item.id"  name="inputGradeProgressSession" id="inputGradeProgressSession"  ng-model="gradeLessonProgressFilterObj.session"></select>
-                        </div>
+                                        <label for="inputRSession">Session:</label>
+                                        <select  class="form-control" ng-options="item.name for item in rsessionlist track by item.id"  name="inputRSession" id="inputRSession"  ng-model="filterobj.session" ng-change="changeclass()" ></select>
+                                    </div>  
                         <div class="form-group">
                             <label for="select_class">Grade:</label>
                             <select class="form-control" ng-options="item.name for item in schoolGradeList track by item.id"  name="select_class" id="select_class"  ng-model="gradeLessonProgressFilterObj.grade"></select>
