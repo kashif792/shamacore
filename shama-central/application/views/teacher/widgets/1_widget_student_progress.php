@@ -518,13 +518,14 @@
         var rinterval
         $scope.isCourseTabActive = true;
         $scope.isExamTabActive = false;
-    
+        $scope.autoCall = false;
         $scope.reloadcontent = function()
         {
             $scope.cprocessfinished = false;
             rinterval = $interval(function(){
                 if($scope.isCourseTabActive)
                 {
+                    $scope.autoCall = true;
                     getCourseDetail($scope.subject_id,$scope.section_id,$scope.semester_id,$scope.session_id,$scope.class_id)
                 }
             },60000);
@@ -898,10 +899,53 @@ $scope.doneProgressReport = function(){
                                         semester_id:$scope.filterobj.semester.id,
                                         session_id:$scope.filterobj.session.id,
                                         class_id:$scope.filterobj.class.id,
+                                        autocall:$scope.autoCall,
                                 })).then(function(response){
                     if(response != null && response.length > 0)
                     {
-                        $scope.progresslist = response;
+                        
+                        clearInterval(rinterval);
+                        
+                        //console.log($scope.selected_subject.id);
+                        if($("#p_"+$scope.selected_subject.id).attr('aria-expanded')=='true')
+                        {
+                            $scope.isCourseTabActive = true;
+                        }
+                        else
+                        {
+                            $scope.isCourseTabActive = false;
+                        }
+                        
+                        
+                        if($scope.autoCall==true)
+                        {
+                           
+                            $.each(response, function (index, value) {
+                               var stdPlan = $filter('filter')($scope.progresslist,{studentid:value['studentid']},true);
+                                if(stdPlan!=null && stdPlan.length>0) stdPlan = stdPlan[0];
+                                
+                                $.each(value['student_plan'], function (index, val) {
+                                
+                                    var stdLesson = $filter('filter')(stdPlan.student_plan,{lessonid:val['lessonid']},true);
+                                    if(stdLesson!=null && stdLesson.length>0) stdLesson = stdLesson[0];
+                                    
+                                    if(stdLesson.status != val['status']){
+                                        //console.log("Change status "+ val['status'] + " for lesson "+ val['lessonid'] + " student "+ value['studentid']);
+                                        stdLesson.status = val['status'];
+                                    }
+                                })
+                            });
+                            
+                            console.log('autocalll');
+                        }
+                        else
+                        {
+
+                            $scope.progresslist = response;
+                            
+                        }
+                        $scope.autoCall=false;
+                        
                     }
                     else{
                         $scope.progresslist = [];
