@@ -757,10 +757,7 @@ class Reports extends MY_Controller
     }
     public function FinalReportView()
     {
-        if(!($this->session->userdata('id')))
-        {
-            parent::redirectUrl('signin');
-        }
+        
         $this->data['logo'] = parent::ImageConvertorToBase64(base_url()."images/logo_nr_school.png");
         $this->data['schoolname'] = $this->campus;
         $this->data['campuscity'] = $this->usercity;

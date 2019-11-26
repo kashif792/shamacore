@@ -21,7 +21,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                 <div class="panel panel-default">
                     <!-- widget title -->
                     <div class="panel-heading">
-                        <label>Mid Term Report</label>
+                        <label>Final Result Card</label>
                         <label class="right-controllers">
                             <a href="javascript:void(0)" class="link-student" ng-click="printreport()" title="Print"><i class="fa fa-print" aria-hidden="true"></i></a>
                         </label>
@@ -64,8 +64,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                             </div>
                         </div>
                         
-                        <div class="row padding-top canvas_div_pdf">
-
+                         <div class="row padding-top">
                             <div class="col-sm-12">
                                 <div>
                                            <div>
@@ -73,6 +72,9 @@ require APPPATH.'views/__layout/leftnavigation.php';
                                         <thead>
                                             <tr>
                                                 <th>Subject</th>
+                                                <th>Mid Term Marks</th>
+                                                <th>Final Term Marks</th>
+                                                <th>Sessional Marks</th>
                                                 <th>Obtained Marks</th>
                                                 <th>Total Marks</th>
                                                 <th>Grade</th>
@@ -80,17 +82,34 @@ require APPPATH.'views/__layout/leftnavigation.php';
                                             </tr>
                                         </thead>
                                         <tbody class="report-body">
-                                           <tr ng-repeat="s in subjectlist"  ng-init="$last && finished()" >
+                                            
+                                            <tr ng-show="subjectlist.length > 0">
+                                                <td class="blue_back">Total Marks</td>
+                                                <td class="blue_back">{{total_mid_marks}}</td>
+                                                <td class="blue_back">{{total_final_marks}}</td>
+                                                <td class="blue_back">{{total_sessional_marks}}</td>
+                                                <td class="blue_back"></td>
+                                                <td class="blue_back"></td>
+                                                <td class="blue_back"></td>
+                                                
+                                            </tr>
+                                            <tr ng-repeat="s in subjectlist"  ng-init="$last && finished()" >
                                                 <td>{{s.subject}}</td>
                                                 <td>{{s.evalution[0].mid}}</td>
-                                                <td>{{s.evalution[0].total_marks}}</td>
+                                                <td>{{s.evalution[0].final}}</td>
+                                                <td>{{s.evalution[0].sessional_marks}}</td>
+                                                <td>{{s.evalution[0].student_obtain_subject_marks}}</td>
+                                                <td>{{s.evalution[0].final_subject_total_marks}}</td>
                                                 <td>{{s.evalution[0].grade}}</td>
                                                 
                                             </tr>
                                             <tr ng-show="subjectlist.length > 0">
                                                 <td class="blue_back">Total Obtained Marks</td>
                                                 <td class="blue_back">{{obtain_marks}}</td>
-                                                <td class="blue_back">{{total_marks}}</td>
+                                                <td class="blue_back">{{final_total_marks}}</td>
+                                                <td class="blue_back">{{session_total_marks}}</td>
+                                                <td class="blue_back">{{student_total_obtain_subject_marks}}</td>
+                                                <td class="blue_back">{{final_count_subject_total_marks}}</td>
                                                 <td class="blue_back">{{grade}}</td>
                                                 
                                             </tr>
@@ -357,8 +376,8 @@ require APPPATH.'views/__layout/footer.php';
             $scope.eprocessfinished = true;
         }
         // Generate PDF
-        function buildTableBody(data,grade,obtain_marks,count_attendence,total_marks, columnsheader,columns) {
-            
+        function buildTableBody(data,total_mid_marks,count_attendence,final_total_marks,total_sessional_marks,student_total_obtain_subject_marks,final_count_subject_total_marks,grade,columnsheader,columns) {
+            //console.log(data);
             try{
                 var body = [];
                 if(columnsheader.length > 0)
@@ -369,17 +388,32 @@ require APPPATH.'views/__layout/footer.php';
                     var temp = [];
 
                     temp.push("Subject");
+                    temp.push("Mid Term Marks");
+                    temp.push("Final Term Marks");
+                    temp.push("Sessional Marks");
                     temp.push("Obtained Marks");
                     temp.push("Total Marks");
                     temp.push("Grade");
                     temp.push("Comments");
                     body.push(temp)
                 }
+                    var temp = [];
+
+                    temp.push("Total Marks");
+                    temp.push('<?php echo MID_TOTAL_MARKS ?>');
+                    temp.push('<?php echo FINAL_TOTAL_MARKS ?>');
+                    temp.push('<?php echo SISSIONAL_MARKS ?>');
+                    temp.push("");
+                    temp.push("");
+                    temp.push("");
+                    temp.push("");
+                    body.push(temp);
                 data.forEach(function(row) {
                     var dataRow = [];
                     
                     columns.forEach(function(column) {
                         var columnvalue = null;
+                        console.log(column);
                         if(column == 'subject')
                         {
                             columnvalue = row[column].toString();
@@ -390,7 +424,13 @@ require APPPATH.'views/__layout/footer.php';
                         {
                             columnvalue = row[column][0].mid;
                             dataRow.push(columnvalue);
-                            columnvalue = row[column][0].total_marks;
+                            columnvalue = row[column][0].final;
+                            dataRow.push(columnvalue);
+                            columnvalue = row[column][0].sessional_marks;
+                            dataRow.push(columnvalue);
+                            columnvalue = row[column][0].student_obtain_subject_marks;
+                            dataRow.push(columnvalue);
+                            columnvalue = row[column][0].final_subject_total_marks;
                             dataRow.push(columnvalue);
                             columnvalue = row[column][0].grade;
                             dataRow.push(columnvalue);
@@ -410,11 +450,14 @@ require APPPATH.'views/__layout/footer.php';
                     var temp = [];
 
                     temp.push("Total Obtained Marks");
-                    temp.push(obtain_marks);
-                    temp.push(total_marks);
+                    temp.push(total_mid_marks);
+                    temp.push(final_total_marks);
+                    temp.push(total_sessional_marks);
+                    temp.push(student_total_obtain_subject_marks);
+                    temp.push(final_count_subject_total_marks);
                     temp.push(grade);
                     temp.push("");
-                    body.push(temp)
+                    body.push(temp);
                
                 return body;
             }
@@ -422,13 +465,13 @@ require APPPATH.'views/__layout/footer.php';
                 console.log(e)
             }
         }
-        function table(data,grade,obtain_marks,count_attendence,total_marks, columnsheader, columns ) {
+        function table(data,total_mid_marks,count_attendence,final_total_marks,total_sessional_marks,student_total_obtain_subject_marks,final_count_subject_total_marks,grade,columnsheader, columns ) {
             try{
                 return {
                     table: {
                         headerRows: 1,
-                        widths: ['*', '*', '*', '*', '*'],
-                        body: buildTableBody(data,grade,obtain_marks,count_attendence,total_marks,columnsheader,columns)
+                        //widths: ['*', '*', '*', '*', '*'],
+                        body: buildTableBody(data,total_mid_marks,count_attendence,final_total_marks,total_sessional_marks,student_total_obtain_subject_marks,final_count_subject_total_marks,grade,columnsheader,columns)
                     },
                     layout: {
                     fillColor: function (rowIndex, node, columnIndex) {
@@ -455,7 +498,7 @@ require APPPATH.'views/__layout/footer.php';
                     pageOrientation: 'portrait',
                     content: [
                         {image:'<?php echo $logo ?>',style:'report_logo'},
-                        {text:'Mid Term Exam Result',style:'report_header'},
+                        {text:'Final Result Card',style:'report_header'},
                         {
                             margin: [0, 5, 0, 15],
                             columns: [
@@ -490,7 +533,7 @@ require APPPATH.'views/__layout/footer.php';
                             ]
                         },
                         {
-                            margin: [0, 5, 0, 40],
+                            margin: [0, 5, 0, 30],
                             columns: [
                                {
                                     width: '*',
@@ -502,14 +545,15 @@ require APPPATH.'views/__layout/footer.php';
                                     text: 'Grade: '+$scope.filterobj.class.name+" ("+$scope.filterobj.section.name+')',
                                     alignment: 'left',
                                     margin: [100, 0, 0, 0],
+
                                 },
                             ]
                         },
                         
-                        table($scope.subjectlist,$scope.grade,$scope.obtain_marks,$scope.count_attendence,$scope.total_marks,["Subject","Obtained Marks","Total Marks","Grade","Comments"],["subject","evalution"]),  
+                        table($scope.subjectlist,$scope.obtain_marks,$scope.count_attendence,$scope.final_total_marks,$scope.session_total_marks,$scope.student_total_obtain_subject_marks,$scope.final_count_subject_total_marks,$scope.grade,["Subject","Mid Term Marks","Final Term Marks","Sessional Marks","Obtained Marks","Total Marks","Grade","Comments"],["subject","evalution"]),  
                         //table($scope.subjectlist,["Subject","Obtained Marks","Total Marks","Grade"],["subject","evalution",]),
                         {
-                            margin: [0, 40, 0, 15],
+                            margin: [0, 30, 0, 15],
                             columns: [
                                {
                                     width: '*',
@@ -587,7 +631,7 @@ require APPPATH.'views/__layout/footer.php';
                             fontSize: 14,
                             bold: false,
                             alignment: 'center',
-                            margin: [0, 10, 0, 40]
+                            margin: [0, 10, 0, 30]
                         },
                         report_logo: {
                             alignment: 'center'
@@ -699,22 +743,31 @@ require APPPATH.'views/__layout/footer.php';
                 
             }
 
-            $myUtils.httppostrequest('<?php echo SHAMA_CORE_API_PATH; ?>midstudentreportdata',data).then(function(response){
+            $myUtils.httppostrequest('<?php echo SHAMA_CORE_API_PATH; ?>finalstudentreportdata',data).then(function(response){
                 //console.log(response);
                 if(response.length > 0)
                 {
+                    
+                    //$scope.subjectlist = response;
                     $scope.subjectlist = response[0].result;
-                    $scope.grade = response[0].grade;
-                    $scope.session_date = response[0].session_dates;
-                    $scope.semester_dates = response[0].semester_dates;
-                    $scope.obtain_marks = response[0].obtain_marks;
-                    $scope.percent = response[0].percent;
-                    $scope.total_marks = response[0].total_marks;
-                    $scope.total_attendence = response[0].total_attendence;
-                    $scope.total_lesson = response[0].total_lesson;
-                    $scope.total_marks = response[0].total_marks;
-                    $scope.count_attendence = response[0].count_attendence;
-                     
+                    
+                     $scope.grade = response[0].grade;
+                     $scope.obtain_marks = response[0].obtain_marks;
+                     $scope.final_total_marks = response[0].final_total_marks;
+                     $scope.session_total_marks = response[0].session_total_marks;
+                     $scope.final_count_subject_total_marks = response[0].final_count_subject_total_marks;
+                     $scope.student_total_obtain_subject_marks = response[0].student_total_obtain_subject_marks;
+                     $scope.percent = response[0].percent;
+                     $scope.grade = response[0].grade;
+                     $scope.total_mid_marks = response[0].total_mid_marks;
+                     $scope.total_final_marks = response[0].total_final_marks;
+                     $scope.total_sessional_marks = response[0].total_sessional_marks;
+                     $scope.total_marks = response[0].total_marks;
+                     $scope.total_attendence = response[0].total_attendence;
+                     $scope.total_lesson = response[0].total_lesson;
+                     $scope.count_attendence = response[0].count_attendence;
+                     $scope.session_date = response[0].session_dates;
+                     $scope.semester_dates = response[0].semester_dates;
                 }
                 else{
                     $scope.resultlist = [];

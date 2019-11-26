@@ -226,7 +226,7 @@ $route['api/v(:num)/getsubjectresult'] = 'api_v$1/Lmsapi/GetSubjectResult';
 $route['api/v(:num)/getstudentbyclass'] = 'api_v$1/Lmsapi/GetStudentByClass';
 $route['api/v(:num)/midstudentreportdata'] = 'api_v$1/Lmsapi/MidStudentReportBySubjectwize';
 $route['api/v(:num)/finalstudentreportdata'] = 'api_v$1/Lmsapi/FinalStudentReportBySubjectwize';
-
+$route['api/v(:num)/UpdateSemesterLessonProgressBulk'] = 'api_v$1/Lmsapi/UpdateSemesterLessonProgressBulk';
 //$route['midreport'] = 'Reports/MidReportView';
 //$route['finalreport'] = 'Reports/FinalReportView';
 

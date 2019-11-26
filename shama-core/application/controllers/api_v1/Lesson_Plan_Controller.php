@@ -533,7 +533,7 @@ class Lesson_Plan_Controller extends My_Rest_Controller
                 // Generate semester lessons when no lesson is available
 
                 // TODO arrange subjects in a specific order
-                $class_subjects = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN classes c ON c.id = s.class_id WHERE s.active = 1 AND s.class_id = " . $class_id . " ORDER BY s.subject_name ASC");
+                $class_subjects = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN classes c ON c.id = s.class_id WHERE s.class_id = " . $class_id . " ORDER BY s.subject_name ASC");
 
                 $max_row = $this->operation->GetByQuery("SELECT day FROM `default_lesson_plan`  WHERE class_id = " . $class_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . " ORDER BY day DESC LIMIT 1");
 
