@@ -439,28 +439,28 @@
 <script>
 
 
-	app.controller('principal_report_controller', function($scope, $myUtils, $filter,$interval){
+    app.controller('principal_report_controller', function($scope, $myUtils, $filter,$interval){
 
-    	var urlist = ({
-    	    	getsessionlist:'<?php echo SHAMA_CORE_API_PATH; ?>sessions',
-    	    	getclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>classes',
-    	    	getholidaytypes:'<?php echo SHAMA_CORE_API_PATH; ?>holiday_types',
-    	    	getholidays:'<?php echo SHAMA_CORE_API_PATH; ?>holidays',
-    	    	getsectionbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>sections_by_class',
-    	    	getsemesterlist:'<?php echo SHAMA_CORE_API_PATH; ?>semesters',
-    	    	getsubjectlist:'<?php echo SHAMA_CORE_API_PATH; ?>subjects',
-    	    	getsubjectbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>subjects_by_class',
-    	    	getcourselesson:'<?php echo SHAMA_CORE_API_PATH; ?>course_lessons',
-    	    	getcoursedetail:'<?php echo SHAMA_CORE_API_PATH; ?>course',
-    	    	getstudentquizdetail:'<?php echo SHAMA_CORE_API_PATH; ?>quiz_evaluation_details',
-    	    	getquizevaluationlist:'<?php echo SHAMA_CORE_API_PATH; ?>quiz_evaluations',
-    	    	getevaluationheader:'<?php echo SHAMA_CORE_API_PATH; ?>evaluation_header',
+        var urlist = ({
+                getsessionlist:'<?php echo SHAMA_CORE_API_PATH; ?>sessions',
+                getclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>classes',
+                getholidaytypes:'<?php echo SHAMA_CORE_API_PATH; ?>holiday_types',
+                getholidays:'<?php echo SHAMA_CORE_API_PATH; ?>holidays',
+                getsectionbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>sections_by_class',
+                getsemesterlist:'<?php echo SHAMA_CORE_API_PATH; ?>semesters',
+                getsubjectlist:'<?php echo SHAMA_CORE_API_PATH; ?>subjects',
+                getsubjectbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>subjects_by_class',
+                getcourselesson:'<?php echo SHAMA_CORE_API_PATH; ?>course_lessons',
+                getcoursedetail:'<?php echo SHAMA_CORE_API_PATH; ?>course',
+                getstudentquizdetail:'<?php echo SHAMA_CORE_API_PATH; ?>quiz_evaluation_details',
+                getquizevaluationlist:'<?php echo SHAMA_CORE_API_PATH; ?>quiz_evaluations',
+                getevaluationheader:'<?php echo SHAMA_CORE_API_PATH; ?>evaluation_header',
                 getmidtermsubjectresult:'<?php echo SHAMA_CORE_API_PATH; ?>getmidtermsubjectresult',
                 savestudentmidquizmarks:'<?php echo SHAMA_CORE_API_PATH; ?>savestudentmidquizmarks',
                 getsubjectresult:'<?php echo SHAMA_CORE_API_PATH; ?>getsubjectresult',
                 savestudentmarks:'<?php echo SHAMA_CORE_API_PATH; ?>savestudentmarks',
                 
-    	
+        
         });
 
         //console.log($scope.$storage);
@@ -532,16 +532,22 @@
         
         function getSessionList()
         {
-            var data = ({school_id:$scope.school_id});
-            
-            $myUtils.httprequest(urlist.getsessiondetail,data).then(function(response){
+            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getsessiondetail',({school_id:$scope.school_id})).then(function(response){
                 if(response != null && response.length > 0)
                 {
                     $scope.rsessionlist = response
-                    $scope.filterobj.session = response[0]
+                    
+                     var find_active_session = $filter('filter')(response,{status:'a'},true);
+                    
+                    if(find_active_session.length > 0)
+                    {
+                        
+                        $scope.filterobj.session = find_active_session[0]
+                        
+                    }
                 }
                 else{
-                     $scope.finished();
+                    //$scope.finished();
                 }
             });
         }
