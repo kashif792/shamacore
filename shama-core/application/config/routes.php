@@ -211,6 +211,7 @@ $route['api/v(:num)/savequestion'] = 'api_v$1/Lmsapi/save_quize_Question';
 $route['api/v(:num)/getquestionlist'] = 'api_v$1/Lmsapi/getquestionlist';
 $route['api/v(:num)/getquestionbyid'] = 'api_v$1/Lmsapi/getquestionbyid';
 $route['api/v(:num)/removeQuestion'] = 'api_v$1/Lmsapi/removeQuestion';
+$route['api/v(:num)/removeQuiz'] = 'api_v$1/Lmsapi/removeQuiz';
 $route['api/v(:num)/getQuizList'] = 'api_v$1/Lmsapi/getQuizList';
 $route['api/v(:num)/getselectedsubject'] = 'api_v$1/Lmsapi/getselectedsubject';
 $route['api/v(:num)/getselectequiz'] = 'api_v$1/Lmsapi/getselectequiz';

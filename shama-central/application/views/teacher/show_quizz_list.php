@@ -56,6 +56,40 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
 </div>
 
+<div id="delete_modal" class="modal fade">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+
+                <h4 class="modal-title">Confirmation</h4>
+
+            </div>
+
+            <div class="modal-body">
+
+                <p>Are you sure you want to delete this quiz?</p>
+
+             </div>
+
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-default" data-dismiss="modal">No</button>
+
+                <button type="button" id="UserDelete" class="btn btn-default " value="save">Yes</button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
 <div id="myModal" class="modal fade">
 
     <div class="modal-dialog">
@@ -353,6 +387,60 @@ require APPPATH.'views/__layout/footer.php';
 
         }
         getQuizListData();
+
+        $(document).on('click','.del',function(){
+
+            $("#delete_modal").modal('show');
+
+            dvalue =  $(this).attr('id');
+
+         
+
+            row_slug =   $(this).parent().parent().attr('id');
+
+            
+
+        });
+        $(document).on('click','#UserDelete',function(){
+
+            $("#delete_modal").modal('hide');
+
+            ajaxType = "GET";
+
+            
+            urlpath = "<?php echo SHAMA_CORE_API_PATH; ?>removeQuiz";
+            var dataString = ({'id':dvalue});
+
+            ajaxfunc(urlpath,dataString,userDeleteFailureHandler,loadUserDeleteResponse);
+
+        });
+
+    function userDeleteFailureHandler()
+
+        {
+
+            $(".user-message").show();
+            message('Datesheet has been not deleted','show');
+           
+
+        }
+
+
+
+        function loadUserDeleteResponse(response)
+
+        {
+
+            if (response.message === true){
+                getQuizListData();
+                
+                message('Record has been deleted','show');
+
+                
+
+            } 
+
+        }
    }    
 </script>
 
