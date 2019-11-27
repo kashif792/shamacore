@@ -122,7 +122,7 @@ if it's not present, don't show loader */
 /* Set gray background color and 100% height */
 .sidenav {
   /*background-color: #f1f1f1;*/
-  height: 730px !important;
+  height: auto !important;
 }
     
 /* On small screens, set height to 'auto' for the grid */

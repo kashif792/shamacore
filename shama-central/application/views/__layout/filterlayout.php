@@ -161,7 +161,30 @@
 					else if($this->uri->segment(1) == 'savetask'){
 						echo "<li><i>Assignment</i></li>";
 						echo "<li class='active'>Form</li>";
-					} else{
+					} 
+					else if($this->uri->segment(1) == 'datesheetlist'){
+						echo "<li><i>Datesheet list</i></li>";
+						
+					}
+					else if($this->uri->segment(1) == 'add_datesheet'){
+						echo "<li><i>Datesheet</i></li>";
+						echo "<li class='active'>Save</li>";
+					}
+					else if($this->uri->segment(1) == 'update_datesheet'){
+						echo "<li><i>Datesheet</i></li>";
+						echo "<li class='active'>Update</li>";
+					}
+					else if($this->uri->segment(1) == 'midreport'){
+						echo "<li><i>Reports</i></li>";
+						echo "<li class='active'>Mid Term Report</li>";
+						
+					}
+					else if($this->uri->segment(1) == 'finalreport'){
+						echo "<li><i>Reports</i></li>";
+						echo "<li class='active'>Final Result Card</li>";
+						
+					}
+					else{
 						echo "<li class='active'>Home</li>";
 					} 
 				?>

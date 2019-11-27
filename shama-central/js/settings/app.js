@@ -1311,6 +1311,7 @@
                         {
                             message('Semester set','show')
                             $scope.semesterdetail.activeid = null;
+                            getGradeList();
                         }
                         else{
                             message('Semester  not set','show')

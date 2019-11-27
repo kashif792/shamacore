@@ -205,7 +205,7 @@ if(ENVIRONMENT == 'production')
     define('SHAMA_CORE_API_PATH', 'http://shama.zinwebs.com/shama-core/api/v1/');
 }
 else{
-    define('SHAMA_CORE_API_PATH', 'http://localhost/shamacore/shama-core/api/v1/');
+    define('SHAMA_CORE_API_PATH', 'http://localhost/shamacore/api/v1/');
 }
 
 define('WS_PORT', 8083);
