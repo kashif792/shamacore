@@ -1199,6 +1199,8 @@
                         {
                             $scope.gradeobj = {};
                             $scope.usersavebtntext = "Save";
+                            message('Saved successfully','show');
+                            
                             getGradeList();
                           
                         }else{

@@ -46,11 +46,11 @@ require APPPATH.'views/__layout/leftnavigation.php';
                                     </div>
                                     <div class="form-group">
                                         <label for="inputSection">Section:</label>
-                                        <select class="form-control"  ng-options="item.name for item in sectionslist track by item.id"  name="inputSection" id="inputSection"  ng-model="filterobj.section" ng-change="changeclass()"></select>
+                                        <select class="form-control"  ng-options="item.name for item in sectionslist track by item.id"  name="inputSection" id="inputSection"  ng-model="filterobj.section" ng-change="getStutdent()"></select>
                                     </div>
                                     <div class="form-group">
                                         <label for="inputSemester">Semester:</label>
-                                        <select class="form-control"    ng-options="item.name for item in semesterlist track by item.id"  name="inputSemester" id="inputSemester"  ng-model="filterobj.semester" ng-change="changeclass()"></select>
+                                        <select class="form-control"    ng-options="item.name for item in semesterlist track by item.id"  name="inputSemester" id="inputSemester"  ng-model="filterobj.semester" ng-change="getStutdent()"></select>
                                     </div>
                                     <div class="form-group">
                                         <div class="form-group">
@@ -252,6 +252,8 @@ require APPPATH.'views/__layout/footer.php';
                     $scope.classlist = response
                     $scope.filterobj.class = response[0]
                     loadSections();
+                    //getSemesterData();
+
                 }
             });
         }
@@ -268,10 +270,14 @@ require APPPATH.'views/__layout/footer.php';
                     {
                         $scope.sectionslist = response;
                         $scope.filterobj.section = response[0];
-                        getSemesterData()
+                        getSemesterData();
+                        //$scope.loadStudentByClass();
                     }
                     else{
+
                         $scope.sectionslist = [];
+                        getSemesterData();
+                        //$scope.loadStudentByClass();
                     }
                 })
             }
@@ -293,7 +299,7 @@ require APPPATH.'views/__layout/footer.php';
                         {
                             
                             $scope.filterobj.semester = find_active_semester[0]  ;
-                            $scope.getSubjectList();
+                            //$scope.getSubjectList();
                             $scope.loadStudentByClass();
                         }
 
@@ -309,6 +315,7 @@ require APPPATH.'views/__layout/footer.php';
                     }
                     else{
                         $scope.semesterlist = [];
+                        $scope.loadStudentByClass();
                     }
                 });
              }
@@ -361,12 +368,18 @@ require APPPATH.'views/__layout/footer.php';
         $scope.changeclass = function()
         {
             //$scope.getSubjectList();
-            $scope.loadStudentByClass();
+            
             $scope.active = 1;
-            $scope.getGradedata();
-
+            
+           loadSections();
+           //getSemesterData();
         }
-
+        $scope.getStutdent = function()
+        {
+            $scope.loadStudentByClass();
+            $scope.getGradedata();
+        }
+        //getSemesterData();
 
 
         
@@ -686,6 +699,7 @@ require APPPATH.'views/__layout/footer.php';
         {
             
             try{
+                
                 var data = ({   
                     inputclassid:$scope.filterobj.class.id,
                     inputsectionid:$scope.filterobj.section.id,
@@ -712,7 +726,7 @@ require APPPATH.'views/__layout/footer.php';
                         }
                         
                         $scope.loading = false;
-                        $scope.getGradedata();
+                        //$scope.getGradedata();
                     }
                     else{
                         $scope.studentlist = [];
@@ -721,6 +735,7 @@ require APPPATH.'views/__layout/footer.php';
                         message('','hide')
                     }
                 })
+                
             }
             catch(ex){
                 console.log(ex)

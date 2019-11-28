@@ -1080,30 +1080,33 @@ class MY_Rest_Controller extends REST_Controller
     {
         $id = 0;
         // check current grades list
-        if (is_int($current_semester_date_id)) {
+        if(is_int($current_semester_date_id))
+        {
             // find previous evaluation
             $this->operation->table_name = 'grades';
-            $get_last_grades = $this->operation->GetByWhere(array(
-                'semester_date_id' => $current_semester_date_id
-            ));
-
-            if (count($get_last_grades)) {
-                $this->db->query("UPDATE grades SET status = 'i' WHERE semester_date_id = " . $current_semester_date_id);
-
+            $get_last_grades = $this->operation->GetByWhere(array('semester_date_id'=>$current_semester_date_id));
+            
+            
+            
+            if(count($get_last_grades))
+            {
+                $this->db->query("Update grades set status = 'i' where semester_date_id = ".$current_semester_date_id);
                 $this->operation->primary_key = "semester_date_id";
                 $option = array(
-                    'semester_date_id' => $new_semester_date_id,
-                    'option_value' => serialize($get_last_grades[0]->option_value),
-                    'status' => 'a'
+                    'semester_date_id'=>$new_semester_date_id,
+                    //'option_value'=>serialize($get_last_grades[0]->option_value),
+                    'status'=>'a'
                 );
-                $id = $this->operation->Create($option, $new_semester_date_id);
-            } else {
-                $option = array(
-                    'semester_date_id' => $new_semester_date_id,
-                    'option_value' => serialize($this->get_default_grades()),
-                    'status' => 'a'
-                );
-                $id = $this->operation->Create($option);
+                $id = $this->operation->Create($option,$new_semester_date_id);
+                
+            }else{
+                
+                $grade_str = serialize($this->get_default_grades());
+                $q = "INSERT INTO `grades` (`status`, `semester_date_id`, `option_value`) VALUES ('a', ". $new_semester_date_id .", '". $grade_str."')";
+                
+                $result = $this->db->query($q);
+                $id = $this->db->insert_id();
+               
             }
         }
         return $id > 0;

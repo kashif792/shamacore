@@ -2010,55 +2010,49 @@ class LMSApi extends MY_Rest_Controller
     {
         $request = $this->parse_params();
         
-        $semester_dates_id = $this->security->xss_clean(trim($request->id));
+        $serail = $this->security->xss_clean(trim($request->id));
         $school_id = trim($request->school_id);
         
-        $sresult['message'] = false;
         
-        if ($semester_dates_id != 0 && is_numeric($semester_dates_id) && ! empty($school_id)) {
-            $result['message'] = false;
-            
-            $this->operation->table_name = 'semester_dates';
-            $current_semester_dates = $this->operation->GetByWhere(array(
-                'school_id' => $school_id,
-                'status' => 'a'
-            ));
-            
-            $this->db->query("UPDATE semester_dates SET status = 'i' WHERE school_id = " . $school_id);
-            
-            // Update semester dates active status
-            $semester_dates_data = array(
-                'status' => 'a'
-            );
-            
-            $id = $this->operation->Create($semester_dates_data, $semester_dates_id);
-            
-            $new_semester_dates = $this->operation->GetByWhere(array(
-                'school_id' => $school_id,
-                'status' => 'a'
-            ));
-            
-            // Update semester active status
-            $this->db->query("UPDATE semester SET status = 'i'");
-            
-            $this->operation->table_name = 'semester';
-            $semester_data = array(
-                'modified' => date('Y-m-d'),
-                'status' => 'a'
-            );
-            
-            $id = $this->operation->Create($semester_data, $new_semester_dates[0]->semester_id);
-            
-            if (count($current_semester_dates)) {
-                $this->change_evaluation_semester((int) $current_semester_dates[0]->id, (int) $new_semester_dates[0]->id);
-                $this->change_grades_semester((int) $current_semester_dates[0]->id, (int) $new_semester_dates[0]->id);
-            }
-            
-            if (count($id)) {
-                $sresult['message'] = true;
+        $error_array = array();
+        if (empty($serail)) {
+            array_push($error_array,"Date is empty");
+        }
+             
+        if(count($error_array))
+        {
+            echo json_encode($error_array);
+            exit();
+        }
+
+        $this->operation->table_name = 'semester_dates';
+        $new_sem_dates = $this->operation->GetByWhere(array('id'=>$serail));
+        $result['message'] = false;
+        if(count($error_array) == false)
+        {
+            if($new_sem_dates)
+            {
+
+                $this->operation->table_name = 'semester_dates';
+                $current_active_sem_dates = $this->operation->GetByWhere(array('school_id'=>$school_id,'status'=>'a'));
+
+                $this->db->query("Update semester_dates set status = 'i' where school_id = ".$school_id);
+                
+                $semester_datail = array(
+                    'status'=>'a',
+                );
+                $id = $this->operation->Create($semester_datail,$serail);
+                
+                if(count($id))
+                {
+                    $this->change_evaluation_semester((int) $current_active_sem_dates[0]->id,$id);
+                    $this->change_grades_semester((int)$current_active_sem_dates[0]->id,$id);
+                    $result['message'] = true;
+                }
             }
         }
-        $this->set_response($sresult, REST_Controller::HTTP_OK);
+
+        $this->set_response($result, REST_Controller::HTTP_OK);
     }
     
     /**
