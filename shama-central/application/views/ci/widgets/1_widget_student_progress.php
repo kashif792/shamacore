@@ -244,7 +244,7 @@
     	    	getsectionbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>sections_by_class',
     	    	getsemesterlist:'<?php echo SHAMA_CORE_API_PATH; ?>semesters',
     	    	getsubjectlist:'<?php echo SHAMA_CORE_API_PATH; ?>subjects',
-    	    	getsubjectbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>subjects_by_class',
+    	    	getsubjectbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>principal_subjects_by_class',
     	    	getcourselesson:'<?php echo SHAMA_CORE_API_PATH; ?>course_lessons',
     	    	getcoursedetail:'<?php echo SHAMA_CORE_API_PATH; ?>course',
     	    	getstudentquizdetail:'<?php echo SHAMA_CORE_API_PATH; ?>quiz_evaluation_details',
@@ -441,6 +441,8 @@
                     class_id:$scope.filterobj.class.id,
                     section_id:$scope.filterobj.section.id,
                     session_id:$scope.filterobj.session.id,
+                    semester_id:$scope.filterobj.semester.id,
+                    school_id:$scope.school_id,
                 }
 
                 $myUtils.httprequest(urlist.getsubjectbyclasslist,data).then(function(response){

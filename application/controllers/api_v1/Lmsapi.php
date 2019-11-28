@@ -2494,7 +2494,49 @@ class LMSApi extends MY_Rest_Controller
         
         $this->response($subjects, REST_Controller::HTTP_OK);
     }
-    
+    function principal_subjects_by_class_get()
+    {
+        try{
+            $inputclassid = $this->input->get('class_id');
+            $inputsessionid = $this->input->get('section_id');
+            $inputsessionid = $this->input->get('session_id');
+            $inputsemesterid = $this->input->get('semester_id');
+            $school_id = $this->input->get('school_id');
+
+            $error_array = array();
+            if (!is_int((int) $inputclassid)  || !is_int((int) $inputsemesterid)) {
+                array_push($error_array,"Invalid inputs");
+            }
+                 
+            if(count($error_array))
+            {
+                echo json_encode($error_array);
+                exit();
+            }
+
+            $subjects = array();
+            if(count($error_array) == false)
+            {
+                $subjectlist = parent::GetSubjectsByClass($inputclassid,(int)$inputsemesterid,$inputsessionid,$school_id);
+                
+                if(count($subjectlist))
+                {
+                    foreach ($subjectlist as $key => $value) {
+                        $subjects[] = array(
+                            'id'=>$value->id,
+                            'name'=>$value->subject_name,
+                            'class_id' => $value->class_id,
+                            'class_name' => $this->get_class_name($value->class_id),
+                            'first_subject'=>($key == 0 ? 'in': 'other')
+                        );
+                    }
+                }
+            }
+            $this->response($subjects, REST_Controller::HTTP_OK);
+            //echo json_encode($result);
+        }
+        catch(Exception $e){}
+    }
     function subject_get()
     {
         $id = $this->input->get('subject_id');

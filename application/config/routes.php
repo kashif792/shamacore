@@ -152,6 +152,9 @@ $route['api/v(:num)/subjects'] = "api_v$1/Lmsapi/subjects";
 $route['api/v(:num)/removesubject'] = "api_v$1/Lmsapi/subjectRemove";
 
 $route['api/v(:num)/subjects_by_class'] = "api_v$1/Lmsapi/subjects_by_class";
+$route['api/v(:num)/principal_subjects_by_class'] = "api_v$1/Lmsapi/principal_subjects_by_class";
+
+
 $route['api/v(:num)/sync_grade_lesson_plan'] = "api_v$1/Lesson_Plan_Controller/sync_grade_lesson_plan";
 $route['api/v(:num)/sync_semester_lesson_plan'] = "api_v$1/Lesson_Plan_Controller/sync_semester_lesson_plan";
 $route['api/v(:num)/teacher'] = "api_v$1/Lmsapi/teacher";
