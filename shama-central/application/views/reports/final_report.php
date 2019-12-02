@@ -665,6 +665,13 @@ require APPPATH.'views/__layout/footer.php';
 
       $scope.download = function()
         {
+            
+            var studentid = $("#InputStudent").val();
+                if(studentid=='')
+                {
+                    message('Please select student','show');
+                    return false;
+                }
             var reportobj = $scope.renderprintdata();
             if($scope.filterobj.semester.id == 'b')
             {
