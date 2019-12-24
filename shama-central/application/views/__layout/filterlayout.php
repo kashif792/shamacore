@@ -184,6 +184,11 @@
 						echo "<li class='active'>Final Result Card</li>";
 						
 					}
+					else if($this->uri->segment(1) == 'grade'){
+						echo "<li><i>Grade Record</i></li>";
+						
+						
+					}
 					else{
 						echo "<li class='active'>Home</li>";
 					} 

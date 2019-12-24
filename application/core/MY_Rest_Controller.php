@@ -552,12 +552,13 @@ class MY_Rest_Controller extends REST_Controller
         }
     }
 
-    function get_subjects($class_id)
+    function get_subjects($class_id,$session_id=null)
     {
         if (! empty($class_id)) {
             $this->operation->table_name = 'subjects';
             return $this->operation->GetByWhere(array(
-                'class_id' => $class_id
+                'class_id' => $class_id,
+                'session_id' => $session_id
                 
             ));
         }

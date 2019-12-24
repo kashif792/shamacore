@@ -2265,9 +2265,9 @@ class LMSApi extends MY_Rest_Controller
         $lessonlist = array();
         
         if (! is_null($subject_id) && ! is_null($class_id) && ! is_null($session_id) && ! is_null($semester_id)) {
-            $query = $this->operation->GetByQuery('SELECT s.* FROM semester_lesson_plan s
+            $query = $this->operation->GetByQuery('SELECT s.*,sd.date as read_date FROM semester_lesson_plan s inner join lesson_set_dates as sd on s.set_id = sd.set_id
                 WHERE s.subject_id = ' . $subject_id . ' AND s.session_id = ' . $session_id . ' AND s.semester_id = ' . $semester_id . '
-                 AND s.class_id = ' . $class_id . '  ORDER BY s.preference ASC');
+                 AND s.class_id = ' . $class_id . ' GROUP by s.id  ORDER BY s.preference ASC');
             
             if (count($query)) {
                 foreach ($query as $key => $value) {
@@ -2343,6 +2343,7 @@ class LMSApi extends MY_Rest_Controller
         if (!is_null($this->input->get('subject_id')) && !is_null($this->input->get('section_id')))
         {
             $student = array();
+
             //$progress = $this->operation->GetRowsByQyery('SELECT * FROM `student_semesters` INNER JOIN invantageuser as inv on inv.id=studentid WHERE classid = ' . $this->input->get('inputclassid') . " AND sectionid = " . $this->input->get('inputsection') . " AND semesterid = " . $this->input->get('inputsemester') . " AND sessionid = " . $this->input->get('inputsession'));
             $progress = $this->operation->GetByQuery('SELECT student_id FROM `student_semesters` INNER JOIN invantage_users as inv on inv.id=student_id WHERE class_id = ' . $this->input->get('class_id') . " AND section_id = " . $this->input->get('section_id') . " AND semester_id = " . $this->input->get('semester_id') . " AND session_id = " . $this->input->get('session_id'));
             $latestReadDate = $this->operation->GetByQuery('SELECT p.finished FROM `semester_lesson_plan` s INNER JOIN lesson_progress p on p.lesson_id=s.id WHERE p.finished > 0 AND s.class_id = ' . $this->input->get('class_id') . " AND  semester_id = " . $this->input->get('semester_id') . "   ORDER BY p.finished DESC");
@@ -2371,10 +2372,11 @@ class LMSApi extends MY_Rest_Controller
             catch(Exception $e)
             {
             }
-            
+            $lesson_array = array();
             if (count($progress))
             {
-                $studentprogress = $this->operation->GetByQuery('SELECT sd.date as read_date,s.id as semid FROM `semester_lesson_plan` s inner join lesson_set_dates as sd on s.set_id = sd.set_id WHERE s.subject_id = ' . $this->input->get('subject_id') . ' AND s.semester_id = ' . $this->input->get('semester_id') . ' AND s.session_id = ' . $this->input->get('session_id') . ' order by sd.date asc');
+                
+                $studentprogress = $this->operation->GetByQuery('SELECT s.id as semid ,sd.date as read_date FROM `semester_lesson_plan` s inner join lesson_set_dates as sd on s.set_id = sd.set_id WHERE s.subject_id = ' . $this->input->get('subject_id') . ' AND s.semester_id = ' . $this->input->get('semester_id') . ' AND s.session_id = ' . $this->input->get('session_id') . ' group by semid order by sd.date asc');
                 if (count($studentprogress))
                 {
                     foreach ($progress as $key => $value)
@@ -2397,11 +2399,15 @@ class LMSApi extends MY_Rest_Controller
                             $sparray[] = $ar;
                         }
                         $lessondetailarray[] = array( 'studentid' => $value->student_id, 'screenname' => $this->GetStudentName($value->student_id), 'student_plan' => $sparray);
+                        //print_r($lessondetailarray);
+                        //echo $spvalue->semid.'<br>';
+                       // array_push($lesson_array, $spvalue->semid);
+                        //exit;
                     }
                 }
             }
         }
-        
+
          $this->response($lessondetailarray, REST_Controller::HTTP_OK);
     }
     
@@ -2433,11 +2439,12 @@ class LMSApi extends MY_Rest_Controller
         if ($role = $this->get_user_role($user_id)) {
             $role_id = $role->role_id;
         }
-        
+        $active_session = $this->get_active_session($school_id);
+        $session_id = $active_session->id;
         if ($role_id == 4) {
             $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN schedule sch ON sch.subject_id=s.id WHERE sch.teacher_uid=" . $this->db->escape($user_id));
         } else {
-            $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN `classes` c ON s.class_id=c.id WHERE c.school_id=" . $this->db->escape($school_id));
+            $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN `classes` c ON s.class_id=c.id AND s.session_id= ".$session_id." WHERE c.school_id=" . $this->db->escape($school_id));
         }
         
         $subjects = array();
@@ -2461,6 +2468,7 @@ class LMSApi extends MY_Rest_Controller
         $class_id = $this->input->get('class_id');
         
         $user_id = $this->input->get('user_id');
+        $session_id = $this->input->get('session_id');
         $role_id = FALSE;
         if ($role = $this->get_user_role($user_id)) {
             $role_id = $role->role_id;
@@ -2470,7 +2478,8 @@ class LMSApi extends MY_Rest_Controller
             if ($role_id == 4) {
                 $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN schedule sch ON sch.subject_id=s.id WHERE sch.teacher_uid=" . $this->db->escape($user_id) . " AND s.class_id=" . $this->db->escape($class_id));
             } else {
-                $subjectslist = $this->get_subjects($class_id);
+
+                $subjectslist = $this->get_subjects($class_id,$session_id);
             }
             
             $subjects = array();
@@ -3829,7 +3838,7 @@ class LMSApi extends MY_Rest_Controller
 
         $session_id = $active_session->id;
         $semester_id = $active_semester->semester_id;
-
+        
         $quizarray = array();
         $quizdetailarray = array();
 
@@ -3844,8 +3853,9 @@ class LMSApi extends MY_Rest_Controller
             {
 
                 $this->operation->table_name = 'semester_dates';
-                $semester_status = $this->operation->GetByWhere(array('session_id' => $class_id, 'semester_id' => $semester_id));
+                $semester_status = $this->operation->GetByWhere(array('session_id' => $session_id, 'semester_id' => $semester_id));
                 $sem_status = 'u';
+
                 if ($semester_status[0]->status == 'a')
                 {
                     $sem_status = 'r';
@@ -3928,7 +3938,15 @@ class LMSApi extends MY_Rest_Controller
 
             else
             {
-                $is_subject_found = $this->operation->GetByQuery('SELECT * FROM `schedule` where subject_id = ' . $subject_id . " AND class_id = " . $class_id . " AND section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . " AND teacher_uid =" . $user_id);
+                
+                if($user_id)
+                {
+                    $is_subject_found = $this->operation->GetByQuery('SELECT * FROM `schedule` where subject_id = ' . $subject_id . " AND class_id = " . $class_id . " AND section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . " AND teacher_uid =" . $user_id);
+                }
+                else
+                {
+                    $is_subject_found = $this->operation->GetByQuery('SELECT * FROM `schedule` where subject_id = ' . $subject_id . " AND class_id = " . $class_id . " AND section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id);
+                }
                 if (count($is_subject_found))
                 {
                     foreach ($is_subject_found as $key => $value)
@@ -3938,7 +3956,7 @@ class LMSApi extends MY_Rest_Controller
                         {
                             foreach ($studentlist as $key => $value)
                             {
-                                $termlist = $this->operation->GetByQuery('SELECT * FROM temr_exam_result  where subject_id = ' . $subject_id . " AND class_id = " . $class_id . " AND section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . " AND student_id= " . $value->studentid . " order by termid asc");
+                                $termlist = $this->operation->GetByQuery('SELECT * FROM term_exam_result  where subject_id = ' . $subject_id . " AND class_id = " . $class_id . " AND section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . " AND student_id= " . $value->student_id . " order by termid asc");
                                 $student_result = array();
                                 if (count($termlist) == 2)
                                 {
@@ -3971,7 +3989,7 @@ class LMSApi extends MY_Rest_Controller
                                     $student_result[] = array('marks' => 0);
                                     $student_result[] = array('marks' => 0);
                                 }
-                                $quizarray[] = array('studentid' => $value->studentid, 'student' => $this->GetStudentName($value->student_id),'screenname' => $this->GetStudentName($value->student_id), 'term_result' => $student_result, 'score' => [],);
+                                $quizarray[] = array('studentid' => $value->student_id, 'student' => $this->GetStudentName($value->student_id),'screenname' => $this->GetStudentName($value->student_id), 'term_result' => $student_result, 'score' => [],);
                             }
                         }
                     }
@@ -4087,7 +4105,7 @@ class LMSApi extends MY_Rest_Controller
             {
                 foreach ($sessionlist as $key => $value)
                 {
-                    $sessionarray = array('id' => $value->id, 'from' => date('m/d/Y', strtotime($value->datefrom)), 'to' => date('m/d/Y', strtotime($value->dateto)), 'status' => $value->status,);
+                    $sessionarray = array('id' => $value->id, 'name' => date('m/d/Y', strtotime($value->datefrom)), 'to' => date('m/d/Y', strtotime($value->dateto)), 'status' => $value->status,);
                 }
             }
         }
@@ -4109,7 +4127,7 @@ class LMSApi extends MY_Rest_Controller
                     {
                         $active_status = "Active";
                     }
-                    $sessionarray[] = array('id' => $value->id, 'from' => date('m/d/Y', strtotime($value->datefrom)), 'to' => date('m/d/Y', strtotime($value->dateto)), 'status' => $value->status,'show' =>$active_status,);
+                    $sessionarray[] = array('id' => $value->id, 'name' => date('M d, Y', strtotime($value->datefrom)) . ' - ' . date('M d, Y', strtotime($value->dateto)), 'from' => date('m/d/Y', strtotime($value->datefrom)), 'to' => date('m/d/Y', strtotime($value->dateto)), 'status' => $value->status,'show' =>$active_status,);
                 }
             }
         }
@@ -5282,12 +5300,15 @@ class LMSApi extends MY_Rest_Controller
     // endregion
     function getSchedule($subject_id, $class_id, $section_id)
     {
+        $currentday = strtolower(date('D'));
+        $s_time =  $currentday.'_start_time';
+        $e_time =  $currentday.'_end_time';
         $is_schedule_found = $this->operation->GetByQuery("Select s.* from schedule s where s.subject_id = " . $subject_id . " AND s.class_id = " . $class_id . " AND s.section_id = " . $section_id);
         if (count($is_schedule_found)) {
             return array(
-                'start_time' => $is_schedule_found[0]->start_time,
-                'end_time' => $is_schedule_found[0]->end_time,
-                'last_update' => $is_schedule_found[0]->last_update
+                    'start_time'=>strtotime($is_schedule_found[0]->$s_time),
+                    'end_time'=>strtotime($is_schedule_found[0]->$e_time),
+                    'last_update'=>$is_schedule_found[0]->last_update
             );
         } else {
             return false;
@@ -8807,6 +8828,7 @@ class LMSApi extends MY_Rest_Controller
         $active_session = $this->get_active_session($school_id);
         $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
         $session_id = $active_session->id;
+
             if($id)
             {
                 $subject_schedual_check = true;
@@ -8836,6 +8858,7 @@ class LMSApi extends MY_Rest_Controller
             }
             else
             {
+
                 $subject_schedual_check = true;
                 // Check Validation
                 $this->operation->table_name = 'datesheets';
@@ -8843,7 +8866,7 @@ class LMSApi extends MY_Rest_Controller
                 
                 if(count($is_datesheet)>0)
                 {
-                    $result['message'] = false;
+                    $result['message'] = "false";
                     
                 }
                 else
@@ -8866,15 +8889,16 @@ class LMSApi extends MY_Rest_Controller
                     // $this->operation->table_name = 'datesheets';
                     // $id = $this->operation->Create($data2);
                     $this->db->insert('datesheets',$data2);
+                    
                     $id = $this->db->insert_id();
                     if(count($id))
                     {
-                        $result['message'] = true;
+                        $result['message'] = "true";
                         $result['lastid'] = $id;
                     }
                 }
             }
-                
+         
         $this->set_response($result, REST_Controller::HTTP_OK);
         //echo json_encode($result);
     }
@@ -9409,9 +9433,11 @@ class LMSApi extends MY_Rest_Controller
         
         $school_id = $request->school_id;
         $class_id = $request->class_id;
+        //$school_id = $_POST['school_id'];
+        //$class_id = $_POST['class_id'];
         $active_session = $this->get_active_session($school_id);
         $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
-        
+
         if(!empty($class_id))
 
         {
@@ -9448,6 +9474,55 @@ class LMSApi extends MY_Rest_Controller
         
 
     }
+    
+    function GetSubjectListByClassWeekly_post()
+    {
+        $sections = array();
+        $request = $this->parse_params();
+        $school_id = $request->school_id;
+        $class_id = $request->class_id;
+        //$school_id = $_POST['school_id'];
+        //$class_id = $_POST['class_id'];
+        $active_session = $this->get_active_session($school_id);
+        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+        if(!empty($class_id))
+        {
+            $is_student_found = $this->operation->GetByQuery("Select s.*,sc.*  from subjects s inner join schedule as sc on sc.subject_id = s.id  where S.class_id = ".$class_id."  AND s.session_id = ".$active_session->id." AND s.semester_id = ".$active_semester->semester_id);
+            
+            if(count($is_student_found)){
+                foreach ($is_student_found as $key => $value) {
+                    $sections[] = array(
+                        'id'=>$value->id,
+                        'name'=>$value->subject_name.' ( '.$value->subject_code.' )',
+                        'mon_status' =>$value->mon_status,
+                        'mon_start_time' => $value->mon_start_time,
+                        'mon_end_time' => $value->mon_end_time,
+                        'tue_status' =>$value->tue_status,
+                        'tue_start_time' => $value->tue_start_time,
+                        'tue_end_time' => $value->tue_end_time,
+                        'wed_status' =>$value->wed_status,
+                        'wed_start_time' => $value->wed_start_time,
+                        'wed_end_time' => $value->wed_end_time,
+                        'thu_status' =>$value->thu_status,
+                        'thu_start_time' => $value->thu_start_time,
+                        'thu_end_time' => $value->thu_end_time,
+                        'fri_status' =>$value->fri_status,
+                        'fri_start_time' => $value->fri_start_time,
+                        'fri_end_time' => $value->fri_end_time,
+                        'sat_status' =>$value->sat_status,
+                        'sat_start_time' => $value->sat_start_time,
+                        'sat_end_time' => $value->sat_end_time,
+                        'sun_status' =>$value->sun_status,
+                        'sun_start_time' => $value->sun_start_time,
+                        'sun_end_time' => $value->sun_end_time,
+                        'title'=>$value->subject_name
+                    );
+                }
+            }
+        }
+        $this->response($sections, REST_Controller::HTTP_OK);
+    }
+
     function removeDetailDatesheet_get()
     {
         
@@ -10597,8 +10672,10 @@ class LMSApi extends MY_Rest_Controller
 
             foreach ($studentprogress as $key => $spvalue)
             {
-                if($spvalue->finished>0)
+
+                if($spvalue->finish_count>0)
                 {
+
                     $sparray = array('lessonid' => $spvalue->lesson_id, 'status' => "read", 'last_updated' => $spvalue->last_updated,);
                 }
                 else
@@ -10932,5 +11009,16 @@ class LMSApi extends MY_Rest_Controller
         // $result['debug'] = $debug;
 
         echo $result['message'];
+    }
+    function getGradeList_get()
+    {
+        $user_id = $this->input->get('user_id');
+        $this->data['grade_list']=$this->operation->GetByQuery("select cl.id, cl.grade,sc.section_name from schedule s inner join classes cl on cl.id = s.class_id inner join sections sc on sc.id = s.section_id  where s.teacher_uid = ".$user_id." group by cl.id");
+        $result[] = array(
+                        'listarray'=>$this->data['grade_list'],
+                        
+                    );
+        $this->response($result, REST_Controller::HTTP_OK);
+
     }
 }

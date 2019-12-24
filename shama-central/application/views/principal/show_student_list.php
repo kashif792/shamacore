@@ -834,44 +834,32 @@ require APPPATH.'views/__layout/leftnavigation.php';
                             <th>First Name</th>
                             <th>Last Name</th>	
                             <th>Grade</th>
-                            <th>Mode</th>
+                            <th>DOB</th>
                             <th>Father Name</th>
                             <th>Father Phone No</th>
                             <th>Financial Assistance</th>
                             <th ng-if="isPrincipal">Options</th>
-
+                            
                         </tr>
 
                     </thead>
-
-                    <tbody id="reporttablebody-phase-two" class="report-body sfiltr ">
-                            <tr  ng-if="students.length>0" ng-repeat="s in students track by s.id" id="tr_{{s.id}}" data-view="{{s.id}}">
-
-                                 <td class="row-bar-user" data-view="{{s.id}}">{{s.roll_number}}</td> 
-
-                                <td class="row-bar-user" data-view="{{s.id}}">{{s.first_name}}</td>
-
-                                 <td class="row-bar-user" data-view="{{s.id}}">{{s.last_name}}</td>
-                                <td class="row-bar-user" data-view="{{s.id}}">{{s.class_name}}</td>
-                                <td class="row-bar-user" data-view="{{s.id}}">{{s.mode}}</td> 
-                                 <td class="row-bar-user" data-view="{{s.id}}">{{s.father_name}}</td>
-                                 <td class="row-bar-user" data-view="{{s.id}}">{{s.phone}}</td> 
-    							<td class="row-bar-user" data-view="{{s.id}}">{{s.req_financial_assistance==1?"Yes":"No"}}</td>
-                                
-                                <td ng-if="isPrincipal">
-                                    <a href="{{baseUrl}}savestudent/{{s.id}}" id="{{s.id}}" class='edit' title="Edit">
-                                          <i class="fa fa-edit" aria-hidden="true"></i>
-                                    </a>
-
-                                    <a href="#" title="Delete" id="{{s.id}}" class="del">
-                                          <i class="fa fa-remove" aria-hidden="true"></i>
-                                    </a>
-                                </td>
-
-                            </tr>
-                            <tr ng-if="students.length<=0"><td colspan='8'>No student found</td></tr>
-
+                    <tbody>
                     </tbody>
+                    <tfoot>
+                        <tr>
+
+                            <th>Roll No</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>  
+                            <th>Grade</th>
+                            <th></th>
+                            <th>Father Name</th>
+                            <th>Father Phone No</th>
+                            <th>Financial Assistance</th>
+                            <th ng-if="isPrincipal"></th>
+                            
+                        </tr>
+                    </tfoot>
 
 
 
@@ -879,8 +867,13 @@ require APPPATH.'views/__layout/leftnavigation.php';
         </div>
     </div>
 </div>
+<?php
 
+// require_footer 
+require APPPATH.'views/__layout/footer.php';
 
+?>
+<script src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
 <script type="text/javascript">
 
     var dvalue ;
@@ -1173,32 +1166,21 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
 
 
+        
+
         $(document).on('click','#UserDelete',function(){
-
-
 
             $("#myUserModal").modal('hide');
 
-
-
-    		ajaxType = "DELETE";
-
-
-
             urlpath = "<?php echo SHAMA_CORE_API_PATH; ?>student";
 
+            var data = 'id='+String(dvalue);
+            urlpath += '?'+ data;
+            
+            ajaxType = 'DELETE';
+            ajaxfunc(urlpath,[],userDeleteFailureHandler,loadUserDeleteResponse);
 
-
-            var dataString = ({'id':dvalue});
-
-
-
-            ajaxfunc(urlpath,dataString,userDeleteFailureHandler,loadUserDeleteResponse);
-
-
-
-    	});
-
+        });
 
 
 
@@ -1241,17 +1223,11 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
 
 
-                $("#tr_"+dvalue).remove();
-
-
-
-     		 	$(".user-message").show();
-
-
-
-		    	$(".message-text").text("Student has been deleted").fadeOut(10000);
-
-
+                $("#"+row_slug).remove();
+                $(".user-message").show();
+                
+                message('Student has been deleted','show');
+                $(".message-text").text("Student has been deleted").fadeOut(10000);
 
          	} 
 
@@ -1329,6 +1305,16 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
                         $scope.students = response;
                         //loaddatatable();
+                        if($scope.type=='p')
+                        {
+                            $("#table-body-phase-tow").dataTable().fnDestroy();
+                            loaddatatable($scope.students);
+                        }
+                        else
+                        {
+                            $("#table-body-phase-tow").dataTable().fnDestroy();
+                            loaddatatableTeacher($scope.students);
+                        }
                 })
 
             }
@@ -1344,44 +1330,313 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
         });
 
-
-        function loaddatatable()
+        function loaddatatable(data)
         {
-            $('#table-body-phase-tow').DataTable( {
-                 "order": [[ 0, "asc"  ]],
-               
-                initComplete: function () {
-                    this.api().columns().every( function () {
-                        var column = this;
-                        var select = $('<select><option value="">All</option></select>')
-                            .appendTo( $(column.footer()).empty() )
-                            .on( 'change', function () {
-                                var val = $.fn.dataTable.util.escapeRegex(
-                                    $(this).val()
-                                );
-                                column
-                                    .search( val ? '^'+val+'$' : '', true, false )
-                                    .draw();
-                            });
-                        column.data().unique().sort().each( function ( d, j ) {
-                            select.append( '<option value="'+d+'">'+d+'</option>' )
-                        });
-                    });
-                }
-            });
+            var listdata= data;
+            
+            var table = $('#table-body-phase-tow').DataTable( {
+                data: listdata,
+                responsive: true,
+                "order": [[ 0, "asc"  ]],
+                rowId: 'id',
+                columns: [
+                    { data: 'roll_number' },
+                    { data: 'first_name' },
+                    { data: 'last_name' },
+                    { data: 'class_name' },
+                    { data: 'dob' },
+                    { data: 'father_name' },
+                    { data: 'phone' },
+                    { data: 'req_financial_assistance' },
+                    
+                    {
+                     "className": '',
+                     "orderable": false,
+                     "data": null,
+
+                     "defaultContent": "",
+                     "render" : function ( data, type, full, meta ) {
+                          if ( data != null && data != '') {
+                             
+                             return "<a href='<?php echo $path_url; ?>savestudent/"+data['id']+"'  ><i class='fa fa-edit' aria-hidden='true'></i></a> <a href='javascript:void(0)' id="+data['id']+" class='del'><i class='fa fa-remove' aria-hidden='true'></i></a>";
+                         }
+                         else {
+                                 return;
+                         }
+                      }
+                    },
+                ],
+
+                "pageLength": 10,
+
+            })
+            
+          
+            table.columns(1).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+            table.columns(2).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+            table.columns(3).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+            table.columns(5).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+            table.columns(6).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+            table.columns(7).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
         }
+        function loaddatatableTeacher(data)
+        {
+            var listdata= data;
+            
+            var table = $('#table-body-phase-tow').DataTable( {
+                data: listdata,
+                responsive: true,
+                "order": [[ 0, "asc"  ]],
+                rowId: 'id',
+                columns: [
+                    { data: 'roll_number' },
+                    { data: 'first_name' },
+                    { data: 'last_name' },
+                    { data: 'class_name' },
+                    { data: 'dob' },
+                    { data: 'father_name' },
+                    { data: 'phone' },
+                    { data: 'req_financial_assistance' },
+                    
+                   
+                ],
+
+                "pageLength": 10,
+
+            })
+            
+          
+            table.columns(1).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+            table.columns(2).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+            table.columns(3).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+            table.columns(5).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+            table.columns(6).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+            table.columns(7).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+        }
+        // function loaddatatable()
+        // {
+        //     $('#table-body-phase-tow').DataTable( {
+        //          "order": [[ 0, "asc"  ]],
+               
+        //         initComplete: function () {
+        //             this.api().columns().every( function () {
+        //                 var column = this;
+        //                 var select = $('<select><option value="">All</option></select>')
+        //                     .appendTo( $(column.footer()).empty() )
+        //                     .on( 'change', function () {
+        //                         var val = $.fn.dataTable.util.escapeRegex(
+        //                             $(this).val()
+        //                         );
+        //                         column
+        //                             .search( val ? '^'+val+'$' : '', true, false )
+        //                             .draw();
+        //                     });
+        //                 column.data().unique().sort().each( function ( d, j ) {
+        //                     select.append( '<option value="'+d+'">'+d+'</option>' )
+        //                 });
+        //             });
+        //         }
+        //     });
+        // }
 
     }
 
 
 </script>
 
-<?php
 
-// require_footer 
-require APPPATH.'views/__layout/footer.php';
-
-?>
 
 
 

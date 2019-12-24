@@ -17,6 +17,7 @@ require APPPATH.'views/__layout/topbar.php';
 require APPPATH.'views/__layout/leftnavigation.php';
 
 ?>
+<script src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
 
 <link href="<?php echo $path_url; ?>css/easy-responsive-tabs.css" rel="stylesheet">
 
@@ -75,7 +76,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
       </label>
   </div>
   <div class="panel-body" >
-     <table class="table-body table table-bordered table-responsive sfiltr" id="table-body-phase-tow" >
+     <table class="table table-striped table-bordered row-border hover" id="table-body-phase-tow" >
                               <thead>
                                 <tr>
                                     <th>Grade Name</th>
@@ -85,7 +86,10 @@ require APPPATH.'views/__layout/leftnavigation.php';
                                    
                                 </tr>
                             </thead>
-                              <tbody id="lesson_plan" class="report-body sfiltr">
+                            <tbody >
+
+                                    </tbody>
+                              <!-- <tbody id="lesson_plan" class="report-body sfiltr">
                               
                                             <tr  ng-if="subjects.length>0" ng-repeat="s in subjects track by s.id" id="{{s.id}}" data-view="{{s.id}}">
 
@@ -104,7 +108,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                                       
                                       <tr ng-if="subjects.length<=0"><td colspan='8'>No record found</td></tr>
 
-                          </tbody>
+                          </tbody> -->
 
                           </table>
   </div>
@@ -119,7 +123,9 @@ require APPPATH.'views/__layout/leftnavigation.php';
 require APPPATH.'views/__layout/footer.php';
 
 ?>
+<script src="<?php echo base_url(); ?>js/angular-datatables.min.js"></script>
 
+<script src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
 
 <script type="text/javascript">
 
@@ -339,6 +345,16 @@ require APPPATH.'views/__layout/footer.php';
 
                         $scope.subjects = response;
                         //loaddatatable();
+                        if($scope.type=='p')
+                        {
+                            $("#table-body-phase-tow").dataTable().fnDestroy();
+                            loaddatatable($scope.subjects);
+                        }
+                        else
+                        {
+                            $("#table-body-phase-tow").dataTable().fnDestroy();
+                            loaddatatableTeacher($scope.subjects);
+                        }
                 })
 
             }
@@ -354,32 +370,163 @@ require APPPATH.'views/__layout/footer.php';
 
          });
 
-
-        function loaddatatable()
+        function loaddatatable(data)
         {
-            $('#table-body-phase-tow').DataTable( {
-                 "order": [[ 0, "asc"  ]],
-               
-                initComplete: function () {
-                    this.api().columns().every( function () {
-                        var column = this;
-                        var select = $('<select><option value="">All</option></select>')
-                            .appendTo( $(column.footer()).empty() )
-                            .on( 'change', function () {
-                                var val = $.fn.dataTable.util.escapeRegex(
-                                    $(this).val()
-                                );
-                                column
-                                    .search( val ? '^'+val+'$' : '', true, false )
-                                    .draw();
-                            });
-                        column.data().unique().sort().each( function ( d, j ) {
-                            select.append( '<option value="'+d+'">'+d+'</option>' )
-                        });
-                    });
-                }
-            });
+            var listdata= data;
+            
+            var table = $('#table-body-phase-tow').DataTable( {
+                data: listdata,
+                responsive: true,
+                "order": [[ 0, "asc"  ]],
+                rowId: 'id',
+                columns: [
+                    { data: 'class_name' },
+                    { data: 'name' },
+                    
+                    {
+                     
+                     "orderable": false,
+                     "data": null,
+
+                     "defaultContent": "",
+                     "render" : function ( data, type, full, meta ) {
+                          if ( data != null && data != '') {
+                             
+                             return "<a href='<?php echo $path_url; ?>newsubject/"+data['id']+"'  ><i class='fa fa-edit' aria-hidden='true'></i></a> <a href='javascript:void(0)' id="+data['id']+" class='del'><i class='fa fa-remove' aria-hidden='true'></i></a>";
+                         }
+                         else {
+                                 return;
+                         }
+                      }
+                    },
+                ],
+
+                "pageLength": 10,
+
+            })
+            
+          
+            table.columns(1).every( function () {
+                var column = this;
+                var select = $('<select id="grade_id"><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+            table.columns(2).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+
+
         }
+        function loaddatatableTeacher(data)
+        {
+            var listdata= data;
+            
+            var table = $('#table-body-phase-tow').DataTable( {
+                data: listdata,
+                responsive: true,
+                "order": [[ 0, "asc"  ]],
+                rowId: 'id',
+                columns: [
+                    { data: 'class_name' },
+                    { data: 'name' },
+                    
+                    
+                ],
+
+                "pageLength": 10,
+
+            })
+            
+          
+            table.columns(1).every( function () {
+                var column = this;
+                var select = $('<select id="grade_id"><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+            table.columns(2).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+
+
+        }
+        // function loaddatatable()
+        // {
+        //     $('#table-body-phase-tow').DataTable( {
+
+        //          "order": [[ 0, "asc"  ]],
+               
+        //         initComplete: function () {
+        //             this.api().columns().every( function () {
+        //                 var column = this;
+        //                 var select = $('<select><option value="">All</option></select>')
+        //                     .appendTo( $(column.footer()).empty() )
+        //                     .on( 'change', function () {
+        //                         var val = $.fn.dataTable.util.escapeRegex(
+        //                             $(this).val()
+        //                         );
+        //                         column
+        //                             .search( val ? '^'+val+'$' : '', true, false )
+        //                             .draw();
+        //                     });
+        //                 column.data().unique().sort().each( function ( d, j ) {
+        //                     select.append( '<option value="'+d+'">'+d+'</option>' )
+        //                 });
+        //             });
+        //         }
+        //     });
+        // }
 
     }
 

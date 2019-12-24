@@ -484,14 +484,17 @@ require APPPATH.'views/__layout/leftnavigation.php';
             
             $myUtils.httppostrequest(urlist.saveMainDatesheet,data).then(function(response){
                 
-                if(response != null)
+                if(response.message == "false"){
+                        //initmodules();
+                        message('Record already exists','show')
+                    var $this = $(".btn-primary");
+                    $this.button('reset');
+                    }
+                else
                 {
                     window.location.href = "<?php echo base_url();?>/update_datesheet/"+response.lastid;
                 }
-                if(response.message == false){
-                        initmodules();
-                        message('Record already exists','show')
-                    }
+                
             })
            // $http(request)
                 

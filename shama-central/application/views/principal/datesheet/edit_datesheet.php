@@ -561,7 +561,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                     window.location.href = "<?php echo base_url();?>/update_datesheet/"+response.lastid;
                 }
                 if(response.message == false){
-                        initmodules();
+                        //initmodules();
                         message('Record already exists','show')
                     }
             })
@@ -766,7 +766,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                     }
 
                     if(response.message == false){
-                        initmodules();
+                        //initmodules();
                         message('Mid Datesheet not saved','show')
                     }
             })

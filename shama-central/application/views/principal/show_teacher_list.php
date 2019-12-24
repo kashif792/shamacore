@@ -279,31 +279,17 @@ require APPPATH . 'views/__layout/filterlayout.php';
 						<th ng-if="isPrincipal">Options</th>
 					</tr>
 				</thead>
-				<tbody id="reporttablebody-phase-two" class="report-body sfiltr ">
-                               
-                               <tr  ng-if="teachers.length>0" ng-repeat="s in teachers track by s.id" id="tr_{{s.id}}" data-view="{{s.id}}">
-
-                                                <td class="row-bar-user" data-view="{{s.id}}">{{s.first_name}}</td>
-
-                                                 <td class="row-bar-user" data-view="{{s.id}}">{{s.last_name}}</td>
-                                                <td class="row-bar-user" data-view="{{s.id}}">{{s.email}}</td> 
-                                                 <td class="row-bar-user" data-view="{{s.id}}">{{s.phone}}</td> 
-
-                                                <td ng-if="isPrincipal">
-                                                    <a href="<?php echo $path_url; ?>add_teacher/{{s.id}}" id="{{s.id}}" class='edit' title="Edit">
-                                                          <i class="fa fa-edit" aria-hidden="true"></i>
-                                                    </a>
-
-                                                    <a href="#" title="Delete" id="{{s.id}}" class="del">
-                                                          <i class="fa fa-remove" aria-hidden="true"></i>
-                                                    </a>
-                                                </td>
-
-                                            </tr>
-                                            <tr ng-if="teachers.length<=0"><td colspan='8'>No record found</td></tr>
-
-                          </tbody>
-
+				<tbody >
+				</tbody>
+                <tfoot>
+                    <tr>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                        <th></th>
+                        <th>Phone No</th>
+                        <th ng-if="isPrincipal"></th>
+                    </tr>
+                </tfoot>
 			</table>
 
 		</div>
@@ -318,7 +304,10 @@ require APPPATH . 'views/__layout/filterlayout.php';
 require APPPATH . 'views/__layout/footer.php';
 
 ?>
+<script src="<?php echo base_url(); ?>js/angular-datatables.min.js"></script>
+<script src="<?php echo  base_url(); ?>js/ui-bootstrap-tpls-2.5.0.js"></script>
 
+<script src="//cdn.datatables.net/1.10.10/js/jquery.dataTables.min.js"></script>
 
 <script type="text/javascript">
 
@@ -381,7 +370,7 @@ require APPPATH . 'views/__layout/footer.php';
             $("#myUserModal").modal('show');
 
             dvalue =  $(this).attr('id');
-
+            row_slug =   $(this).parent().parent().attr('id');
         });
 
         
@@ -415,10 +404,11 @@ require APPPATH . 'views/__layout/footer.php';
         {
         	if (response.message === true){
 
-                $("#tr_"+dvalue).remove();
-
+                //$("#tr_"+dvalue).remove();
+                $("#"+row_slug).remove();
      		 	$(".user-message").show();
-
+     		 	$(".user-message").show();
+                message('Teacher has been deleted','show');
 		    	$(".message-text").text("Teacher has been deleted").fadeOut(10000);
 
          	} 
@@ -480,58 +470,149 @@ require APPPATH . 'views/__layout/footer.php';
         $scope.isTeacher = $myUtils.isTeacher();
         $scope.isAdmin = $myUtils.isAdmin();
 
+        function loaddatatable(data)
+        {
+            var listdata= data;
+            
+            var table = $('#table-body-phase-tow').DataTable( {
+                data: listdata,
+                responsive: true,
+                "order": [[ 0, "asc"  ]],
+                rowId: 'id',
+                columns: [
+                    { data: 'first_name' },
+                    { data: 'last_name' },
+                    { data: 'email' },
+                    { data: 'phone' },
+                    
+                    {
+                     "className": '',
+                     "orderable": false,
+                     "data": null,
 
-	    function loaddatatable()
+                     "defaultContent": "",
+                     "render" : function ( data, type, full, meta ) {
+                          if ( data != null && data != '') {
+                             
+                             return "<a href='<?php echo $path_url; ?>add_teacher/"+data['id']+"'  ><i class='fa fa-edit' aria-hidden='true'></i></a> <a href='javascript:void(0)' id="+data['id']+" class='del'><i class='fa fa-remove' aria-hidden='true'></i></a>";
+                         }
+                         else {
+                                 return;
+                         }
+                      }
+                    },
+                ],
 
-	    {
+                "pageLength": 10,
 
-	        $('#table-body-phase-tow').DataTable( {
+            })
+            
+          
+            table.columns(0).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+            table.columns(1).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
+            table.columns(3).every( function () {
+                var column = this;
+                var select = $('<select><option value="">All</option></select>')
+                .appendTo( $(column.footer()).empty() )
+                .on( 'change', function () {
+                var val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
+                );
+                column
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
+                });
+                column.data().unique().sort().each( function ( d, j ) {
+                select.append( '<option value="'+d+'">'+d+'</option>' )
+                });
+            
+          });
 
-	            responsive: true,
+        }
 
-	             "order": [[ 0, "asc"  ]],
-/*
-	            initComplete: function () {
+	    // function loaddatatable()
 
-	                this.api().columns().every( function () {
+	    // {
 
-	                    var column = this;
+	    //     $('#table-body-phase-tow').DataTable( {
 
-	                       var select = $('<select><option value="">All</option></select>')
+	    //         responsive: true,
 
-	                        .appendTo( $(column.footer()).empty() )
+	    //          "order": [[ 0, "asc"  ]],
 
-	                        .on( 'change', function () {
+	    //         initComplete: function () {
 
-	                            var val = $.fn.dataTable.util.escapeRegex(
+	    //             this.api().columns().every( function () {
 
-	                                $(this).val()
+	    //                 var column = this;
 
-	                            );
+	    //                    var select = $('<select><option value="">All</option></select>')
+
+	    //                     .appendTo( $(column.footer()).empty() )
+
+	    //                     .on( 'change', function () {
+
+	    //                         var val = $.fn.dataTable.util.escapeRegex(
+
+	    //                             $(this).val()
+
+	    //                         );
 
 	     
 
-	                            column
+	    //                         column
 
-	                                .search( val ? '^'+val+'$' : '', true, false )
+	    //                             .search( val ? '^'+val+'$' : '', true, false )
 
-	                                .draw();
+	    //                             .draw();
 
-	                        });
+	    //                     });
 
-	                    column.data().unique().sort().each( function ( d, j ) {
+	    //                 column.data().unique().sort().each( function ( d, j ) {
 
-	                        select.append( '<option value="'+d+'">'+d+'</option>' )
+	    //                     select.append( '<option value="'+d+'">'+d+'</option>' )
 
-	                    });
+	    //                 });
 
-	                });
+	    //             });
 
-	            }
-*/
-	        });
+	    //         }
 
-	    }
+	    //     });
+
+	    // }
 
         function loadTeacherList(){
 
@@ -541,7 +622,8 @@ require APPPATH . 'views/__layout/footer.php';
 
                         $scope.teachers = response;
 
-                        //loaddatatable();
+                        $("#table-body-phase-tow").dataTable().fnDestroy();
+                            loaddatatable($scope.teachers);
                 })
 
             }

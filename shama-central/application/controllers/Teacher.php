@@ -72,7 +72,10 @@ class Teacher extends MY_Controller
 		$this->load->view('teacher/dashboard', $this->data);
 		
 	}
-
+	function grade()
+	{
+		$this->load->view('teacher/grade', $this->data);
+	}
 	/**
 	 * Load controll dashboard
 	 *

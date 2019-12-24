@@ -203,6 +203,7 @@ $route['api/v(:num)/getdatesheetedit'] = "api_v$1/Lmsapi/DatesheetUpdate/";
 $route['api/v(:num)/getdatesheetdetailedit'] = "api_v$1/Lmsapi/getDatesheetDetailInfo/";
 $route['api/v(:num)/getdetaildatesheet'] = "api_v$1/Lmsapi/getDatesheetDetailList/";
 $route['api/v(:num)/getsubjectlistbyclass'] = "api_v$1/Lmsapi/getsubjectlistbyclass/";
+$route['api/v(:num)/GetSubjectListByClassWeekly'] = "api_v$1/Lmsapi/GetSubjectListByClassWeekly/";
 $route['api/v(:num)/getsectionbyclass'] = "api_v$1/Lmsapi/GetSectionsByClass/";
 $route['api/v(:num)/saveDatesheetDetail'] = "api_v$1/Lmsapi/saveDatesheetDetail/";
 $route['api/v(:num)/removeDetailDatesheet'] = "api_v$1/Lmsapi/removeDetailDatesheet/";
@@ -231,6 +232,7 @@ $route['api/v(:num)/getstudentbyclass'] = 'api_v$1/Lmsapi/GetStudentByClass';
 $route['api/v(:num)/midstudentreportdata'] = 'api_v$1/Lmsapi/MidStudentReportBySubjectwize';
 $route['api/v(:num)/finalstudentreportdata'] = 'api_v$1/Lmsapi/FinalStudentReportBySubjectwize';
 $route['api/v(:num)/UpdateSemesterLessonProgressBulk'] = 'api_v$1/Lmsapi/UpdateSemesterLessonProgressBulk';
+$route['api/v(:num)/getGradeList'] = 'api_v$1/Lmsapi/getGradeList';
 //$route['midreport'] = 'Reports/MidReportView';
 //$route['finalreport'] = 'Reports/FinalReportView';
 

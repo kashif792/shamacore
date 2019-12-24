@@ -97,6 +97,14 @@
 			</a>
 		</li>
 
+		<li  ng-if="isTeacher" ng-class="(segment1 == 'grade' || 
+	 	segment1 == 'grade')? 'active' : ''">
+			<a  href="{{baseUrl}}grade">
+				<i class="fa fa-mortar-board" aria-hidden="true"></i>
+				<span class="link_text">Grades</span>
+			</a>
+		</li>
+
 	 	<li ng-class="(segment1 == 'show_subject_list' || 
 	 	segment1 == 'newsubject')? 'active' : ''">
 			<a  href="{{baseUrl}}show_subject_list">

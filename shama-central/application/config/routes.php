@@ -441,3 +441,5 @@ $route['update_datesheet/(:any)'] = "Principal_controller/getDatesheetUpdate/$1"
 /* Reports */
 $route['midreport'] = 'Reports/MidReportView';
 $route['finalreport'] = 'Reports/FinalReportView';
+
+$route['grade'] = 'Teacher/grade';
