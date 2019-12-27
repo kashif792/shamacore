@@ -220,6 +220,12 @@
 				<span class="link_text"> Datesheets</span>
 			</a>
 		</li>
+		<li class="" ng-if="isPrincipal">
+			<a  href="<?php echo base_url(); ?>announcementlist">
+				<i class="fa fa-bullhorn" aria-hidden="true"></i>
+				<span class="link_text"> Announcements</span>
+			</a>
+		</li>
   </ul>
 
 </div>

@@ -2032,7 +2032,7 @@ $('.image-upload-wrap').bind('dragover', function () {
 
         {
 
-        	$myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>classes',({})).then(function(response){
+        	$myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>classes',({school_id:$scope.school_id})).then(function(response){
 
         		if(response != null && response.length > 0)
 

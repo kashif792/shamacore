@@ -242,7 +242,7 @@ class LMSApi extends MY_Rest_Controller
         $email = trim($request->email);
         $phone = trim($request->phone);
         $school_id = trim($request->school_id);
-        
+
         $result = array();
         $result['message'] = false;
         
@@ -272,6 +272,7 @@ class LMSApi extends MY_Rest_Controller
             }else{
                 // insert
                 // $password = "1234";
+
                 $teacher_id = $this->user->TeacherInfo(NULL, $school_id, ucwords($first_name), ucwords($last_name), $gender, $nic, $email, $phone, $password, $p_home, $s_home, $province, $city, $zip, $is_master, $school_id);
             }
             
@@ -3003,14 +3004,21 @@ class LMSApi extends MY_Rest_Controller
         $this->operation->table_name = "classes";
         if (empty($school_id)) {
             if ($role_id == 4) {
+                
                 $query = $this->operation->GetByQuery("SELECT c.* FROM classes c INNER JOIN schedule sch ON sch.class_id=c.id WHERE sch.teacher_uid=$user_id");
             } else {
-                $query = $this->operation->GetRows();
+                
+                //$query = $this->operation->GetRows();
+                $query = $this->operation->GetByWhere(array(
+                    'school_id' => $school_id
+                ));
             }
         } else {
             if ($role_id == 4) {
+                
                 $query = $this->operation->GetByQuery("SELECT c.* FROM classes c INNER JOIN schedule sch ON sch.class_id=c.id WHERE sch.teacher_uid=$user_id AND school_id=$school_id");
             } else {
+
                 $query = $this->operation->GetByWhere(array(
                     'school_id' => $school_id
                 ));
@@ -11020,5 +11028,600 @@ class LMSApi extends MY_Rest_Controller
                     );
         $this->response($result, REST_Controller::HTTP_OK);
 
+    }
+    function getAnnouncementList_get()
+    {
+        //$request = json_decode(file_get_contents('php://input'));
+        $school_id = $this->input->get('school_id');
+        $listarray =array();
+        
+        $userlist = $this->operation->GetByQuery("SELECT * FROM  announcements where school_id = ".$school_id." ORDER by id desc");
+        $listarray = array();
+        if (count($userlist))
+        {   
+            
+            foreach ($userlist as $key => $value)
+            {
+                
+                $listarray[] =array('id'=>$value->id,'title'=>$value->title,'message'=>$value->message,'target_type'=>$value->target_type,'created_at'=>date('Y-m-d H:i',strtotime($value->created_at)),'status'=>$value->status);
+            
+            }
+        }
+
+
+        // $datameta=$this->data['timetable_list'] = $this->operation->GetRowsByQyery("SELECT * FROM  announcements ORDER by id desc");
+        
+        $result[] = array(
+                        'listarray'=>$listarray
+                    );
+        $this->response($result, REST_Controller::HTTP_OK);
+        //echo json_encode($result);
+    }
+    
+    public function saveAnnouncement_post()
+    {
+
+        $result['message'] = false;
+        
+            if($this->input->post('serial')){
+                $data =  array(
+                            'title'=>$this->input->post('title'),
+                            'message'=>$this->input->post('paigam'),
+                            'target_type'=>$this->input->post('target'),
+                            'reference'=>$this->input->post('reference'),
+                            'individual_no'=>$this->input->post('individual_no'),
+                            'status'=>'draft',
+                            'all_class'=>$this->input->post('checkall'),
+                            'class_id'=>$this->input->post('grade'),
+                            'updated_at'=> date('Y-m-d H:i'),
+                        );
+                $this->operation->table_name = 'announcements';
+                $announcement_id = $this->operation->Create($data,$this->input->post('serial'));
+            }
+            
+            else{
+
+                
+                // Insert into Annoucement Table
+                $data =  array(
+                            'title'=>$this->input->post('title'),
+                            'message'=>$this->input->post('paigam'),
+                            'target_type'=>$this->input->post('target'),
+                            'reference'=>$this->input->post('reference'),
+                            'individual_no'=>$this->input->post('individual_no'),
+                            'status'=>'draft',
+                            'all_class'=>$this->input->post('checkall'),
+                            'class_id'=>$this->input->post('grade'),
+                            'school_id'=>$this->input->post('school_id'),
+                            'created_at'=> date('Y-m-d H:i'),
+                        );
+                $this->operation->table_name = 'announcements';
+                $announcement_id = $this->operation->Create($data);
+            }
+            $result['lastid'] = $announcement_id;
+            $result['message'] = true;
+            $this->response($result, REST_Controller::HTTP_OK);
+            //echo json_encode($result);
+    }
+    public function sendAnnouncement_post()
+    {
+
+                $exist=true;
+                //$locations = $this->session->userdata('locations');
+                $data =  array(
+                            'title'=>$this->input->post('title'),
+                            'message'=>$this->input->post('paigam'),
+                            'target_type'=>$this->input->post('target'),
+                            'reference'=>$this->input->post('reference'),
+                            'status'=>'Sending',
+                            'active'=>1,
+                        );
+                $this->operation->table_name = 'announcements';
+                $announcement_id = $this->operation->Create($data,$this->input->post('serial'));
+                $announcementcount = $this->operation->GetByQuery("Select * from announcement_details where announcement_id= ".$this->input->post('serial'));
+                if (count($announcementcount)>0)
+                {
+                    $exist=false;
+                }
+
+                if($exist)
+                {
+
+                    $announcement_record = $this->operation->GetByQuery("Select * from announcements where id= ".$this->input->post('serial'));
+                    // Check already exists
+
+                    // End here.
+                    
+
+                    if($announcement_record[0]->target_type=='Individual')
+                    {
+                        $data =  array(
+                                        'announcement_id'=>$this->input->post('serial'),
+                                        'phone_number'=>str_replace("-", "", $this->input->post('individual_no')),
+                                        'target_type'=>"Individual",
+                                        'status'=>'pending',
+                                        'created_at'=> date('Y-m-d H:i'),
+                                    );
+                            $this->operation->table_name = 'announcement_details';
+                            $announcement_id = $this->operation->Create($data);
+                    }
+                    else if($announcement_record[0]->target_type=='School')
+                    {
+
+                            $userlist = $this->operation->GetByQuery("Select * from invantage_users where school_id= ".$this->input->post('school_id'));
+                            if (count($userlist))
+                                {   
+
+                                    foreach ($userlist as $key => $value)
+                                    {
+                                        if($value->type=='t')
+                                        {
+                                            $phone = parent::getUserMeta($value->id,'teacher_phone');
+                                            $listarray[] =array('phone'=>parent::getUserMeta($value->id,'teacher_phone'),'type'=>$value->type);
+                                        }
+                                        else if($value->type=='p')
+                                        {
+                                            $phone = parent::getUserMeta($value->id,'principal_phone');
+                                            $listarray[] =array('phone'=>parent::getUserMeta($value->id,'principal_phone'),'type'=>$value->type);
+                                        }
+                                        else
+                                        {
+                                            $phone = parent::getUserMeta($value->id,'sphone');
+                                            $listarray[] =array('phone'=>parent::getUserMeta($value->id,'sphone'),'type'=>$value->type);
+                                        }
+                                        // insert into annoucement detail table
+                                        if($value->type=='t')
+                                        {
+                                            $type = "Staff";
+                                        }
+                                        if($value->type=='s')
+                                        {
+                                            $type = "Student";
+                                        }
+                                        $data =  array(
+                                                    'announcement_id'=>$this->input->post('serial'),
+                                                    'phone_number'=>str_replace("-", "", $phone),
+                                                    'target_type'=>$type,
+                                                    'user_id' =>$value->id,
+                                                    'status'=>'pending',
+                                                    'created_at'=> date('Y-m-d H:i'),
+                                                );
+                                        $this->operation->table_name = 'announcement_details';
+                                        $announcement_id = $this->operation->Create($data);
+                                    
+                                    }
+
+                                }
+                        //print_r($listarray);
+                    }
+                    else if($announcement_record[0]->target_type=='Student')
+                    {
+
+                        if($this->input->post('checkall'))
+                        {
+                            $userlist = $this->operation->GetByQuery("Select * from invantage_users where type = 's' AND school_id= ".$this->input->post('school_id'));
+                            if (count($userlist))
+                                {   
+                                    foreach ($userlist as $key => $value)
+                                    {
+                                        $listarray[] =array('phone'=>parent::getUserMeta($value->id,'sphone'),'type'=>$value->type);
+                                    
+                                    $data =  array(
+                                                    'announcement_id'=>$this->input->post('serial'),
+                                                    'phone_number'=>str_replace("-", "",parent::getUserMeta($value->id,'sphone')),
+                                                    'target_type'=>'Student',
+                                                    'user_id' =>$value->id,
+                                                    'status'=>'pending',
+                                                    'created_at'=> date('Y-m-d H:i'),
+                                                );
+                                        $this->operation->table_name = 'announcement_details';
+                                        $announcement_id = $this->operation->Create($data);
+                                    }
+                                }
+                        }
+                        else
+                        {
+                            $userlist = $this->operation->GetByQuery("SELECT * FROM `student_semesters` WHERE class_id in(".$this->input->post('grade').") and status = 'r' ");
+                            if (count($userlist))
+                                {   
+                                    foreach ($userlist as $key => $value)
+                                    {
+                                        $listarray[] =array('phone'=>parent::getUserMeta($value->student_id,'sphone'));
+                                        
+                                        $data =  array(
+                                                    'announcement_id'=>$this->input->post('serial'),
+                                                    'phone_number'=>str_replace("-", "",parent::getUserMeta($value->student_id,'sphone')),
+                                                    'target_type'=>'Student',
+                                                    'user_id' =>$value->studentid,
+                                                    'status'=>'pending',
+                                                    'created_at'=> date('Y-m-d H:i'),
+                                                );
+                                        $this->operation->table_name = 'announcement_details';
+                                        $announcement_id = $this->operation->Create($data);
+                                    }
+                                }
+                        }
+                        //print_r($listarray);
+                    }
+                    else if($announcement_record[0]->target_type=='Staff')
+                    {
+                        if($this->input->post('checkall'))
+                        {
+                            $userlist = print("Select * from invantage_users where type = 't' AND school_id= ".$this->input->post('school_id'));
+                            exit;
+                            if (count($userlist))
+                                {   
+                                    foreach ($userlist as $key => $value)
+                                    {
+                                        $listarray[] =array('phone'=>parent::getUserMeta($value->id,'teacher_phone'),'type'=>$value->type);
+                                        $data =  array(
+                                                    'announcement_id'=>$this->input->post('serial'),
+                                                    'phone_number'=>str_replace("-", "",parent::getUserMeta($value->id,'teacher_phone')),
+                                                    'target_type'=>'Staff',
+                                                    'user_id' =>$value->id,
+                                                    'status'=>'pending',
+                                                    'created_at'=> date('Y-m-d H:i'),
+                                                );
+                                        $this->operation->table_name = 'announcement_details';
+                                        $announcement_id = $this->operation->Create($data);
+                                    }
+                                }
+                        }
+                        else
+                        {
+
+                            $userlist = $this->operation->GetByQuery("SELECT DISTINCT(teacher_uid) FROM `schedule` WHERE class_id in(".$this->input->post('grade').") ");
+                            if (count($userlist))
+                                {   
+                                    foreach ($userlist as $key => $value)
+                                    {
+
+                                        $listarray[] =array('phone'=>parent::getUserMeta($value->teacher_uid,'teacher_phone'));
+                                        $data =  array(
+                                                    'announcement_id'=>$this->input->post('serial'),
+                                                    'phone_number'=>str_replace("-", "",parent::getUserMeta($value->teacher_uid,'teacher_phone')),
+                                                    'target_type'=>'Staff',
+                                                    'user_id' =>$value->teacher_uid,
+                                                    'status'=>'pending',
+                                                    'created_at'=> date('Y-m-d H:i'),
+                                                );
+                                        $this->operation->table_name = 'announcement_details';
+                                        $announcement_id = $this->operation->Create($data);
+                                    }
+                                }
+                        }
+                        //print_r($listarray);
+                    }
+                }
+
+
+
+                $url = SHAMA_CORE_API_PATH."sendMessage/".$this->input->post('serial');
+                
+                $params = 1;
+                foreach ($params as $key => &$val) {
+                  if (is_array($val)) $val = implode(',', $val);
+                    $post_params[] = $key.'='.urlencode($val);
+                }
+                $post_string = implode('&', $post_params);
+
+                $parts=parse_url($url);
+
+                $fp = fsockopen($parts['host'],
+                    isset($parts['port'])?$parts['port']:80,
+                    $errno, $errstr, 30);
+
+                $out = "POST ".$parts['path']." HTTP/1.1\r\n";
+                $out.= "Host: ".$parts['host']."\r\n";
+                $out.= "Content-Type: application/x-www-form-urlencoded\r\n";
+                $out.= "Content-Length: ".strlen($post_string)."\r\n";
+                $out.= "Connection: Close\r\n\r\n";
+                if (isset($post_string)) $out.= $post_string;
+
+                fwrite($fp, $out);
+                fclose($fp);
+                
+                $result['message'] = true;
+                $this->response($result, REST_Controller::HTTP_OK);
+                //echo json_encode($result);
+                
+    }
+    public function stopAnnouncement_post()
+    {
+        $data =  array(
+                        'active'=>0,
+                        'status'=>"Cancelled",
+                        );
+                $this->operation->table_name = 'announcements';
+                $announcement_id = $this->operation->Create($data,$this->input->post('serial'));
+        
+        $updateData = array(
+                'status' => 'Cancelled'
+            );
+
+            $this->db->where('announcement_id', $id);
+            $this->db->where('status', "Pending");
+            $this->db->update('announcement_details', $updateData);
+        $result['message'] = true;
+        $this->response($result, REST_Controller::HTTP_OK);
+        //echo json_encode($result);
+    }
+    public function sendMessage_post($id = NULL)
+    {
+            //Update announcement_details set status = "Pending" where announcement_id = 191 and status = "Cancelled"
+            // Check already cancelled 
+        $endp = $this->operation->GetByQuery("Select id,phone_number from announcement_details where status ='Cancelled'  AND announcement_id= ".$id);
+        if(count($endp)>0)
+        {
+            $updateData = array(
+                'status' => 'Pending'
+            );
+
+            $this->db->where('announcement_id', $id);
+            $this->db->where('status', "Cancelled");
+            $this->db->update('announcement_details', $updateData);
+        }
+
+            $userlist = $this->operation->GetByQuery("Select id,phone_number from announcement_details where status !='Sent' AND announcement_id= ".$id);
+                    if (count($userlist))
+                    {   
+                        foreach ($userlist as $key => $value)
+                        {
+                            $annoucementstatus = $this->operation->GetByQuery("Select active,message from announcements where id= ".$id);
+                            if($annoucementstatus[0]->active==1)
+                            {
+                                // Sms API write here
+                                $string =  strlen($value->phone_number);
+                                if($string==11)
+                                {
+                                    $mobile = substr($value->phone_number, 1);
+                                    $mobile = "92".$mobile;
+                                }
+                                else
+                                {
+                                    $mobile = $value->phone_number;
+                                }
+
+                                $post = "sender=".urlencode(SMS_SENDER)."&mobile=".urlencode($mobile)."&message=".urlencode($annoucementstatus[0]->message)."";
+                                $url = "https://sendpk.com/api/sms.php?username=".SMS_USERNAME."&password=".SMS_PASSWORD;
+                                $ch = curl_init();
+                                $timeout = 30; // set to zero for no timeout
+                                curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)');
+                                curl_setopt($ch, CURLOPT_URL,$url);
+                                curl_setopt($ch, CURLOPT_HEADER, 0);
+                                curl_setopt($ch, CURLOPT_POST, 1);
+                                curl_setopt($ch, CURLOPT_POSTFIELDS,$post);
+                                curl_setopt($ch, CURLOPT_FRESH_CONNECT,1);
+                                curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+                                curl_setopt($ch, CURLOPT_FORBID_REUSE,1);
+                                curl_setopt ($ch, CURLOPT_CONNECTTIMEOUT, $timeout);
+
+                                //if(ENVIRONMENT == 'development'){
+                                    curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+                                //}
+
+                                $result = curl_exec($ch); 
+                                // if($result === FALSE){
+                                //     echo "Failed to send SMS.";
+                                //     trigger_error(curl_error($ch));
+                                // }else{
+                                //     echo "SMS Sent!</br></br>Response:</br>";
+                                    
+                                //     print_r($result);
+                                // }
+                                curl_close($ch);
+                                // End here 
+                                // Update status
+                                $data =  array(
+                                'status'=>'Sent',
+                                'sent_time'=> date('Y-m-d H:i:s'),
+                                );
+                                $this->operation->table_name = 'announcement_details';
+                                $this->operation->Create($data,$value->id);
+                            sleep(3);
+                            }
+                            else
+                            {
+                                $data =  array(
+                                'status'=>'Cancelled',
+                                
+                                );
+                                $this->operation->table_name = 'announcement_details';
+                                $this->operation->Create($data,$value->id);
+
+                            }
+                        
+                        }
+                    }
+        // Check for status pending
+        $endp = $this->operation->GetByQuery("Select id,phone_number from announcement_details where (status ='Pending' OR status ='Cancelled')  AND announcement_id= ".$id);
+        if(count($endp)==0)
+        {
+            $data =  array(
+                'status'=>'Sent',
+                
+                );
+                $this->operation->table_name = 'announcements';
+                $this->operation->Create($data,$id);
+        }
+                
+    }
+    
+
+
+    function validPhoneNumber($number)
+    {
+        $string =  strlen($number);
+        if($string==11)
+        {
+            $valid_no = substr($number, 1);
+            $valid_no = "92".$valid_no;
+        }
+        else
+        {
+            $valid_no = $number;
+        }
+        return $valid_no;
+    }
+    
+    public function getAnnouncementDetailList_post()
+    {
+        //$id = $this->input->post('serial');
+        $request = json_decode(file_get_contents('php://input'));
+        $id = $this->security->xss_clean(trim($request->serial));
+        
+        //$annoucementrow = $this->operation->GetRowsByQyery("SELECT * FROM announcements WHERE id =".$id);
+        $userlist = $this->operation->GetByQuery("SELECT * FROM announcement_details WHERE announcement_id =".$id);
+        $listarray = array();
+
+        if (count($userlist))
+        {   
+
+                    
+            $i = 1;
+            foreach ($userlist as $key => $value)
+            {
+
+                if($value->target_type!='Individual')
+                {
+                    
+                    $listarray[] =array('id'=>$i,'phone_number'=>$value->phone_number,'created_at'=>date('Y-m-d H:i',strtotime($value->created_at)),'user_id'=>getUserName($value->user_id),'target_type'=>$value->target_type,'status'=>$value->status);
+                }
+                else
+                {
+                    $data_array  = "Stop";
+                
+                    $listarray[] =array('id'=>$i,'phone_number'=>$value->phone_number,'created_at'=>date('Y-m-d H:i',strtotime($value->created_at)),'user_id'=>"",'target_type'=>$value->target_type,'status'=>$value->status);
+                }
+                $i++;
+                
+            }
+        }
+
+        // Check end process
+        $endp = $this->operation->GetByQuery("Select id,phone_number from announcement_details where (status ='Pending' OR status ='Cancelled')  AND announcement_id= ".$id);
+        if(count($endp)==0)
+        {
+            $data_array  = "Stop";
+            //
+            $ann_status = $this->operation->GetByQuery("SELECT * FROM announcements WHERE id =".$id);
+            if($ann_status[0]->status!='Draft')
+            {
+                $data =  array(
+                        'status'=>"Sent",
+                        'updated_at'=> date('Y-m-d H:i:s'),
+                        );
+                $this->operation->table_name = 'announcements';
+                $announcement_id = $this->operation->Create($data,$id);
+            }
+            
+        
+        }
+        // For Stop listing
+        $stopquery = $this->operation->GetByQuery("Select id,phone_number from announcement_details where status ='Cancelled'  AND announcement_id= ".$id);
+        if($stopquery>0)
+        {
+            $data_array  = "Cancelled";
+        }
+        $result[] = array(
+                        'listarray'=>$listarray,
+                        
+                        'data_array'=>$data_array
+                    );
+        $this->response($result, REST_Controller::HTTP_OK);
+       // echo json_encode($result);
+        //echo json_encode($this->data['timetable_list']);
+    }
+    public function stopAnnouncementDetailList_post()
+    {
+        
+        
+        $request = json_decode(file_get_contents('php://input'));
+        $id = $this->security->xss_clean(trim($request->serial));
+        $userlist = $this->operation->GetByQuery("SELECT * FROM announcement_details WHERE announcement_id =".$id);
+        $listarray = array();
+        if (count($userlist))
+        {   
+            //$i = 1;
+            // foreach ($userlist as $key => $value)
+            // {
+
+            //  $listarray[] =array('id'=>$i,'phone_number'=>$value->phone_number,'created_at'=>date('Y-m-d H:i',strtotime($value->created_at)),'user_id'=>$value->user_id,'target_type'=>$value->target_type,'status'=>$value->status);
+            //  $i++;
+            // }
+        }
+        $result[] = array(
+                        'listarray'=>$listarray,
+                        
+                        'data_array'=>$data_array
+                    );
+        sleep(3);
+        $this->response($result, REST_Controller::HTTP_OK);
+        
+        //echo json_encode($this->data['timetable_list']);
+    }
+    public function getAnnoucementList_get()
+    {
+
+        
+        
+        $listarray =array();
+        
+        $userlist = $this->operation->GetByQuery("SELECT * FROM  announcements ORDER by id desc");
+        $listarray = array();
+        if (count($userlist))
+        {   
+            
+            foreach ($userlist as $key => $value)
+            {
+                
+                $listarray[] =array('id'=>$value->id,'title'=>$value->title,'message'=>$value->message,'target_type'=>$value->target_type,'created_at'=>date('Y-m-d H:i',strtotime($value->created_at)),'status'=>$value->status);
+            
+            }
+        }
+
+
+        // $datameta=$this->data['timetable_list'] = $this->operation->GetRowsByQyery("SELECT * FROM  announcements ORDER by id desc");
+        
+        $result[] = array(
+                        'listarray'=>$listarray
+                    );
+        $this->response($result, REST_Controller::HTTP_OK);
+        //echo json_encode($result);
+    }
+    public function viewAnnouncement($id=null)
+    {
+        
+        
+        //$this->data['annoucement'] = $this->operation->GetRowsByQyery("SELECT  * from announcements where id = ".$id);
+        $data['title'] = "Announcement View";
+        $this->load->view('principal/announcement/view_announcement',$this->data);
+    }
+
+    public function getAnnouncementView_post()
+    {
+        $request = json_decode(file_get_contents('php://input'));
+        $id = $this->security->xss_clean(trim($request->serial));
+        $school_id = $this->security->xss_clean(trim($request->school_id));
+        $ann_recorde = $this->operation->GetByQuery("SELECT * FROM  announcements where id=".$id);
+        //$listarray = array();
+        if($ann_recorde[0]->target_type=="Individual")
+        {
+            //$ann_d_recorde = $this->operation->GetRowsByQyery("SELECT * FROM  announcement_details where announcement_id=".$id);
+            $listarray =array('id'=>$ann_recorde[0]->id,'title'=>$ann_recorde[0]->title,'message'=>$ann_recorde[0]->message,'target_type'=>$ann_recorde[0]->target_type,'status'=>$ann_recorde[0]->status,'reference'=>$ann_recorde[0]->reference,'recepient_no'=>$ann_recorde[0]->individual_no);
+        }
+        else
+        {
+            $classlist = $this->operation->GetByQuery("Select c.* from classes c  where  c.school_id =".$school_id);
+            $listarray =array('id'=>$ann_recorde[0]->id,'title'=>$ann_recorde[0]->title,'message'=>$ann_recorde[0]->message,'target_type'=>$ann_recorde[0]->target_type,'status'=>$ann_recorde[0]->status,'all_class'=>$ann_recorde[0]->all_class,'class_id'=>$ann_recorde[0]->class_id);
+        }
+            
+            
+        $result[] = array(
+                        'listarray'=>$listarray,
+                        'classlist'=>$classlist
+                    );
+        $this->response($result, REST_Controller::HTTP_OK);
+        //echo json_encode($result);
     }
 }

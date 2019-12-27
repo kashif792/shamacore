@@ -1079,7 +1079,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
                     </div>
                 </div>
-         <div class="panel panel-default">
+         <div class="panel panel-default" ng-if="isPrincipal">
 
                         <div class="panel-heading">
 
@@ -1189,7 +1189,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                         </div>
 
                     </div>
-                    <div class="panel panel-default">
+                    <div class="panel panel-default" ng-if="isPrincipal">
 
                         <div class="panel-heading">
 

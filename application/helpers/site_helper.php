@@ -18,4 +18,17 @@ function getName($table,$filedName,$id)
     $row = $query->row();
     return $row->$filedName;
 }
+function getUserName($user_id=null)
+{
+    $ci=& get_instance();
+    $ci->load->database(); 
+
+    $sql ="SELECT screenname FROM invantage_users
+          WHERE id =".$user_id; 
+
+    $query = $ci->db->query($sql);
+    $row = $query->row();
+    return $row->screenname;
+}
+
 ?>

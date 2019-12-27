@@ -319,7 +319,7 @@
 			$userarray = array(
 				'username'=>$regid,
 				'screenname'=>$sname,
-				'email'=>'',
+				'email'=>$regid,
 				'password'=>md5($regid),
 				'registerdate'=>date("Y-m-d H:i:s"),
 				'last_update'=>date("Y-m-d H:i:s"),
@@ -366,8 +366,8 @@
 			$studentarray = array(
 				'student_id'=>$is_user_created,
 				'semester_id'=>$active_semester[0]->semester_id,
-				'class_id'=>$sgrade,
-				'section_id'=>$sgrade1,
+				'class_id'=>$sgrade1,
+				'section_id'=>$sgrade,
 				'status'=>'r',
 				'session_id'=>$active_session[0]->id,
 			);
@@ -1141,6 +1141,7 @@
 				'screenname'=>$tfname." ".$tsname,
 				'email'=>$temail,
 				'location'=>$school_id,
+				'school_id'=>$school_id,
 				'is_master_teacher'=>($tMaster == 1 ? 1:0),
 				'password'=>md5($tnpswrd),
 				'registerdate'=>date("Y-m-d H:i:s"),

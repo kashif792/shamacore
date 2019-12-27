@@ -1387,10 +1387,10 @@ $scope.ho
 						city:$scope.input_city,
 						province:$scope.inputProvice.id,
 						zip_code:$scope.input_zipcode,
-						school_id:$scope.inputLocation.id,
+						school_id:$scope.school_id,
 						is_master:($scope.inputMasterteacher == true ? 1 : 0)
 						};
-
+				
 				if(inputNewPassword && inputRetypeNewPassword)
 
 				{

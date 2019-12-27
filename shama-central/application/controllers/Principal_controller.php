@@ -1404,5 +1404,20 @@ class Principal_controller extends MY_Controller
     {
         $this->load->view('principal/datesheet/edit_datesheet');
     }
+    function getAnnouncementList()
+    {
+
+        $this->load->view('principal/announcement/show_announcement_list');
+    }
+    function addAnnouncement()
+    {
+
+        $this->load->view('principal/announcement/add_announcement');
+    }
+    function viewAnnouncement()
+    {
+
+        $this->load->view('principal/announcement/view_announcement');
+    }
 }
 

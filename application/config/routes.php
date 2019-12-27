@@ -233,6 +233,18 @@ $route['api/v(:num)/midstudentreportdata'] = 'api_v$1/Lmsapi/MidStudentReportByS
 $route['api/v(:num)/finalstudentreportdata'] = 'api_v$1/Lmsapi/FinalStudentReportBySubjectwize';
 $route['api/v(:num)/UpdateSemesterLessonProgressBulk'] = 'api_v$1/Lmsapi/UpdateSemesterLessonProgressBulk';
 $route['api/v(:num)/getGradeList'] = 'api_v$1/Lmsapi/getGradeList';
+
+// Announcement
+$route['api/v(:num)/getAnnouncementList'] = 'api_v$1/Lmsapi/getAnnouncementList';
+$route['api/v(:num)/saveAnnouncement'] = 'api_v$1/Lmsapi/saveAnnouncement';
+$route['api/v(:num)/sendAnnouncement'] = 'api_v$1/Lmsapi/sendAnnouncement';
+$route['api/v(:num)/stopAnnouncement'] = 'api_v$1/Lmsapi/stopAnnouncement';
+$route['api/v(:num)/getAnnoucementList'] = 'api_v$1/Lmsapi/getAnnoucementList';
+$route['api/v(:num)/getAnnouncementDetailList'] = 'api_v$1/Lmsapi/getAnnouncementDetailList';
+$route['api/v(:num)/stopAnnouncementDetailList'] = 'api_v$1/Lmsapi/stopAnnouncementDetailList';
+$route['api/v(:num)/sendMessage/(:any)'] = 'api_v$1/Lmsapi/sendMessage/$2';
+$route['api/v(:num)/getAnnouncementView'] = 'api_v$1/Lmsapi/getAnnouncementView';
+
 //$route['midreport'] = 'Reports/MidReportView';
 //$route['finalreport'] = 'Reports/FinalReportView';
 

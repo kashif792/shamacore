@@ -443,3 +443,8 @@ $route['midreport'] = 'Reports/MidReportView';
 $route['finalreport'] = 'Reports/FinalReportView';
 
 $route['grade'] = 'Teacher/grade';
+
+// SMS Module
+$route['announcementlist'] = 'Principal_controller/getAnnouncementList';
+$route['add_announcement'] = 'Principal_controller/addAnnouncement';
+$route['view_announcement/(:any)'] = 'Principal_controller/viewAnnouncement/$1';

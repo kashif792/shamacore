@@ -3416,8 +3416,10 @@ label.right-controllers {
 
 .disabled
 {
-    background-color: #eeeeee;
+    background-color: #eeeeee !important;
     cursor: pointer;
+    color:#000 !important;
+    border-color: #eeeeee !important;
 }
 
 
@@ -3555,4 +3557,13 @@ div#midbefore_container table td {
 .colorwhite
 {
     color:#fff !important;
+}
+.long_desc
+{
+    height: 100px !important;
+}
+.grade_label
+{
+    float: left;
+    margin: 0px 10px;
 }

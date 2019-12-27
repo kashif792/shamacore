@@ -827,11 +827,12 @@
         $scope.schid = 0
         $scope.saveschool = function()
         {
+
             var reg = new RegExp(/^[A-Za-z0-9 ]{3,50}$/);
             if(reg.test($("#inputSchoolName").val()) == true)
             {
-                var $this = $(".school-btn");
-                $this.button('loading');
+                //var $this = $(".school-btn");
+                //$this.button('loading');
 
                 var data = ({
                     school_name:$("#inputSchoolName").val(),
