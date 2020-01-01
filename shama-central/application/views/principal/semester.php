@@ -101,7 +101,7 @@ require APPPATH.'views/__layout/footer.php';
 			try{
 				var data = ({inputsemesterid:$scope.semesterid})
 			
-				httprequest('getsemesterdata',data).then(function(response){
+				httprequest('semester_detail',data).then(function(response){
 					if(response.length > 0 && response != null)
 					{
 						$scope.semesterlist = response;
@@ -152,7 +152,7 @@ require APPPATH.'views/__layout/footer.php';
             try{
 				var data = ({inputsemesterid:semid})
 			
-				httprequest('getsemesterdata',data).then(function(response){
+				httprequest('semester_detail',data).then(function(response){
 					if(response.length > 0 && response != null)
 					{
 						$scope.inputSemester = response[0].name;

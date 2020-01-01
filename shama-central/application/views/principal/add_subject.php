@@ -150,7 +150,7 @@ require APPPATH.'views/__layout/footer.php';
         $scope.isAdmin = $myUtils.isAdmin();
 
 		var urlist = {
-            getclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>classes',
+            classlist:'<?php echo SHAMA_CORE_API_PATH; ?>classes',
             getsectionbyclass:'<?php echo SHAMA_CORE_API_PATH; ?>sections_by_class',
             getsemesterdata:'<?php echo SHAMA_CORE_API_PATH; ?>semesters',
             getsubject:'<?php echo SHAMA_CORE_API_PATH; ?>subject',
@@ -187,7 +187,7 @@ require APPPATH.'views/__layout/footer.php';
 		function loadclass()
         {
 
-            $myUtils.httprequest(urlist.getclasslist,({})).then(function(response){
+            $myUtils.httprequest(urlist.classlist,({})).then(function(response){
                 if(response != null && response.length > 0)
                 {
                     $scope.classlist = response
@@ -206,7 +206,7 @@ require APPPATH.'views/__layout/footer.php';
        	function getSemesterData()
         {
             try{
-                $myUtils.httprequest(urlist.getsemesterdata,({})).then(function(response){
+                $myUtils.httprequest(urlist.semester_detail,({})).then(function(response){
                     if(response.length > 0 && response != null)
                     {
                         $scope.semesterlist = response;

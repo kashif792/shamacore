@@ -51,7 +51,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
             <div class="modal-body">
 
-                <p>Are you sure you want to send this Message?</p>
+                <p>You won't be able to modify target after this action. Are you sure to start sending now?</p>
 
              </div>
 
@@ -430,7 +430,7 @@ $scope.checkUncheckAll = function () {
             if($scope.classlist == null)
             {
                 //httprequest(urlist.getclasslist,({})).then(function(response){
-                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getclasslist',({school_id:$scope.school_id})).then(function(response){
+                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>classlist',({school_id:$scope.school_id})).then(function(response){
                     if(response != null && response.length > 0)
                     {
                         $scope.classlist = response

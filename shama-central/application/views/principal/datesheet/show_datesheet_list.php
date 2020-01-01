@@ -182,7 +182,7 @@ require APPPATH.'views/__layout/footer.php';
         
 
         var urlist = {
-            getdetaildatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>getdetaildatesheet',
+            getdetaildatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>detaildatesheet',
             
         }
 
@@ -195,7 +195,7 @@ require APPPATH.'views/__layout/footer.php';
        
         function getSessionList()
         {
-            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getsessiondetail',({school_id:$scope.school_id})).then(function(response){
+            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>session_detail',({school_id:$scope.school_id})).then(function(response){
             //httprequest('getsessiondetail',({})).then(function(response){
                 if(response != null && response.length > 0)
                 {
@@ -221,7 +221,7 @@ require APPPATH.'views/__layout/footer.php';
         function getSemesterData(){
             try{
                 $scope.semesterlist = []
-                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getsemesterdata',({school_id:$scope.school_id})).then(function(response){
+                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>semester_detail',({school_id:$scope.school_id})).then(function(response){
                 //httprequest('<?php echo $path_url; ?>getsemesterdata',({})).then(function(response){
                     if(response.length > 0 && response != null)
                     {
@@ -251,7 +251,7 @@ require APPPATH.'views/__layout/footer.php';
             try{
                 //console.log(data);
 
-                    $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getdatesheetdata',({school_id:$scope.school_id,inputsessionid:$scope.filterobj.session.id,inputsemesterid:$scope.filterobj.semester.id})).then(function(response){
+                    $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>datesheet',({school_id:$scope.school_id,inputsessionid:$scope.filterobj.session.id,inputsemesterid:$scope.filterobj.semester.id})).then(function(response){
                     //httppostrequest('getdatesheetdata',data).then(function(response){
                         console.log(response)
                         if(response != null)
@@ -352,7 +352,7 @@ require APPPATH.'views/__layout/footer.php';
             try{
                 //$scope.semesterlist = []
                 var data = ({datesheet_id:id})
-                $myUtils.httppostrequest(urlist.getdetaildatesheet,data).then(function(response){
+                $myUtils.httprequest(urlist.getdetaildatesheet,data).then(function(response){
                 //httprequest('<?php echo base_url(); ?>getdetaildatesheet',data).then(function(response){
                 
                     //console.log(response);

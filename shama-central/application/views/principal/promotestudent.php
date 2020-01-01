@@ -197,7 +197,7 @@ require APPPATH.'views/__layout/footer.php';
 
      	var urlist = {
             getsemesterlist:'<?php echo SHAMA_CORE_API_PATH; ?>semesters',
-            getclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>classes',
+            classlist:'<?php echo SHAMA_CORE_API_PATH; ?>classes',
             getsectionbyclass:'<?php echo SHAMA_CORE_API_PATH; ?>sections_by_class',
             getstudentbyclass:'<?php echo SHAMA_CORE_API_PATH; ?>students_by_class_and_section',
             savepromotedstudents:'<?php echo SHAMA_CORE_API_PATH; ?>student_promote',
@@ -251,7 +251,7 @@ require APPPATH.'views/__layout/footer.php';
             var data = ({
                 school_id:$scope.school_id
             })
-        	$myUtils.httprequest(urlist.getclasslist,data).then(function(response){
+        	$myUtils.httprequest(urlist.classlist,data).then(function(response){
         		if(response != null && response.length > 0)
         		{
         			$scope.classlist = response
@@ -266,7 +266,7 @@ require APPPATH.'views/__layout/footer.php';
             var data = ({
                 school_id:$scope.school_id
             })
-            $myUtils.httprequest(urlist.getclasslist,data).then(function(response){
+            $myUtils.httprequest(urlist.classlist,data).then(function(response){
         		if(response != null && response.length > 0)
         		{
         			$scope.pclasslist = response

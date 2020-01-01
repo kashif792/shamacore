@@ -8233,7 +8233,7 @@ class LMSApi extends MY_Rest_Controller
         }
     }
     // Shama v2.0
-    function getassemblydata_get()
+    function assembly_get()
     {
         
         //echo $this->input->post("schoolid");
@@ -8271,7 +8271,7 @@ class LMSApi extends MY_Rest_Controller
         //echo json_encode($assemblydata);
         $this->response($assemblydata, REST_Controller::HTTP_OK);
     }
-    function getassemblyupdate_get()
+    function assemblyupdate_get()
     {
         $school_id = $this->input->get('school_id');
         
@@ -8307,7 +8307,7 @@ class LMSApi extends MY_Rest_Controller
         //echo json_encode($assemblydata);
         $this->response($assemblydata, REST_Controller::HTTP_OK);
     }
-    function saveassembly_post()
+    function assembly_post()
     {
         
         $request = json_decode( file_get_contents('php://input'));
@@ -8353,7 +8353,7 @@ class LMSApi extends MY_Rest_Controller
         //echo json_encode($sresult);
     }
     
-    function getbreakdata_get()
+    function break_get()
     {
         
         //echo $this->input->post("schoolid");
@@ -8395,7 +8395,7 @@ class LMSApi extends MY_Rest_Controller
         $this->response($breakdata, REST_Controller::HTTP_OK);
         //echo json_encode($breakdata);
     }
-    function getbreakupdate_get()
+    function breakupdate_get()
     {
         $school_id = $this->input->get('school_id');
         
@@ -8438,7 +8438,7 @@ class LMSApi extends MY_Rest_Controller
 
         $this->response($breakdata, REST_Controller::HTTP_OK);
     }
-    function savebreak_post()
+    function break_post()
     {
         
         $request = json_decode( file_get_contents('php://input'));
@@ -8699,7 +8699,7 @@ class LMSApi extends MY_Rest_Controller
     }
     // Datesheet
 
-    function GetSessionDetail_get()
+    function Session_Detail_get()
     {
         $this->operation->table_name = 'sessions';
         $sessionarray = array();
@@ -8815,7 +8815,7 @@ class LMSApi extends MY_Rest_Controller
        
         $this->load->view('principal/datesheet/add_datesheet', $this->data);
     }
-    function saveMainDatesheet_post()
+    function datesheet_post()
     {
     
     
@@ -8910,7 +8910,7 @@ class LMSApi extends MY_Rest_Controller
         $this->set_response($result, REST_Controller::HTTP_OK);
         //echo json_encode($result);
     }
-    function getDatesheet_get()
+    function Datesheet_update_get()
     {
         $id = $this->input->get('serial');
         
@@ -8921,7 +8921,7 @@ class LMSApi extends MY_Rest_Controller
             $schedulalist = $this->operation->GetByWhere(array(
                 'id' => $id
             ));
-            
+            //print_r($schedulalist);
             if (count($schedulalist)) {
                 
                 foreach ($schedulalist as $key => $value) {
@@ -8943,7 +8943,7 @@ class LMSApi extends MY_Rest_Controller
         
         $this->set_response($result, REST_Controller::HTTP_OK);
     }
-    function getdatesheetdata_get()
+    function datesheet_get()
     {
         $listarray = array();
         $data_array = array();
@@ -9041,7 +9041,7 @@ class LMSApi extends MY_Rest_Controller
         }
         
     }
-    function saveDatesheetDetail_post()
+    function DatesheetDetail_post()
     {
        
         $result['message'] = false;
@@ -9204,13 +9204,13 @@ class LMSApi extends MY_Rest_Controller
         $this->load->view('principal/datesheet/edit_datesheet', $this->data);
         
     }
-    function getDatesheetDetailList_post()
+    function Datesheet_Detail_List_get()
     {
         
         $details = array();
         $request = $this->parse_params();
         
-        $serial = $request->datesheet_id;
+        $serial = $this->input->get('datesheet_id');
         $datesheet_list = $this->operation->GetByQuery("Select * from datesheet_details where datesheet_id= ".$serial." ORDER BY exam_date");
 
         $details = array();
@@ -9329,7 +9329,7 @@ class LMSApi extends MY_Rest_Controller
         echo json_encode($listarray);
     }
     
-    function GetClassList_get()
+    function Class_List_get()
     {
         $this->operation->table_name = 'classes';
         $classarray = array();
@@ -9377,12 +9377,12 @@ class LMSApi extends MY_Rest_Controller
         $this->response($classarray, REST_Controller::HTTP_OK);
         //echo json_encode($classarray);
     }
-    function getDatesheetDetailInfo_post()
+    function DatesheetDetail_get()
     {
-        $request = $this->parse_params();
-        
-        $serial = $request->id;
-        $detail_id = $request->detail_id;
+        //$request = $this->parse_params();
+
+        $serial = $this->input->get('id');
+        $detail_id = $this->input->get('detail_id');
         
         
         $listarray = array();
@@ -9429,7 +9429,7 @@ class LMSApi extends MY_Rest_Controller
 
         echo json_encode($sections);
     }
-    function GetSubjectListByClass_post()
+    function Subject_List_By_Class_get()
 
     {
 
@@ -9439,8 +9439,8 @@ class LMSApi extends MY_Rest_Controller
         
         $request = $this->parse_params();
         
-        $school_id = $request->school_id;
-        $class_id = $request->class_id;
+        $school_id = $this->input->get('school_id');
+        $class_id = $this->input->get('class_id');
         //$school_id = $_POST['school_id'];
         //$class_id = $_POST['class_id'];
         $active_session = $this->get_active_session($school_id);
@@ -9597,6 +9597,7 @@ class LMSApi extends MY_Rest_Controller
     function getclasslistTeacher_get()
     {
         $user_id = $this->input->get('user_id');
+        $school_id = $this->input->get('school_id');
         $role_id = FALSE;
             if ($role = $this->get_user_role($user_id)) {
                 $role_id = $role->role_id;
@@ -9608,7 +9609,8 @@ class LMSApi extends MY_Rest_Controller
         }
         else
         {
-            $classlist = $this->operation->GetByQuery("SELECT c.id as id,c.grade FROM schedule sch INNER JOIN classes c on c.id = sch.class_id  GROUP by c.id ORDER by c.id asc");
+
+            $classlist = $this->operation->GetByQuery("SELECT c.id as id,c.grade FROM schedule sch INNER JOIN classes c on c.id = sch.class_id where school_id = ".$school_id."  GROUP by c.id ORDER by c.id asc");
         }
 
 
@@ -11035,7 +11037,7 @@ class LMSApi extends MY_Rest_Controller
         $school_id = $this->input->get('school_id');
         $listarray =array();
         
-        $userlist = $this->operation->GetByQuery("SELECT * FROM  announcements where school_id = ".$school_id." ORDER by id desc");
+        $userlist = $this->operation->GetByQuery("SELECT * FROM  announcements WHERE school_id = ".$school_id." ORDER by id desc");
         $listarray = array();
         if (count($userlist))
         {   
@@ -11118,7 +11120,7 @@ class LMSApi extends MY_Rest_Controller
                         );
                 $this->operation->table_name = 'announcements';
                 $announcement_id = $this->operation->Create($data,$this->input->post('serial'));
-                $announcementcount = $this->operation->GetByQuery("Select * from announcement_details where announcement_id= ".$this->input->post('serial'));
+                $announcementcount = $this->operation->GetByQuery("SELECT * FROM announcement_details WHERE announcement_id= ".$this->input->post('serial'));
                 if (count($announcementcount)>0)
                 {
                     $exist=false;
@@ -11127,12 +11129,14 @@ class LMSApi extends MY_Rest_Controller
                 if($exist)
                 {
 
-                    $announcement_record = $this->operation->GetByQuery("Select * from announcements where id= ".$this->input->post('serial'));
+                    $announcement_record = $this->operation->GetByQuery("SELECT * FROM announcements WHERE id= ".$this->input->post('serial'));
                     // Check already exists
 
                     // End here.
-                    
-
+                    $school_id = $this->input->post('school_id');
+                    $active_session = $this->get_active_session($school_id);
+                    $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+        
                     if($announcement_record[0]->target_type=='Individual')
                     {
                         $data =  array(
@@ -11147,51 +11151,63 @@ class LMSApi extends MY_Rest_Controller
                     }
                     else if($announcement_record[0]->target_type=='School')
                     {
+                        // All Student from school
+                        // Get Principal
+                        $prilist = $this->operation->GetByQuery("SELECT * FROM invantage_users WHERE location= ".$school_id." AND type = 'p' ");
+                        if (count($prilist))
+                        {   
+                            foreach ($prilist as $key => $value)
+                            {
+                                $phone = parent::getUserMeta($value->id,'principal_phone');
+                                $data =  array(
+                                            'announcement_id'=>$this->input->post('serial'),
+                                            'phone_number'=>str_replace("-", "",$phone),
+                                            'target_type'=>'Principal',
+                                            'user_id' =>$value->id,
+                                            'status'=>'pending',
+                                            'created_at'=> date('Y-m-d H:i'),
+                                        );
+                                $this->operation->table_name = 'announcement_details';
+                                $announcement_id = $this->operation->Create($data);
+                            }
+                        }
 
-                            $userlist = $this->operation->GetByQuery("Select * from invantage_users where school_id= ".$this->input->post('school_id'));
-                            if (count($userlist))
-                                {   
-
-                                    foreach ($userlist as $key => $value)
-                                    {
-                                        if($value->type=='t')
-                                        {
-                                            $phone = parent::getUserMeta($value->id,'teacher_phone');
-                                            $listarray[] =array('phone'=>parent::getUserMeta($value->id,'teacher_phone'),'type'=>$value->type);
-                                        }
-                                        else if($value->type=='p')
-                                        {
-                                            $phone = parent::getUserMeta($value->id,'principal_phone');
-                                            $listarray[] =array('phone'=>parent::getUserMeta($value->id,'principal_phone'),'type'=>$value->type);
-                                        }
-                                        else
-                                        {
-                                            $phone = parent::getUserMeta($value->id,'sphone');
-                                            $listarray[] =array('phone'=>parent::getUserMeta($value->id,'sphone'),'type'=>$value->type);
-                                        }
-                                        // insert into annoucement detail table
-                                        if($value->type=='t')
-                                        {
-                                            $type = "Staff";
-                                        }
-                                        if($value->type=='s')
-                                        {
-                                            $type = "Student";
-                                        }
-                                        $data =  array(
-                                                    'announcement_id'=>$this->input->post('serial'),
-                                                    'phone_number'=>str_replace("-", "", $phone),
-                                                    'target_type'=>$type,
-                                                    'user_id' =>$value->id,
-                                                    'status'=>'pending',
-                                                    'created_at'=> date('Y-m-d H:i'),
-                                                );
-                                        $this->operation->table_name = 'announcement_details';
-                                        $announcement_id = $this->operation->Create($data);
-                                    
-                                    }
-
-                                }
+                        $stdlist = $this->operation->GetByQuery("SELECT *,um.meta_value as phone  FROM `student_semesters` INNER JOIN user_meta um ON um.user_id = student_id AND um.meta_key='sphone' AND um.meta_key <> '' WHERE `semester_id` = ".$active_semester->semester_id." AND `session_id` = ".$active_session->id);
+                        if (count($stdlist))
+                        {   
+                            foreach ($stdlist as $key => $value)
+                            {
+                            $data =  array(
+                                            'announcement_id'=>$this->input->post('serial'),
+                                            'phone_number'=>str_replace("-", "",$value->phone),
+                                            'target_type'=>'Student',
+                                            'user_id' =>$value->student_id,
+                                            'status'=>'pending',
+                                            'created_at'=> date('Y-m-d H:i'),
+                                        );
+                                $this->operation->table_name = 'announcement_details';
+                                $announcement_id = $this->operation->Create($data);
+                            }
+                        }
+                        // Get All Staff from School
+                        $stafflist = $this->operation->GetByQuery("SELECT teacher_uid,um.meta_value as phone FROM schedule sc INNER JOIN classes cl ON sc.class_id=cl.id INNER JOIN invantage_users inv ON sc.teacher_uid=inv.id INNER JOIN subjects sub ON sc.subject_id=sub.id INNER JOIN sections sct ON sc.section_id=sct.id INNER JOIN user_meta um ON um.user_id = teacher_uid  WHERE cl.school_id =".$school_id." AND um.meta_key='teacher_phone' AND sub.session_id = ".$active_session->id." AND sub.semester_id = ".$active_semester->semester_id." GROUP BY teacher_uid ORDER by sc.id desc");
+                        if (count($stafflist))
+                        {   
+                            foreach ($stafflist as $key => $value)
+                            {
+                                
+                            $data =  array(
+                                            'announcement_id'=>$this->input->post('serial'),
+                                            'phone_number'=>str_replace("-", "",$value->phone),
+                                            'target_type'=>'Staff',
+                                            'user_id' =>$value->teacher_uid,
+                                            'status'=>'pending',
+                                            'created_at'=> date('Y-m-d H:i'),
+                                        );
+                                $this->operation->table_name = 'announcement_details';
+                                $announcement_id = $this->operation->Create($data);
+                            }
+                        }
                         //print_r($listarray);
                     }
                     else if($announcement_record[0]->target_type=='Student')
@@ -11199,18 +11215,21 @@ class LMSApi extends MY_Rest_Controller
 
                         if($this->input->post('checkall'))
                         {
-                            $userlist = $this->operation->GetByQuery("Select * from invantage_users where type = 's' AND school_id= ".$this->input->post('school_id'));
+                            //$userlist = $this->operation->GetRowsByQyery("Select * from invantageuser where type = 's' AND school_id= ".$locations[0]['school_id']);
+                            
+                            $userlist = $this->operation->GetByQuery("SELECT *,um.meta_value as phone  FROM `student_semesters` INNER JOIN user_meta um ON um.user_id = student_id AND um.meta_key='sphone' AND um.meta_key <> '' WHERE `semester_id` = ".$active_semester->semester_id." AND `session_id` = ".$active_session->id);
+                            
                             if (count($userlist))
                                 {   
                                     foreach ($userlist as $key => $value)
                                     {
-                                        $listarray[] =array('phone'=>parent::getUserMeta($value->id,'sphone'),'type'=>$value->type);
+                                        //$listarray[] =array('phone'=>parent::getUserMeta($value->id,'sphone'),'type'=>$value->type);
                                     
                                     $data =  array(
                                                     'announcement_id'=>$this->input->post('serial'),
-                                                    'phone_number'=>str_replace("-", "",parent::getUserMeta($value->id,'sphone')),
+                                                    'phone_number'=>str_replace("-", "",$value->phone),
                                                     'target_type'=>'Student',
-                                                    'user_id' =>$value->id,
+                                                    'user_id' =>$value->student_id,
                                                     'status'=>'pending',
                                                     'created_at'=> date('Y-m-d H:i'),
                                                 );
@@ -11226,13 +11245,13 @@ class LMSApi extends MY_Rest_Controller
                                 {   
                                     foreach ($userlist as $key => $value)
                                     {
-                                        $listarray[] =array('phone'=>parent::getUserMeta($value->student_id,'sphone'));
+                                        //$listarray[] =array('phone'=>parent::getUserMeta($value->studentid,'sphone'));
                                         
                                         $data =  array(
                                                     'announcement_id'=>$this->input->post('serial'),
                                                     'phone_number'=>str_replace("-", "",parent::getUserMeta($value->student_id,'sphone')),
                                                     'target_type'=>'Student',
-                                                    'user_id' =>$value->studentid,
+                                                    'user_id' =>$value->student_id,
                                                     'status'=>'pending',
                                                     'created_at'=> date('Y-m-d H:i'),
                                                 );
@@ -11245,23 +11264,24 @@ class LMSApi extends MY_Rest_Controller
                     }
                     else if($announcement_record[0]->target_type=='Staff')
                     {
+                        
                         if($this->input->post('checkall'))
                         {
-                            $userlist = print("Select * from invantage_users where type = 't' AND school_id= ".$this->input->post('school_id'));
-                            exit;
-                            if (count($userlist))
+                            
+                            $stafflist = $this->operation->GetByQuery("SELECT teacher_uid,um.meta_value as phone FROM schedule sc INNER JOIN classes cl ON sc.class_id=cl.id INNER JOIN invantage_users inv ON sc.teacher_uid=inv.id INNER JOIN subjects sub ON sc.subject_id=sub.id INNER JOIN sections sct ON sc.section_id=sct.id INNER JOIN user_meta um ON um.user_id = teacher_uid  WHERE cl.school_id =".$school_id." AND um.meta_key='teacher_phone' AND sub.session_id = ".$active_session->id." AND sub.semester_id = ".$active_semester->semester_id." GROUP BY teacher_uid ORDER by sc.id desc");
+                            if (count($stafflist))
                                 {   
-                                    foreach ($userlist as $key => $value)
+                                    foreach ($stafflist as $key => $value)
                                     {
-                                        $listarray[] =array('phone'=>parent::getUserMeta($value->id,'teacher_phone'),'type'=>$value->type);
+                                        //$listarray[] =array('phone'=>parent::getUserMeta($value->id,'teacher_phone'),'type'=>$value->type);
                                         $data =  array(
-                                                    'announcement_id'=>$this->input->post('serial'),
-                                                    'phone_number'=>str_replace("-", "",parent::getUserMeta($value->id,'teacher_phone')),
-                                                    'target_type'=>'Staff',
-                                                    'user_id' =>$value->id,
-                                                    'status'=>'pending',
-                                                    'created_at'=> date('Y-m-d H:i'),
-                                                );
+                                            'announcement_id'=>$this->input->post('serial'),
+                                            'phone_number'=>str_replace("-", "",$value->phone),
+                                            'target_type'=>'Staff',
+                                            'user_id' =>$value->teacher_uid,
+                                            'status'=>'pending',
+                                            'created_at'=> date('Y-m-d H:i'),
+                                        );
                                         $this->operation->table_name = 'announcement_details';
                                         $announcement_id = $this->operation->Create($data);
                                     }
@@ -11270,21 +11290,20 @@ class LMSApi extends MY_Rest_Controller
                         else
                         {
 
-                            $userlist = $this->operation->GetByQuery("SELECT DISTINCT(teacher_uid) FROM `schedule` WHERE class_id in(".$this->input->post('grade').") ");
-                            if (count($userlist))
+                            $stafflist = $this->operation->GetByQuery("SELECT teacher_uid,um.meta_value as phone FROM schedule sc INNER JOIN classes cl ON sc.class_id=cl.id INNER JOIN invantage_users inv ON sc.teacher_uid=inv.id INNER JOIN subjects sub ON sc.subject_id=sub.id INNER JOIN sections sct ON sc.section_id=sct.id INNER JOIN user_meta um ON um.user_id = teacher_uid  WHERE cl.school_id =".$school_id." AND um.meta_key='teacher_phone' AND sub.session_id = ".$active_session->id." AND sub.semester_id = ".$active_semester->semester_id." AND sc.class_id in(".$this->input->post('grade').") GROUP BY teacher_uid ORDER by sc.id desc");
+                            if (count($stafflist))
                                 {   
-                                    foreach ($userlist as $key => $value)
+                                    foreach ($stafflist as $key => $value)
                                     {
 
-                                        $listarray[] =array('phone'=>parent::getUserMeta($value->teacher_uid,'teacher_phone'));
                                         $data =  array(
-                                                    'announcement_id'=>$this->input->post('serial'),
-                                                    'phone_number'=>str_replace("-", "",parent::getUserMeta($value->teacher_uid,'teacher_phone')),
-                                                    'target_type'=>'Staff',
-                                                    'user_id' =>$value->teacher_uid,
-                                                    'status'=>'pending',
-                                                    'created_at'=> date('Y-m-d H:i'),
-                                                );
+                                            'announcement_id'=>$this->input->post('serial'),
+                                            'phone_number'=>str_replace("-", "",$value->phone),
+                                            'target_type'=>'Staff',
+                                            'user_id' =>$value->teacher_uid,
+                                            'status'=>'pending',
+                                            'created_at'=> date('Y-m-d H:i'),
+                                        );
                                         $this->operation->table_name = 'announcement_details';
                                         $announcement_id = $this->operation->Create($data);
                                     }
@@ -11375,14 +11394,14 @@ class LMSApi extends MY_Rest_Controller
                                 if($string==11)
                                 {
                                     $mobile = substr($value->phone_number, 1);
-                                    $mobile = "92".$mobile;
+                                    $mobile = SMS_PREFIX.$mobile;
                                 }
                                 else
                                 {
                                     $mobile = $value->phone_number;
                                 }
 
-                                $post = "sender=".urlencode(SMS_SENDER)."&mobile=".urlencode($mobile)."&message=".urlencode($annoucementstatus[0]->message)."";
+                                $post = "type=unicode&sender=".urlencode(SMS_SENDER)."&mobile=".urlencode($mobile)."&message=".urlencode($annoucementstatus[0]->message)."";
                                 $url = "https://sendpk.com/api/sms.php?username=".SMS_USERNAME."&password=".SMS_PASSWORD;
                                 $ch = curl_init();
                                 $timeout = 30; // set to zero for no timeout
@@ -11400,7 +11419,7 @@ class LMSApi extends MY_Rest_Controller
                                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                                 //}
 
-                                $result = curl_exec($ch); 
+                                //$result = curl_exec($ch); 
                                 // if($result === FALSE){
                                 //     echo "Failed to send SMS.";
                                 //     trigger_error(curl_error($ch));
@@ -11449,20 +11468,6 @@ class LMSApi extends MY_Rest_Controller
     
 
 
-    function validPhoneNumber($number)
-    {
-        $string =  strlen($number);
-        if($string==11)
-        {
-            $valid_no = substr($number, 1);
-            $valid_no = "92".$valid_no;
-        }
-        else
-        {
-            $valid_no = $number;
-        }
-        return $valid_no;
-    }
     
     public function getAnnouncementDetailList_post()
     {

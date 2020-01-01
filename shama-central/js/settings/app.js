@@ -158,12 +158,12 @@
             
             loadreleasettable:'loadreleasettable',
             // Shama v2.0
-            saveassemblydata:$scope.shama_api_path+'saveassembly',
-            getAssemblylist:$scope.shama_api_path+'getassemblydata',
-            getassemblyedit:$scope.shama_api_path+'getassemblyupdate',
+            saveassemblydata:$scope.shama_api_path+'assembly',
+            getAssemblylist:$scope.shama_api_path+'assembly',
+            getassemblyedit:$scope.shama_api_path+'assembly_update',
 
-            getLoadBreaklist:$scope.shama_api_path+'getbreakdata',
-            getbreakedit:$scope.shama_api_path+'getbreakupdate',
+            getLoadBreaklist:$scope.shama_api_path+'break',
+            getbreakedit:$scope.shama_api_path+'break_update',
 
             savebreakdata:$scope.shama_api_path+'savebreak',
             

@@ -245,7 +245,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
         $scope.session_id = $myUtils.getDefaultSessionId();
         
         var urlist = {
-            saveMainDatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>saveMainDatesheet',
+            datesheet:'<?php echo SHAMA_CORE_API_PATH; ?>datesheet',
         }
 
        $scope.active = 1;
@@ -253,7 +253,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
         $scope.type = [];
         function classlist()
         {
-            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getclasslist',({school_id:$scope.school_id})).then(function(response){
+            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>classlist',({school_id:$scope.school_id})).then(function(response){
             //httprequest('getsessiondetail',({})).then(function(response){
                if(response != null && response.length > 0)
                     {
@@ -482,7 +482,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                     id:$scope.serial
                     }
             
-            $myUtils.httppostrequest(urlist.saveMainDatesheet,data).then(function(response){
+            $myUtils.httppostrequest(urlist.datesheet,data).then(function(response){
                 
                 if(response.message == "false"){
                         //initmodules();
@@ -492,7 +492,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                     }
                 else
                 {
-                    window.location.href = "<?php echo base_url();?>/update_datesheet/"+response.lastid;
+                    window.location.href = "<?php echo base_url();?>update_datesheet/"+response.lastid;
                 }
                 
             })

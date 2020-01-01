@@ -75,7 +75,7 @@
 
   	var urllist = {
             getclasslist:$scope.shama_api_path+'classes',
-            getsemesterdata:$scope.shama_api_path+'semesters',
+            getsemesterdata:$scope.shama_api_path+'semester_detail',
             getschedular:$scope.shama_api_path+'lesson_sets',
             //getschedular:$scope.shama_api_path+'semester_lesson_plan',
   		      saveschedular:$scope.shama_api_path+'lesson_sets'

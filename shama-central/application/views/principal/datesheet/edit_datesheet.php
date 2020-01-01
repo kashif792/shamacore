@@ -249,12 +249,12 @@ require APPPATH.'views/__layout/leftnavigation.php';
         $scope.session_id = $myUtils.getDefaultSessionId();
         
         var urlist = {
-            saveMainDatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>saveMainDatesheet',
-            getDatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>getDatesheet',
-            getdatesheetdetailedit:'<?php echo SHAMA_CORE_API_PATH; ?>getdatesheetdetailedit',
-            getsubjectlistbyclass:'<?php echo SHAMA_CORE_API_PATH; ?>getsubjectlistbyclass',
-            saveDatesheetDetail:'<?php echo SHAMA_CORE_API_PATH; ?>saveDatesheetDetail',
-            getdetaildatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>getdetaildatesheet',
+            saveMainDatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>datesheet',
+            getDatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>datesheet_update',
+            datesheet_detail:'<?php echo SHAMA_CORE_API_PATH; ?>datesheet_detail',
+            getsubjectlistbyclass:'<?php echo SHAMA_CORE_API_PATH; ?>subject_list_by_class',
+            datesheet_detail:'<?php echo SHAMA_CORE_API_PATH; ?>datesheet_detail',
+            detaildatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>detaildatesheet',
             
         }
 
@@ -264,7 +264,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
         $scope.serial = $('#serial').val();
         function classlist()
         {
-            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getclasslist',({school_id:$scope.school_id})).then(function(response){
+            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>classlist',({school_id:$scope.school_id})).then(function(response){
             //httprequest('getsessiondetail',({})).then(function(response){
                if(response != null && response.length > 0)
                     {
@@ -289,7 +289,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
         classlist();
         function getDatesheet()
         {
-            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getDatesheet',({school_id:$scope.school_id,serial:$scope.serial})).then(function(response){
+            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>datesheet_update',({school_id:$scope.school_id,serial:$scope.serial})).then(function(response){
                 //console.log(response);
                if(response != null)
                     {
@@ -558,7 +558,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
             $myUtils.httppostrequest(urlist.saveMainDatesheet,data).then(function(response){
                 if(response != null)
                 {
-                    window.location.href = "<?php echo base_url();?>/update_datesheet/"+response.lastid;
+                    window.location.href = "<?php echo base_url();?>update_datesheet/"+response.lastid;
                 }
                 if(response.message == false){
                         //initmodules();
@@ -581,7 +581,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                     }
             
             $scope.subjectlist = []
-            $myUtils.httppostrequest(urlist.getsubjectlistbyclass,data).then(function(response){
+            $myUtils.httprequest(urlist.getsubjectlistbyclass,data).then(function(response){
             
                 if(response.length > 0 && response != null)
                 {
@@ -623,7 +623,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                
                   
                
-                 $myUtils.httppostrequest(urlist.getdatesheetdetailedit,data).then(function(response){
+                 $myUtils.httprequest(urlist.datesheet_detail,data).then(function(response){
                    if(response != null)
                    {
                         //console.log(response);
@@ -754,7 +754,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                     detail_id:detail_id,
                     
                     }
-            $myUtils.httppostrequest(urlist.saveDatesheetDetail,data).then(function(response){
+            $myUtils.httppostrequest(urlist.datesheet_detail,data).then(function(response){
                 var $this = $(".save-button");
                     $this.button('reset');
                     if(response.message == true){
@@ -762,7 +762,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                         $(".success_datesheet").fadeTo(2000, 500).slideUp(500, function(){
                             $(".success_datesheet").slideUp(500);
                         });
-                        getDetailDatesheetData();
+                        detaildatesheet();
                     }
 
                     if(response.message == false){
@@ -772,14 +772,14 @@ require APPPATH.'views/__layout/leftnavigation.php';
             })
         }
         // get Detail datesheet Date
-        function getDetailDatesheetData(){
+        function detaildatesheet(){
             try{
                 //$scope.semesterlist = []
                 var data = {
                     datesheet_id:$scope.serial,
                     }
                 //httprequest('<?php echo base_url(); ?>getdetaildatesheet',data).then(function(response){
-                $myUtils.httppostrequest(urlist.getdetaildatesheet,data).then(function(response){
+                $myUtils.httprequest(urlist.detaildatesheet,data).then(function(response){
                     if(response != null)
                     {
 
@@ -794,7 +794,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
              }
             catch(ex){}
         }
-        getDetailDatesheetData();
+        detaildatesheet();
         // Delete Detail id
         $(document).on('click','.del',function(){
 
@@ -840,7 +840,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
         {
 
             if (response.message === true){
-                getDetailDatesheetData();
+                detaildatesheet();
                 
                 message('Record has been deleted','show');
             } 

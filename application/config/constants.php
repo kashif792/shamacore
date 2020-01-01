@@ -30,7 +30,7 @@ defined('SMS_USERNAME') OR define('SMS_USERNAME', '923235917041');
 defined('SMS_PASSWORD') OR define('SMS_PASSWORD', '5386');
 
 defined('SMS_SENDER') OR define('SMS_SENDER', 'NR School');
-
+defined('SMS_PREFIX') OR define('SMS_PREFIX', '92');
 
 /*
  |--------------------------------------------------------------------------

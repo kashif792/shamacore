@@ -545,7 +545,7 @@
         
         function getSessionList()
         {
-            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getsessiondetail',({school_id:$scope.school_id})).then(function(response){
+            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>session_detail',({school_id:$scope.school_id})).then(function(response){
                 if(response != null && response.length > 0)
                 {
                     $scope.rsessionlist = response

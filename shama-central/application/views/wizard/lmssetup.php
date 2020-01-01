@@ -359,13 +359,13 @@ function prevTab(elem) {
     app.controller('wizard_ctrl', function($scope, $window, $http, $document, $timeout,$interval,$compile){
 
         var urlist = {
-            getclasslist:'getclasslist',
+            classlist:'classlist',
             getsectionbyclass:'getsectionbyclass',
             getstudentbyclass:'getstudentbyclass',
             getsectionF:'getsectionF',
             savesectionF:'savesectionF',
             removesession:'removesession',
-            getsessiondetail:'getsessiondetail',
+            getsessiondetail:'session_detail',
             saveassignsection:'saveassignsection',
             getselectedsection:'getselectedsection',
             removesection:'removesection',
@@ -454,7 +454,7 @@ function prevTab(elem) {
           
             message('','hide');
            $("#serial").val(classid)
-           httprequest(urlist.getclasslist,data).then(function(response){
+           httprequest(urlist.classlist,data).then(function(response){
                 if(response != null)
                 {
                     
@@ -513,7 +513,7 @@ function prevTab(elem) {
 
         function loadclass()
         {
-            httprequest(urlist.getclasslist,({})).then(function(response){
+            httprequest(urlist.classlist,({})).then(function(response){
                 if(response != null && response.length > 0)
                 {
                     $scope.classlist = response

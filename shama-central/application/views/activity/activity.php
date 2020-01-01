@@ -913,7 +913,7 @@ require APPPATH.'views/__layout/footer.php';
 
         $scope.getClassList = function()
         {
-            $scope.commonobj.postrequest('getclasseslist',({})).then(function(response){
+            $scope.commonobj.postrequest('classlist',({})).then(function(response){
                 if(response != null && response.length > 0)
                 {
                     $scope.setDefaultClassValues(response);
@@ -1061,7 +1061,7 @@ require APPPATH.'views/__layout/footer.php';
         $scope.getSemesterData= function(){
             try{
                 $scope.semesterlist = []
-                $scope.commonobj.postrequest('<?php echo $path_url; ?>getsemesterdata',({})).then(function(response){
+                $scope.commonobj.postrequest('<?php echo $path_url; ?>semester_detail',({})).then(function(response){
                     if(response.length > 0 && response != null)
                     {
                         $scope.setDefaultSemesterValues(response);

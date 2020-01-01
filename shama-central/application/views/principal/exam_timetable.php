@@ -204,7 +204,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
 		
 		var urlist = {
-            getclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>classes',
+            classlist:'<?php echo SHAMA_CORE_API_PATH; ?>classes',
             getscheduledetail:'<?php echo SHAMA_CORE_API_PATH; ?>schedule',
             saveschedule:'<?php echo SHAMA_CORE_API_PATH; ?>schedule',
             getsectionlistbyclass:'<?php echo SHAMA_CORE_API_PATH; ?>sections_by_class',
@@ -312,7 +312,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
     			var data = ({school_id:$scope.school_id})
     			
-        		$myUtils.httprequest(urlist.getclasslist,data).then(function(response){
+        		$myUtils.httprequest(urlist.classlist,data).then(function(response){
 	                if(response != null && response.length > 0)
 	                {
 	                    $scope.classlist = response

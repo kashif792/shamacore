@@ -176,39 +176,40 @@ $route['api/v(:num)/setclassgroupstatus'] = 'api_v$1/Lmsapi/SetClassLessonReadSt
 $route['api/v(:num)/active_semester_in_school'] = 'api_v$1/Lmsapi/Get_Active_Semester_In_School';
 $route['api/v(:num)/active_session_in_school'] = 'api_v$1/Lmsapi/Get_Active_Session_In_School';
 $route['api/v(:num)/reset_student_progress'] = 'api_v$1/Lmsapi/Reset_Student_Progress';
+$route['api/v(:num)/subject_list_by_class'] = "api_v$1/Lmsapi/Subject_List_By_Class/";
+$route['api/v(:num)/GetSubjectListByClassWeekly'] = "api_v$1/Lmsapi/GetSubjectListByClassWeekly/";
 
 // Shama v2.0 
-$route['api/v(:num)/getassemblydata'] = 'api_v$1/Lmsapi/getassemblydata';
-$route['api/v(:num)/getassemblyupdate'] = 'api_v$1/Lmsapi/getassemblyupdate';
-$route['api/v(:num)/saveassembly'] = 'api_v$1/Lmsapi/saveassembly';
+$route['api/v(:num)/assembly'] = 'api_v$1/Lmsapi/assembly';
+$route['api/v(:num)/assembly_update'] = 'api_v$1/Lmsapi/assemblyupdate';
+//$route['api/v(:num)/saveassembly'] = 'api_v$1/Lmsapi/saveassembly';
 
-$route['api/v(:num)/savebreak'] = 'api_v$1/Lmsapi/savebreak';
-$route['api/v(:num)/getbreakdata'] = 'api_v$1/Lmsapi/getbreakdata';
-$route['api/v(:num)/getbreakupdate'] = 'api_v$1/Lmsapi/getbreakupdate';
+//$route['api/v(:num)/savebreak'] = 'api_v$1/Lmsapi/savebreak';
+$route['api/v(:num)/break'] = 'api_v$1/Lmsapi/break';
+$route['api/v(:num)/break_update'] = 'api_v$1/Lmsapi/breakupdate';
 // getschedule
 $route['api/v(:num)/show_schedule_list'] = 'api_v$1/Lmsapi/show_schedule_list';
 
 // Details Datesheet
-$route['api/v(:num)/getsessiondetail'] = 'api_v$1/Lmsapi/GetSessionDetail';
-$route['api/v(:num)/getsemesterdata'] = 'api_v$1/Lmsapi/GetSemesterData';
+$route['api/v(:num)/session_detail'] = 'api_v$1/Lmsapi/Session_Detail';
+$route['api/v(:num)/semester_detail'] = 'api_v$1/Lmsapi/GetSemesterData';
 $route['api/v(:num)/add_datesheet'] = 'api_v$1/Lmsapi/AddDatesheet';
-$route['api/v(:num)/getdatesheetdata'] = 'api_v$1/Lmsapi/getDatesheetData';
-$route['api/v(:num)/getclasslist'] = 'api_v$1/Lmsapi/getclasslist';
-$route['api/v(:num)/saveMainDatesheet'] = 'api_v$1/Lmsapi/saveMainDatesheet';
-$route['api/v(:num)/getDatesheet'] = 'api_v$1/Lmsapi/getDatesheet';
+$route['api/v(:num)/datesheet'] = 'api_v$1/Lmsapi/datesheet';
+$route['api/v(:num)/classlist'] = 'api_v$1/Lmsapi/Class_List';
+//$route['api/v(:num)/saveMainDatesheet'] = 'api_v$1/Lmsapi/saveMainDatesheet';
+$route['api/v(:num)/datesheet_update'] = 'api_v$1/Lmsapi/Datesheet_update';
 
 
-$route['api/v(:num)/update_datesheet/(:any)'] = "api_v$1/Lmsapi/getDatesheetUpdate/$1";
-$route['api/v(:num)/getdatesheetedit'] = "api_v$1/Lmsapi/DatesheetUpdate/";
-$route['api/v(:num)/getdatesheetdetailedit'] = "api_v$1/Lmsapi/getDatesheetDetailInfo/";
-$route['api/v(:num)/getdetaildatesheet'] = "api_v$1/Lmsapi/getDatesheetDetailList/";
-$route['api/v(:num)/getsubjectlistbyclass'] = "api_v$1/Lmsapi/getsubjectlistbyclass/";
-$route['api/v(:num)/GetSubjectListByClassWeekly'] = "api_v$1/Lmsapi/GetSubjectListByClassWeekly/";
-$route['api/v(:num)/getsectionbyclass'] = "api_v$1/Lmsapi/GetSectionsByClass/";
-$route['api/v(:num)/saveDatesheetDetail'] = "api_v$1/Lmsapi/saveDatesheetDetail/";
+//$route['api/v(:num)/update_datesheet/(:any)'] = "api_v$1/Lmsapi/getDatesheetUpdate/$1";
+//$route['api/v(:num)/getdatesheetedit'] = "api_v$1/Lmsapi/DatesheetUpdate/";
+$route['api/v(:num)/datesheet_detail'] = "api_v$1/Lmsapi/DatesheetDetail";
+//$route['api/v(:num)/datesheet_detail'] = "api_v$1/Lmsapi/DatesheetDetail/";
+$route['api/v(:num)/detaildatesheet'] = "api_v$1/Lmsapi/Datesheet_Detail_List/";
+
+
 $route['api/v(:num)/removeDetailDatesheet'] = "api_v$1/Lmsapi/removeDetailDatesheet/";
 $route['api/v(:num)/removeDatesheets'] = "api_v$1/Lmsapi/removeDatesheets/";
-// Quize Section
+// Quiz Section
 $route['api/v(:num)/getclasslistTeacher'] = 'api_v$1/Lmsapi/getclasslistTeacher';
 $route['api/v(:num)/savequiz'] = 'api_v$1/Lmsapi/save_quize_info';
 $route['api/v(:num)/savequestion'] = 'api_v$1/Lmsapi/save_quize_Question';
@@ -219,6 +220,7 @@ $route['api/v(:num)/removeQuiz'] = 'api_v$1/Lmsapi/removeQuiz';
 $route['api/v(:num)/getQuizList'] = 'api_v$1/Lmsapi/getQuizList';
 $route['api/v(:num)/getselectedsubject'] = 'api_v$1/Lmsapi/getselectedsubject';
 $route['api/v(:num)/getselectequiz'] = 'api_v$1/Lmsapi/getselectequiz';
+$route['api/v(:num)/getsectionbyclass'] = "api_v$1/Lmsapi/GetSectionsByClass/";
 
 // Quiz Mark
 

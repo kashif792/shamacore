@@ -351,7 +351,7 @@ require APPPATH.'views/__layout/footer.php';
 
 
 		var urlist = {
-            getclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>classes_with_details',
+            classlist:'<?php echo SHAMA_CORE_API_PATH; ?>classes_with_details',
             getsectionbyclass:'<?php echo SHAMA_CORE_API_PATH; ?>sections_by_class',
             saveassignsection:'<?php echo SHAMA_CORE_API_PATH; ?>sections_by_class',
             getstudentbyclass:'<?php echo SHAMA_CORE_API_PATH; ?>students',
@@ -359,7 +359,7 @@ require APPPATH.'views/__layout/footer.php';
             getsection:'<?php echo SHAMA_CORE_API_PATH; ?>section',
             savesection:'<?php echo SHAMA_CORE_API_PATH; ?>section',
             removesession:'<?php echo SHAMA_CORE_API_PATH; ?>session',
-            getsessiondetail:'<?php echo SHAMA_CORE_API_PATH; ?>session',
+            session_detail:'<?php echo SHAMA_CORE_API_PATH; ?>session',
             getselectedsection:'<?php echo SHAMA_CORE_API_PATH; ?>sections_assigned_by_class',
             removesection:'<?php echo SHAMA_CORE_API_PATH; ?>section',
             removeclass:'<?php echo SHAMA_CORE_API_PATH; ?>class',
@@ -509,7 +509,7 @@ require APPPATH.'views/__layout/footer.php';
             var data = ({
                 school_id:$scope.school_id,
                 })
-            $myUtils.httprequest(urlist.getclasslist,data).then(function(response){
+            $myUtils.httprequest(urlist.classlist,data).then(function(response){
                 if(response != null && response.length > 0)
                 {
                     $scope.classlist = response
