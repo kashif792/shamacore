@@ -250,11 +250,11 @@ require APPPATH.'views/__layout/leftnavigation.php';
         
         var urlist = {
             saveMainDatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>datesheet',
-            getDatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>datesheet_update',
-            datesheet_detail:'<?php echo SHAMA_CORE_API_PATH; ?>datesheet_detail',
+            getDatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>datesheet',
+            
             getsubjectlistbyclass:'<?php echo SHAMA_CORE_API_PATH; ?>subject_list_by_class',
-            datesheet_detail:'<?php echo SHAMA_CORE_API_PATH; ?>datesheet_detail',
-            detaildatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>detaildatesheet',
+            datesheet_detail:'<?php echo SHAMA_CORE_API_PATH; ?>paper',
+            detaildatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>papers',
             
         }
 
@@ -264,7 +264,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
         $scope.serial = $('#serial').val();
         function classlist()
         {
-            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>classlist',({school_id:$scope.school_id})).then(function(response){
+            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>classes',({school_id:$scope.school_id})).then(function(response){
             //httprequest('getsessiondetail',({})).then(function(response){
                if(response != null && response.length > 0)
                     {
@@ -289,7 +289,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
         classlist();
         function getDatesheet()
         {
-            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>datesheet_update',({school_id:$scope.school_id,serial:$scope.serial})).then(function(response){
+            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>datesheet',({school_id:$scope.school_id,serial:$scope.serial})).then(function(response){
                 //console.log(response);
                if(response != null)
                     {
@@ -813,16 +813,17 @@ require APPPATH.'views/__layout/leftnavigation.php';
 
             $("#detail_modal").modal('hide');
 
-            ajaxType = "GET";
-
-            //urlpath = "<?php echo $path_url; ?>Principal_controller/removeDetailDatesheet";
-            urlpath = "<?php echo SHAMA_CORE_API_PATH; ?>removeDetailDatesheet";
-            var dataString = ({'id':dvalue});
-
-            ajaxfunc(urlpath,dataString,userDeleteFailureHandler,loadUserDeleteResponse);
-
+            
+            urlpath = "<?php echo SHAMA_CORE_API_PATH; ?>paper";
+            
+            var data = 'id='+String(dvalue);
+            urlpath += '?'+ data;
+            
+            ajaxType = 'DELETE';
+            //ajaxfunc(urlpath,[],userDeleteFailureHandler,loadUserDeleteResponse);
+            ajaxfunc(urlpath,[],userDeleteFailureHandler,loadUserDeleteResponse);
         });
-
+        
     function userDeleteFailureHandler()
 
         {

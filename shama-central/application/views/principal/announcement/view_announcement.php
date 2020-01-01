@@ -283,8 +283,8 @@ require APPPATH.'views/__layout/footer.php';
         $scope.session_id = $myUtils.getDefaultSessionId();
         
         var urlist = {
-            getAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>Announcement_Detail_List',
-            stopAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>stop_Announcement_Detail_List',
+            getAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>announcement_detail_list',
+            stopAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>stop_announcement_detail_list',
             
         }
 
@@ -697,7 +697,7 @@ $scope.changetarget = function()
                         serial:$scope.serial,
                     }
                     //console.log(data);
-                    $myUtils.httppostrequest('<?php echo SHAMA_CORE_API_PATH; ?>Announcement_View',({school_id:$scope.school_id,serial:$scope.serial})).then(function(response){
+                    $myUtils.httppostrequest('<?php echo SHAMA_CORE_API_PATH; ?>announcement_view',({school_id:$scope.school_id,serial:$scope.serial})).then(function(response){
                     //httppostrequest('<?php echo $path_url; ?>Principal_controller/getAnnouncementView',data).then(function(response){
                         $scope.data = [];
                         //console.log(response);

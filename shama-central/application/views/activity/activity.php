@@ -1061,7 +1061,7 @@ require APPPATH.'views/__layout/footer.php';
         $scope.getSemesterData= function(){
             try{
                 $scope.semesterlist = []
-                $scope.commonobj.postrequest('<?php echo $path_url; ?>semester_detail',({})).then(function(response){
+                $scope.commonobj.postrequest('<?php echo $path_url; ?>default_semester',({})).then(function(response){
                     if(response.length > 0 && response != null)
                     {
                         $scope.setDefaultSemesterValues(response);

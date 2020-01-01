@@ -187,7 +187,7 @@ require APPPATH.'views/__layout/footer.php';
 		function loadclass()
         {
 
-            $myUtils.httprequest(urlist.classlist,({})).then(function(response){
+            $myUtils.httprequest(urlist.classlist,({school_id:$scope.school_id})).then(function(response){
                 if(response != null && response.length > 0)
                 {
                     $scope.classlist = response
@@ -206,21 +206,19 @@ require APPPATH.'views/__layout/footer.php';
        	function getSemesterData()
         {
             try{
-                $myUtils.httprequest(urlist.semester_detail,({})).then(function(response){
+                $myUtils.httprequest(urlist.getsemesterdata,({})).then(function(response){
                     if(response.length > 0 && response != null)
                     {
                         $scope.semesterlist = response;
                         $scope.inputSemester = response[0];
 
-                        if($scope.is_edit != null && $scope.is_edit != '')
-					{
+                        
 						var found = $filter('filter')($scope.semesterlist,{id:$scope.editsubjectarray.semester_id},true);
 						if(found.length)
 						{
 							$scope.inputSemester = found[0];
 						}
-						
-					}
+					
                     }
                     else{
                         $scope.semesterlist = [];

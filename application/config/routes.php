@@ -152,7 +152,6 @@ $route['api/v(:num)/subjects'] = "api_v$1/Lmsapi/subjects";
 $route['api/v(:num)/removesubject'] = "api_v$1/Lmsapi/subjectRemove";
 
 $route['api/v(:num)/subjects_by_class'] = "api_v$1/Lmsapi/subjects_by_class";
-$route['api/v(:num)/principal_subjects_by_class'] = "api_v$1/Lmsapi/principal_subjects_by_class";
 
 
 $route['api/v(:num)/sync_grade_lesson_plan'] = "api_v$1/Lesson_Plan_Controller/sync_grade_lesson_plan";
@@ -188,36 +187,24 @@ $route['api/v(:num)/assembly_update'] = 'api_v$1/Lmsapi/assembly_update';
 $route['api/v(:num)/break'] = 'api_v$1/Lmsapi/break';
 $route['api/v(:num)/break_update'] = 'api_v$1/Lmsapi/breakupdate';
 // getschedule
-$route['api/v(:num)/show_schedule_list'] = 'api_v$1/Lmsapi/show_schedule_list';
+//$route['api/v(:num)/show_schedule_list'] = 'api_v$1/Lmsapi/show_schedule_list';
 
 // Details Datesheet Done
-$route['api/v(:num)/session_detail'] = 'api_v$1/Lmsapi/Session_Detail';
-$route['api/v(:num)/semester_detail'] = 'api_v$1/Lmsapi/semester_detail';
-$route['api/v(:num)/add_datesheet'] = 'api_v$1/Lmsapi/AddDatesheet';
+$route['api/v(:num)/default_session'] = 'api_v$1/Lmsapi/Session_Detail';
+$route['api/v(:num)/default_semester'] = 'api_v$1/Lmsapi/semester_detail';
 $route['api/v(:num)/datesheet'] = 'api_v$1/Lmsapi/datesheet';
-$route['api/v(:num)/classlist'] = 'api_v$1/Lmsapi/class_list';
-//$route['api/v(:num)/saveMainDatesheet'] = 'api_v$1/Lmsapi/saveMainDatesheet';
-$route['api/v(:num)/datesheet_update'] = 'api_v$1/Lmsapi/Datesheet_update';
-
-
-//$route['api/v(:num)/update_datesheet/(:any)'] = "api_v$1/Lmsapi/getDatesheetUpdate/$1";
-//$route['api/v(:num)/getdatesheetedit'] = "api_v$1/Lmsapi/DatesheetUpdate/";
-$route['api/v(:num)/datesheet_detail'] = "api_v$1/Lmsapi/DatesheetDetail";
-//$route['api/v(:num)/datesheet_detail'] = "api_v$1/Lmsapi/DatesheetDetail/";
-$route['api/v(:num)/detaildatesheet'] = "api_v$1/Lmsapi/Datesheet_Detail_List/";
-
-
-$route['api/v(:num)/removeDetailDatesheet'] = "api_v$1/Lmsapi/removeDetailDatesheet/";
-$route['api/v(:num)/removeDatesheets'] = "api_v$1/Lmsapi/removeDatesheets/";
+$route['api/v(:num)/datesheets'] = 'api_v$1/Lmsapi/datesheets';
+$route['api/v(:num)/paper'] = "api_v$1/Lmsapi/paper";
+$route['api/v(:num)/papers'] = "api_v$1/Lmsapi/papers/";
 
 // Quiz Section pending
 $route['api/v(:num)/class_list_teacher'] = 'api_v$1/Lmsapi/class_list_teacher';
-$route['api/v(:num)/quiz'] = 'api_v$1/Lmsapi/quize';
+$route['api/v(:num)/quiz'] = 'api_v$1/Lmsapi/quiz';
 $route['api/v(:num)/question'] = 'api_v$1/Lmsapi/question';
 //$route['api/v(:num)/question'] = 'api_v$1/Lmsapi/getquestionlist';
 $route['api/v(:num)/question_by_id'] = 'api_v$1/Lmsapi/question_by_Id';
-$route['api/v(:num)/removeQuestion'] = 'api_v$1/Lmsapi/removeQuestion';
-$route['api/v(:num)/removeQuiz'] = 'api_v$1/Lmsapi/removeQuiz';
+//$route['api/v(:num)/removeQuestion'] = 'api_v$1/Lmsapi/removeQuestion';
+//$route['api/v(:num)/removeQuiz'] = 'api_v$1/Lmsapi/removeQuiz';
 $route['api/v(:num)/quiz_list'] = 'api_v$1/Lmsapi/quiz_list';
 $route['api/v(:num)/selected_subject'] = 'api_v$1/Lmsapi/selected_subject';
 $route['api/v(:num)/selected_quiz'] = 'api_v$1/Lmsapi/selected_quiz';
@@ -242,14 +229,15 @@ $route['api/v(:num)/get_Grade_List'] = 'api_v$1/Lmsapi/grade_list';
 // Announcement Done
 
 //$route['api/v(:num)/Announcement_List'] = 'api_v$1/Lmsapi/announcement_list';
-$route['api/v(:num)/announcement'] = 'api_v$1/Lmsapi/announcement';
+$route['api/v(:num)/announcements'] = 'api_v$1/Lmsapi/announcements';
+$route['api/v(:num)/announcement_view'] = 'api_v$1/Lmsapi/announcement_view';
+
 $route['api/v(:num)/send_Announcement'] = 'api_v$1/Lmsapi/send_Announcement';
 $route['api/v(:num)/stop_Announcement'] = 'api_v$1/Lmsapi/stop_Announcement';
 //$route['api/v(:num)/getAnnoucementList'] = 'api_v$1/Lmsapi/getAnnoucementList';
-$route['api/v(:num)/Announcement_Detail_List'] = 'api_v$1/Lmsapi/announcement_detail_list';
-$route['api/v(:num)/stop_Announcement_Detail_List'] = 'api_v$1/Lmsapi/stop_announcement_detail_list';
+$route['api/v(:num)/announcement_detail_list'] = 'api_v$1/Lmsapi/announcement_detail_list';
+$route['api/v(:num)/stop_announcement_detail_list'] = 'api_v$1/Lmsapi/stop_announcement_detail_list';
 $route['api/v(:num)/sendMessage/(:any)'] = 'api_v$1/Lmsapi/sendMessage/$2';
-$route['api/v(:num)/Announcement_View'] = 'api_v$1/Lmsapi/announcement_view';
 
 //$route['midreport'] = 'Reports/MidReportView';
 //$route['finalreport'] = 'Reports/FinalReportView';

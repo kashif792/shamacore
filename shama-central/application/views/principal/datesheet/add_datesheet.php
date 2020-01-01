@@ -253,7 +253,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
         $scope.type = [];
         function classlist()
         {
-            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>classlist',({school_id:$scope.school_id})).then(function(response){
+            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>classes',({school_id:$scope.school_id})).then(function(response){
             //httprequest('getsessiondetail',({})).then(function(response){
                if(response != null && response.length > 0)
                     {

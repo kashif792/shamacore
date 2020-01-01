@@ -405,13 +405,15 @@ require APPPATH.'views/__layout/footer.php';
 
             $("#delete_modal").modal('hide');
 
-            ajaxType = "GET";
-
             
-            urlpath = "<?php echo SHAMA_CORE_API_PATH; ?>removeQuiz";
-            var dataString = ({'id':dvalue});
+            urlpath = "<?php echo SHAMA_CORE_API_PATH; ?>quiz";
+            
+            var data = 'id='+String(dvalue);
+            urlpath += '?'+ data;
+            
+            ajaxType = 'DELETE';
 
-            ajaxfunc(urlpath,dataString,userDeleteFailureHandler,loadUserDeleteResponse);
+            ajaxfunc(urlpath,[],userDeleteFailureHandler,loadUserDeleteResponse);
 
         });
 

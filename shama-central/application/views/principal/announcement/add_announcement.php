@@ -317,8 +317,8 @@ require APPPATH.'views/__layout/footer.php';
         $scope.session_id = $myUtils.getDefaultSessionId();
         
         var urlist = {
-            getAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>Announcement_Detail_List',
-            stopAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>stop_Announcement_Detail_List',
+            getAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>announcement_detail_list',
+            stopAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>stop_announcement_detail_list',
             
         }
 
@@ -430,7 +430,7 @@ $scope.checkUncheckAll = function () {
             if($scope.classlist == null)
             {
                 //httprequest(urlist.getclasslist,({})).then(function(response){
-                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>classlist',({school_id:$scope.school_id})).then(function(response){
+                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>classes',({school_id:$scope.school_id})).then(function(response){
                     if(response != null && response.length > 0)
                     {
                         $scope.classlist = response

@@ -1317,10 +1317,16 @@ setTimerForWidget('section',1)
          */
         $(document).on('click','#UserDelete',function(){
             $("#myUserModal").modal('hide');
-            ajaxType = "GET";
-            urlpath = "<?php echo SHAMA_CORE_API_PATH?>removeQuestion";
-            var dataString = ({'id':dvalue});
-            ajaxfunc(urlpath,dataString,userDeleteFailureHandler,loadUserDeleteResponse);
+            // ajaxType = "";
+            // urlpath = "<?php echo SHAMA_CORE_API_PATH?>removeQuestion";
+            // var dataString = ({'id':dvalue});
+            urlpath = "<?php echo SHAMA_CORE_API_PATH; ?>question";
+            
+            var data = 'id='+String(dvalue);
+            urlpath += '?'+ data;
+            
+            ajaxType = 'DELETE';
+            ajaxfunc(urlpath,[],userDeleteFailureHandler,loadUserDeleteResponse);
         });
 
         function userDeleteFailureHandler()

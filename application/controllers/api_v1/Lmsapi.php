@@ -2498,49 +2498,7 @@ class LMSApi extends MY_Rest_Controller
         
         $this->response($subjects, REST_Controller::HTTP_OK);
     }
-    function principal_subjects_by_class_get()
-    {
-        try{
-            $inputclassid = $this->input->get('class_id');
-            $inputsessionid = $this->input->get('section_id');
-            $inputsessionid = $this->input->get('session_id');
-            $inputsemesterid = $this->input->get('semester_id');
-            $school_id = $this->input->get('school_id');
-
-            $error_array = array();
-            if (!is_int((int) $inputclassid)  || !is_int((int) $inputsemesterid)) {
-                array_push($error_array,"Invalid inputs");
-            }
-                 
-            if(count($error_array))
-            {
-                echo json_encode($error_array);
-                exit();
-            }
-
-            $subjects = array();
-            if(count($error_array) == false)
-            {
-                $subjectlist = parent::GetSubjectsByClass($inputclassid,(int)$inputsemesterid,$inputsessionid,$school_id);
-                
-                if(count($subjectlist))
-                {
-                    foreach ($subjectlist as $key => $value) {
-                        $subjects[] = array(
-                            'id'=>$value->id,
-                            'name'=>$value->subject_name,
-                            'class_id' => $value->class_id,
-                            'class_name' => $this->get_class_name($value->class_id),
-                            'first_subject'=>($key == 0 ? 'in': 'other')
-                        );
-                    }
-                }
-            }
-            $this->response($subjects, REST_Controller::HTTP_OK);
-            //echo json_encode($result);
-        }
-        catch(Exception $e){}
-    }
+    
     function subject_get()
     {
         $id = $this->input->get('subject_id');
@@ -2557,6 +2515,7 @@ class LMSApi extends MY_Rest_Controller
                     'code' => $is_selected_subject->subject_code,
                     'class_id' => $is_selected_subject->class_id,
                     'class_name' => $this->get_class_name($is_selected_subject->class_id),
+                    'semester_id' => $is_selected_subject->semester_id,
                     'image' => $is_selected_subject->subject_image
                 );
             }
@@ -8749,72 +8708,7 @@ class LMSApi extends MY_Rest_Controller
         $this->response($semesterarray, REST_Controller::HTTP_OK);
         
     }
-    function AddDatesheet()
-    {
-        if(!($this->session->userdata('id')))
-        {
-
-                parent::redirectUrl('signin');
-
-            }
-
-        if($this->uri->segment(2) AND $this->uri->segment(2) != "page" )
-        {
-
-            $schedule_single = $this->operation->GetRowsByQyery("Select * from quize where id= ".$this->uri->segment(2));
-
-            $this->data['schedule_single'] = $schedule_single;
-
-
-
-        }
-
-        $this->operation->table_name = "subjects";
-
-        $subjectslist = $this->operation->GetRows();
-
-        $subjects = array();
-
-        if(count($subjectslist))
-
-        {
-
-            foreach ($subjectslist as $key => $value) {
-
-                $subjects[] = array(
-
-                    'subid'=>$value->id,
-
-                    'name'=>$value->subject_name,
-
-                    'class'=>parent::getClass($value->class_id),
-
-                );
-
-            }
-
-        }
-
-
-        $roles = $this->session->userdata('roles');
-        $locations = $this->session->userdata('locations');
-
-        if( $roles[0]['role_id'] == 3)
-        {
-
-
-
-        $classlist = $this->operation->GetRowsByQyery("SELECT  * FROM classes c where school_id =".$locations[0]['school_id']);
-
-        }
-         else if ($roles[0]['role_id'] == 4 OR $this->session->userdata('is_master_teacher') == '1') {
-
-            $classlist = $this->operation->GetRowsByQyery("SELECT c.id as classid,c.grade FROM schedule sch INNER JOIN classes c on c.id = sch.class_id  WHERE sch.teacher_uid = ".$this->session->userdata('id')." GROUP by c.id ORDER by c.id asc");
-        }
-
-       
-        $this->load->view('principal/datesheet/add_datesheet', $this->data);
-    }
+    
     function datesheet_post()
     {
     
@@ -8910,7 +8804,7 @@ class LMSApi extends MY_Rest_Controller
         $this->set_response($result, REST_Controller::HTTP_OK);
         //echo json_encode($result);
     }
-    function Datesheet_update_get()
+    function datesheet_get()
     {
         $id = $this->input->get('serial');
         
@@ -8943,7 +8837,7 @@ class LMSApi extends MY_Rest_Controller
         
         $this->set_response($result, REST_Controller::HTTP_OK);
     }
-    function datesheet_get()
+    function datesheets_get()
     {
         $listarray = array();
         $data_array = array();
@@ -9041,7 +8935,7 @@ class LMSApi extends MY_Rest_Controller
         }
         
     }
-    function DatesheetDetail_post()
+    function paper_post()
     {
        
         $result['message'] = false;
@@ -9204,7 +9098,7 @@ class LMSApi extends MY_Rest_Controller
         $this->load->view('principal/datesheet/edit_datesheet', $this->data);
         
     }
-    function Datesheet_Detail_List_get()
+    function papers_get()
     {
         
         $details = array();
@@ -9377,7 +9271,7 @@ class LMSApi extends MY_Rest_Controller
         $this->response($classarray, REST_Controller::HTTP_OK);
         //echo json_encode($classarray);
     }
-    function DatesheetDetail_get()
+    function paper_get()
     {
         //$request = $this->parse_params();
 
@@ -9531,7 +9425,8 @@ class LMSApi extends MY_Rest_Controller
         $this->response($sections, REST_Controller::HTTP_OK);
     }
 
-    function removeDetailDatesheet_get()
+    //function removeDetailDatesheet_get()
+    function paper_delete()
     {
         
         $result['message'] = false;
@@ -9548,7 +9443,7 @@ class LMSApi extends MY_Rest_Controller
 
             echo json_encode($result);
     }
-    function removeDatesheets_get()
+    function datesheets_delete()
     {
     
 
@@ -9566,7 +9461,7 @@ class LMSApi extends MY_Rest_Controller
 
         echo json_encode($result);
     }
-    function removeQuiz_get()
+    function quiz_delete()
     {
     
 
@@ -9669,7 +9564,7 @@ class LMSApi extends MY_Rest_Controller
 
 
     }
-    public function quize_post()
+    public function quiz_post()
 
     {
 
@@ -10209,7 +10104,7 @@ class LMSApi extends MY_Rest_Controller
         echo json_encode($response);
 
     }
-    function removeQuestion_get()
+    function question_delete()
 
             {
 
@@ -11031,7 +10926,7 @@ class LMSApi extends MY_Rest_Controller
         $this->response($result, REST_Controller::HTTP_OK);
 
     }
-    function announcement_get()
+    function announcements_get()
     {
         //$request = json_decode(file_get_contents('php://input'));
         $school_id = $this->input->get('school_id');

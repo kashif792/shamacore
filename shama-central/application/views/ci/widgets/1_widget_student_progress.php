@@ -242,9 +242,9 @@
     	    	getholidaytypes:'<?php echo SHAMA_CORE_API_PATH; ?>holiday_types',
     	    	getholidays:'<?php echo SHAMA_CORE_API_PATH; ?>holidays',
     	    	getsectionbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>sections_by_class',
-    	    	getsemesterlist:'<?php echo SHAMA_CORE_API_PATH; ?>semester_detail',
+    	    	getsemesterlist:'<?php echo SHAMA_CORE_API_PATH; ?>default_semester',
     	    	getsubjectlist:'<?php echo SHAMA_CORE_API_PATH; ?>subjects',
-    	    	getsubjectbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>principal_subjects_by_class',
+    	    	getsubjectbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>subjects_by_class',
     	    	getcourselesson:'<?php echo SHAMA_CORE_API_PATH; ?>course_lessons',
     	    	getcoursedetail:'<?php echo SHAMA_CORE_API_PATH; ?>course',
     	    	getstudentquizdetail:'<?php echo SHAMA_CORE_API_PATH; ?>quiz_evaluation_details',
@@ -321,7 +321,7 @@
         
         function getSessionList()
         {
-            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>session_detail',({school_id:$scope.school_id})).then(function(response){
+            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>default_session',({school_id:$scope.school_id})).then(function(response){
             //httprequest('getsessiondetail',({})).then(function(response){
                 if(response != null && response.length > 0)
                 {

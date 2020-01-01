@@ -418,7 +418,7 @@ require APPPATH.'views/__layout/footer.php';
       function getSemesterData(){
       try{
         $scope.semesterlist = []
-        $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>semester_detail',({school_id:$scope.school_id})).then(function(response){
+        $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>default_semester',({school_id:$scope.school_id})).then(function(response){
         	if(response.length > 0 && response != null)
             {
                 if($scope.role_id == 3 || $scope.is_master_teacher){
