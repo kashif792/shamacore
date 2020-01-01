@@ -257,7 +257,7 @@ require APPPATH.'views/__layout/footer.php';
         
 
         var urlist = {
-            getQuizList:'<?php echo SHAMA_CORE_API_PATH; ?>getQuizList',
+            getQuizList:'<?php echo SHAMA_CORE_API_PATH; ?>quiz_list',
             
         }
 
@@ -266,7 +266,7 @@ require APPPATH.'views/__layout/footer.php';
             try{
                 //console.log(data);
                     $scope.data = [];
-                    $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getGradeList',({school_id:$scope.school_id,user_id:$scope.user_id})).then(function(response){
+                    $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>get_Grade_List',({school_id:$scope.school_id,user_id:$scope.user_id})).then(function(response){
                     //httppostrequest('getdatesheetdata',data).then(function(response){
                         $scope.data = [];
                         if(response.length > 0 && response != null)

@@ -160,7 +160,7 @@
             // Shama v2.0
             saveassemblydata:$scope.shama_api_path+'assembly',
             getAssemblylist:$scope.shama_api_path+'assembly',
-            getassemblyedit:$scope.shama_api_path+'assembly_update',
+            //getassemblyedit:$scope.shama_api_path+'assembly_update',
 
             getLoadBreaklist:$scope.shama_api_path+'break',
             getbreakedit:$scope.shama_api_path+'break_update',

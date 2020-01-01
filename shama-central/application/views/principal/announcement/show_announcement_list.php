@@ -358,7 +358,7 @@ require APPPATH.'views/__layout/footer.php';
 
             try{
 
-                    $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getAnnouncementList',({user_id:$scope.user_id, role_id:$scope.role_id,school_id:$scope.school_id})).then(function(response){
+                    $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>announcement',({user_id:$scope.user_id, role_id:$scope.role_id,school_id:$scope.school_id})).then(function(response){
 
                         
                         $scope.data = [];

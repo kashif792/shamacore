@@ -2477,7 +2477,7 @@ class LMSApi extends MY_Rest_Controller
         
         if (! empty($class_id)) {
             if ($role_id == 4) {
-                $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN schedule sch ON sch.subject_id=s.id WHERE sch.teacher_uid=" . $this->db->escape($user_id) . " AND s.class_id=" . $this->db->escape($class_id));
+                $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN schedule sch ON sch.subject_id=s.id WHERE sch.teacher_uid=" . $this->db->escape($user_id) . " AND s.session_id = ".$session_id." AND s.class_id=" . $this->db->escape($class_id));
             } else {
 
                 $subjectslist = $this->get_subjects($class_id,$session_id);
@@ -8271,7 +8271,7 @@ class LMSApi extends MY_Rest_Controller
         //echo json_encode($assemblydata);
         $this->response($assemblydata, REST_Controller::HTTP_OK);
     }
-    function assemblyupdate_get()
+    function assembly_update_get()
     {
         $school_id = $this->input->get('school_id');
         
@@ -8716,7 +8716,7 @@ class LMSApi extends MY_Rest_Controller
         $this->response($sessionarray, REST_Controller::HTTP_OK);
         //echo json_encode($sessionarray);
     }
-    function GetSemesterData_get()
+    function semester_detail_get()
     {
         $this->operation->table_name = 'semester';
         $semesterlist = $this->operation->GetRows();
@@ -9329,7 +9329,7 @@ class LMSApi extends MY_Rest_Controller
         echo json_encode($listarray);
     }
     
-    function Class_List_get()
+    function class_list_get()
     {
         $this->operation->table_name = 'classes';
         $classarray = array();
@@ -9400,7 +9400,7 @@ class LMSApi extends MY_Rest_Controller
         $this->response($listarray, REST_Controller::HTTP_OK);
        
     }
-    function GetSelectedSubject_get()
+    function selected_subject_get()
 
     {
         $selected_subject = array();
@@ -9584,7 +9584,7 @@ class LMSApi extends MY_Rest_Controller
 
         echo json_encode($result);
     }
-    function getselectequiz_get()
+    function selected_quiz_get()
     {
 
          $q = $this->operation->GetByQuery("SELECT * FROM quiz WHERE id = ".$this->input->get('inputrowid')." ");
@@ -9594,7 +9594,7 @@ class LMSApi extends MY_Rest_Controller
        echo json_encode($q);
     }
     // Quiz
-    function getclasslistTeacher_get()
+    function class_list_teacher_get()
     {
         $user_id = $this->input->get('user_id');
         $school_id = $this->input->get('school_id');
@@ -9617,7 +9617,7 @@ class LMSApi extends MY_Rest_Controller
        //$this->data['classlist'] = $classlist;
        echo json_encode($classlist);
     }
-    function GetSectionsByClass_post()
+    function sections_byclass_post()
 
     {
 
@@ -9669,7 +9669,7 @@ class LMSApi extends MY_Rest_Controller
 
 
     }
-    public function save_quize_info_post()
+    public function quize_post()
 
     {
 
@@ -9814,7 +9814,7 @@ class LMSApi extends MY_Rest_Controller
     echo json_encode($result);
 
 }
-    function save_quize_Question_post()
+    function question_post()
     {
         
         
@@ -10048,7 +10048,7 @@ class LMSApi extends MY_Rest_Controller
         
         echo json_encode($result);
     }
-    function GetQuestionList_get()
+    function question_get()
     {
         
         
@@ -10121,7 +10121,7 @@ class LMSApi extends MY_Rest_Controller
         //echo json_encode($qlist);
         $this->response($qlist, REST_Controller::HTTP_OK);
     }
-    function GetQuestionById_get()
+    function question_by_Id_get()
     {
 
        
@@ -10244,7 +10244,7 @@ class LMSApi extends MY_Rest_Controller
 
 
     }
-    public function getQuizList_get()
+    public function quiz_list_get()
     {
         
 
@@ -10256,7 +10256,7 @@ class LMSApi extends MY_Rest_Controller
                     );
        $this->response($result, REST_Controller::HTTP_OK);
     }
-    function getmidtermsubjectresult_get()
+    function mid_term_subject_result_get()
     {
         
         $resultarray = array();
@@ -10327,7 +10327,7 @@ class LMSApi extends MY_Rest_Controller
         $this->response($resultarray, REST_Controller::HTTP_OK);
         //echo json_encode($resultarray);
     }
-    function GetSubjectResult_get()
+    function subject_result_get()
     {
         $resultarray = array();
         $school_id = $this->input->get('school_id');
@@ -10389,7 +10389,7 @@ class LMSApi extends MY_Rest_Controller
         }
         echo json_encode($resultarray);
     }
-    function SetStudentMarks_post()
+    function student_marks_post()
     {
         $request = json_decode(file_get_contents('php://input'));
 
@@ -10431,7 +10431,7 @@ class LMSApi extends MY_Rest_Controller
         }
         echo json_encode($result);
     }
-    function savestudentmidquizmarks_post()
+    function student_mid_quiz_marks_post()
     {
 
         $request = json_decode(file_get_contents('php://input'));
@@ -10477,7 +10477,7 @@ class LMSApi extends MY_Rest_Controller
         }
         echo json_encode($result);
     }
-    function GetStudentByClass_get()
+    function student_by_class_get()
     {
 
         $studentarray = array();
@@ -10502,7 +10502,7 @@ class LMSApi extends MY_Rest_Controller
         }
         echo json_encode($studentarray);
     }
-    function MidStudentReportBySubjectwize_post()
+    function mid_student_report_by_subject_wize_post()
     {
         $request = json_decode( file_get_contents('php://input'));
         $inputclassid = $this->security->xss_clean(trim($request->inputclassid));
@@ -10705,7 +10705,7 @@ class LMSApi extends MY_Rest_Controller
        // echo count($sparray);
         return $sparray;
     }
-    function FinalStudentReportBySubjectwize_post()
+    function final_student_report_by_subject_wize_post()
     {
         $request = json_decode( file_get_contents('php://input'));
         $inputclassid = $this->security->xss_clean(trim($request->inputclassid));
@@ -10918,7 +10918,7 @@ class LMSApi extends MY_Rest_Controller
         }
         echo json_encode($studentresult);
     }
-    public function UpdateSemesterLessonProgressBulk_post()
+    public function semester_lesson_progress_post()
     {
         $debug = '';
         $result['message'] = false;
@@ -11020,7 +11020,7 @@ class LMSApi extends MY_Rest_Controller
 
         echo $result['message'];
     }
-    function getGradeList_get()
+    function grade_list_get()
     {
         $user_id = $this->input->get('user_id');
         $this->data['grade_list']=$this->operation->GetByQuery("select cl.id, cl.grade,sc.section_name from schedule s inner join classes cl on cl.id = s.class_id inner join sections sc on sc.id = s.section_id  where s.teacher_uid = ".$user_id." group by cl.id");
@@ -11031,7 +11031,7 @@ class LMSApi extends MY_Rest_Controller
         $this->response($result, REST_Controller::HTTP_OK);
 
     }
-    function getAnnouncementList_get()
+    function announcement_get()
     {
         //$request = json_decode(file_get_contents('php://input'));
         $school_id = $this->input->get('school_id');
@@ -11060,7 +11060,7 @@ class LMSApi extends MY_Rest_Controller
         //echo json_encode($result);
     }
     
-    public function saveAnnouncement_post()
+    public function announcement_post()
     {
 
         $result['message'] = false;
@@ -11105,7 +11105,7 @@ class LMSApi extends MY_Rest_Controller
             $this->response($result, REST_Controller::HTTP_OK);
             //echo json_encode($result);
     }
-    public function sendAnnouncement_post()
+    public function send_Announcement_post()
     {
 
                 $exist=true;
@@ -11345,7 +11345,7 @@ class LMSApi extends MY_Rest_Controller
                 //echo json_encode($result);
                 
     }
-    public function stopAnnouncement_post()
+    public function stop_Announcement_post()
     {
         $data =  array(
                         'active'=>0,
@@ -11469,7 +11469,7 @@ class LMSApi extends MY_Rest_Controller
 
 
     
-    public function getAnnouncementDetailList_post()
+    public function announcement_detail_list_post()
     {
         //$id = $this->input->post('serial');
         $request = json_decode(file_get_contents('php://input'));
@@ -11537,7 +11537,7 @@ class LMSApi extends MY_Rest_Controller
        // echo json_encode($result);
         //echo json_encode($this->data['timetable_list']);
     }
-    public function stopAnnouncementDetailList_post()
+    public function stop_announcement_detail_list_post()
     {
         
         
@@ -11603,7 +11603,7 @@ class LMSApi extends MY_Rest_Controller
         $this->load->view('principal/announcement/view_announcement',$this->data);
     }
 
-    public function getAnnouncementView_post()
+    public function announcement_view_post()
     {
         $request = json_decode(file_get_contents('php://input'));
         $id = $this->security->xss_clean(trim($request->serial));

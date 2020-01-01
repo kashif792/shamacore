@@ -510,7 +510,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
             	
             	$('#select_subject').focus();
             }
-            var url = '<?php echo $path_url; ?>savequiz';
+            var url = '<?php echo $path_url; ?>quiz';
             var data = ({
             	'inputquizname':inputquizname,
             	'inputclass':inputclass,
@@ -678,7 +678,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
             var $this = $(".save-button");
             $this.button('loading');
 
-            var url = '<?php echo $path_url; ?>savequestion';
+            var url = '<?php echo $path_url; ?>question';
             if($scope.is_edit == true){
                
                 var formdata = new FormData();
@@ -992,7 +992,7 @@ setTimerForWidget('section',1)
   		try{
 			var data = ({inputrowid:rowid })
 		
-			httprequest('<?php echo $path_url; ?>getselectedsubject',data).then(function(response){
+			httprequest('<?php echo $path_url; ?>selected_subject',data).then(function(response){
 				if(response.length > 0 && response != null)
 				{
 					$scope.inputSubject =  response[0];
@@ -1070,7 +1070,7 @@ setTimerForWidget('section',1)
             $scope.inputQestionSerail = $(this).attr('id')
             $("#inputQestionSerail").val($(this).attr('id'))
             $scope.is_edit_list_found = []
-            httprequest('<?php echo $path_url; ?>getquestionbyid',({qid:$(this).attr('id')})).then(function(response){
+            httprequest('<?php echo $path_url; ?>question_by_id',({qid:$(this).attr('id')})).then(function(response){
             	if(response != null){
                     $scope.is_edit_list_found = response
 		            $("#inputQuestion").val($scope.is_edit_list_found[0].question)

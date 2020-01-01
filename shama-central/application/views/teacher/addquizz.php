@@ -336,7 +336,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
         $scope.isTeacher = $myUtils.isTeacher();
 
         var urlist = {
-            getclasslistTeacher:'<?php echo SHAMA_CORE_API_PATH; ?>getclasslistTeacher',
+            getclasslistTeacher:'<?php echo SHAMA_CORE_API_PATH; ?>class_list_teacher',
         }
         $scope.select_class = "";
         var app = angular.module('invantage', []);
@@ -346,7 +346,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
             try{
                 //console.log(data);
                     var serail = '<?php if($this->uri->segment(2)){ echo $this->uri->segment(2) ; } ?>';
-                    $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getclasslistTeacher',({school_id:$scope.school_id, role_id:$scope.role_id,user_id:$scope.user_id,serail:serail})).then(function(response){
+                    $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>class_list_teacher',({school_id:$scope.school_id, role_id:$scope.role_id,user_id:$scope.user_id,serail:serail})).then(function(response){
                     
                         //console.log(response)
                         if(response.length > 0 && response != null)
@@ -461,7 +461,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
             try{
 
                 //httprequest('<?php echo $path_url; ?>getquestionlist',({id:$scope.lastid})).then(function(response){
-                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getquestionlist',({id:$scope.lastid})).then(function(response){
+                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>question',({id:$scope.lastid})).then(function(response){
                     if(response.length > 0 && response != null)
                     {
                         $('.quiston-container').show();
@@ -554,7 +554,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
             var $this = $(".sm");
             $this.button('loading');
 
-            var url = '<?php echo SHAMA_CORE_API_PATH; ?>savequiz';
+            var url = '<?php echo SHAMA_CORE_API_PATH; ?>quiz';
             var data = ({
                 'inputquizname':inputquizname,
                 'inputclass':inputclass,
@@ -732,7 +732,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
             $this.button('loading');
 
             //var url = '<?php echo $path_url; ?>savequestion';
-            var url = '<?php echo SHAMA_CORE_API_PATH; ?>savequestion';
+            var url = '<?php echo SHAMA_CORE_API_PATH; ?>question';
             if($scope.is_edit == true){
 
                 var formdata = new FormData();
@@ -1028,7 +1028,7 @@ setTimerForWidget('section',1)
                             class_id:$scope.inputclass.id,
 
                             })
-                $myUtils.httppostrequest('<?php echo SHAMA_CORE_API_PATH; ?>getsubjectlistbyclass',data).then(function(response){
+                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>subject_list_by_class',data).then(function(response){
                 if(response.length > 0 && response != null)
                 {
                     $scope.subjectlist = response;
@@ -1057,7 +1057,7 @@ setTimerForWidget('section',1)
         try{
             var data = ({class_id:class_id })
             var select_subject = select_subject;
-            httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getselectedsubject',data).then(function(response){
+            httprequest('<?php echo SHAMA_CORE_API_PATH; ?>selected_subject',data).then(function(response){
                 if(response.length > 0 && response != null)
                 {
 
@@ -1089,7 +1089,7 @@ setTimerForWidget('section',1)
         try{
             var data = ({inputrowid:rowid })
 
-            httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getselectequiz',data).then(function(response){
+            httprequest('<?php echo SHAMA_CORE_API_PATH; ?>selected_quiz',data).then(function(response){
                 if(response.length > 0 && response != null)
                 {
                     $scope.inputSubject =  response[0];
@@ -1208,7 +1208,7 @@ setTimerForWidget('section',1)
             $scope.inputQestionSerail = $(this).attr('id')
             $("#inputQestionSerail").val($(this).attr('id'))
             $scope.is_edit_list_found = []
-            httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getquestionbyid',({qid:$(this).attr('id')})).then(function(response){
+            httprequest('<?php echo SHAMA_CORE_API_PATH; ?>question_by_id',({qid:$(this).attr('id')})).then(function(response){
                 if(response != null){
                     $scope.is_edit_list_found = response
                     $("#inputQuestion").val($scope.is_edit_list_found[0].question)

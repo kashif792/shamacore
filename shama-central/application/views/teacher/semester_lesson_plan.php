@@ -340,7 +340,7 @@ require APPPATH.'views/__layout/footer.php';
        function getClassList()
         {
            var data = ({school_id:$scope.school_id, user_id:$scope.user_id})
-          $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getclasslistTeacher',data).then(function(response){
+          $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>class_list_teacher',data).then(function(response){
             if(response != null && response.length > 0)
             {
               $scope.classlist = response

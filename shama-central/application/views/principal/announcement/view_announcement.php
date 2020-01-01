@@ -283,8 +283,8 @@ require APPPATH.'views/__layout/footer.php';
         $scope.session_id = $myUtils.getDefaultSessionId();
         
         var urlist = {
-            getAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>getAnnouncementDetailList',
-            stopAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>stopAnnouncementDetailList',
+            getAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>Announcement_Detail_List',
+            stopAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>stop_Announcement_Detail_List',
             
         }
 
@@ -504,7 +504,7 @@ $scope.changetarget = function()
 
             var request = {
                 method: 'POST',
-                url: "<?php echo SHAMA_CORE_API_PATH; ?>saveAnnouncement",
+                url: "<?php echo SHAMA_CORE_API_PATH; ?>Announcement",
                 data: formdata,
                 headers: {'Content-Type': undefined}
             };
@@ -611,7 +611,7 @@ $scope.changetarget = function()
             formdata.append('school_id',$scope.school_id);
             var request = {
                 method: 'POST',
-                url: "<?php echo SHAMA_CORE_API_PATH; ?>sendAnnouncement",
+                url: "<?php echo SHAMA_CORE_API_PATH; ?>send_Announcement",
                 data: formdata,
                 headers: {'Content-Type': undefined}
             };
@@ -659,7 +659,7 @@ $scope.changetarget = function()
             
             var request = {
                 method: 'POST',
-                url: "<?php echo SHAMA_CORE_API_PATH; ?>stopAnnouncement",
+                url: "<?php echo SHAMA_CORE_API_PATH; ?>stop_Announcement",
                 data: formdata,
                 headers: {'Content-Type': undefined}
             };
@@ -697,7 +697,7 @@ $scope.changetarget = function()
                         serial:$scope.serial,
                     }
                     //console.log(data);
-                    $myUtils.httppostrequest('<?php echo SHAMA_CORE_API_PATH; ?>getAnnouncementView',({school_id:$scope.school_id,serial:$scope.serial})).then(function(response){
+                    $myUtils.httppostrequest('<?php echo SHAMA_CORE_API_PATH; ?>Announcement_View',({school_id:$scope.school_id,serial:$scope.serial})).then(function(response){
                     //httppostrequest('<?php echo $path_url; ?>Principal_controller/getAnnouncementView',data).then(function(response){
                         $scope.data = [];
                         //console.log(response);

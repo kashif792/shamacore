@@ -317,8 +317,8 @@ require APPPATH.'views/__layout/footer.php';
         $scope.session_id = $myUtils.getDefaultSessionId();
         
         var urlist = {
-            getAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>getAnnouncementDetailList',
-            stopAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>stopAnnouncementDetailList',
+            getAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>Announcement_Detail_List',
+            stopAnnouncementDetailList:'<?php echo SHAMA_CORE_API_PATH; ?>stop_Announcement_Detail_List',
             
         }
 
@@ -563,7 +563,7 @@ $scope.checkUncheckAll = function () {
             
             var request = {
                 method: 'POST',
-                url: "<?php echo SHAMA_CORE_API_PATH; ?>saveAnnouncement",
+                url: "<?php echo SHAMA_CORE_API_PATH; ?>announcement",
                 data: formdata,
                 headers: {'Content-Type': undefined}
             };
@@ -672,7 +672,7 @@ $scope.checkUncheckAll = function () {
             formdata.append('school_id',$scope.school_id);
             var request = {
                 method: 'POST',
-                url: "<?php echo SHAMA_CORE_API_PATH; ?>sendAnnouncement",
+                url: "<?php echo SHAMA_CORE_API_PATH; ?>send_Announcement",
                 data: formdata,
                 headers: {'Content-Type': undefined}
             };
@@ -717,7 +717,7 @@ $scope.checkUncheckAll = function () {
             
             var request = {
                 method: 'POST',
-                url: "<?php echo SHAMA_CORE_API_PATH; ?>stopAnnouncement",
+                url: "<?php echo SHAMA_CORE_API_PATH; ?>stop_Announcement",
                 data: formdata,
                 headers: {'Content-Type': undefined}
             };

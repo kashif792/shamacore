@@ -455,11 +455,11 @@
 
         var urlist = ({
                 getsessionlist:'<?php echo SHAMA_CORE_API_PATH; ?>sessions',
-                getclasslistTeacher:'<?php echo SHAMA_CORE_API_PATH; ?>getclasslistTeacher',
+                getclasslistTeacher:'<?php echo SHAMA_CORE_API_PATH; ?>class_list_teacher',
                 getholidaytypes:'<?php echo SHAMA_CORE_API_PATH; ?>holiday_types',
                 getholidays:'<?php echo SHAMA_CORE_API_PATH; ?>holidays',
                 getsectionbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>sections_by_class',
-                getsemesterlist:'<?php echo SHAMA_CORE_API_PATH; ?>semesters',
+                getsemesterlist:'<?php echo SHAMA_CORE_API_PATH; ?>semester_detail',
                 getsubjectlist:'<?php echo SHAMA_CORE_API_PATH; ?>subjects',
                 getsubjectbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>subjects_by_class',
                 getcourselesson:'<?php echo SHAMA_CORE_API_PATH; ?>course_lessons',
@@ -467,10 +467,10 @@
                 getstudentquizdetail:'<?php echo SHAMA_CORE_API_PATH; ?>quiz_evaluation_details',
                 getquizevaluationlist:'<?php echo SHAMA_CORE_API_PATH; ?>quiz_evaluations',
                 getevaluationheader:'<?php echo SHAMA_CORE_API_PATH; ?>evaluation_header',
-                getmidtermsubjectresult:'<?php echo SHAMA_CORE_API_PATH; ?>getmidtermsubjectresult',
-                savestudentmidquizmarks:'<?php echo SHAMA_CORE_API_PATH; ?>savestudentmidquizmarks',
-                getsubjectresult:'<?php echo SHAMA_CORE_API_PATH; ?>getsubjectresult',
-                savestudentmarks:'<?php echo SHAMA_CORE_API_PATH; ?>savestudentmarks',
+                getmidtermsubjectresult:'<?php echo SHAMA_CORE_API_PATH; ?>subject_quiz_result',
+                savestudentmidquizmarks:'<?php echo SHAMA_CORE_API_PATH; ?>student_mid_quiz_marks',
+                getsubjectresult:'<?php echo SHAMA_CORE_API_PATH; ?>subject_result',
+                savestudentmarks:'<?php echo SHAMA_CORE_API_PATH; ?>student_marks',
                 
         
         });
@@ -767,7 +767,7 @@ $scope.doneProgressReport = function(){
              dataString = lessonarray ; // array?
              var jsonString = JSON.stringify(dataString);
             $.ajax({
-                url:'<?php echo SHAMA_CORE_API_PATH; ?>UpdateSemesterLessonProgressBulk',
+                url:'<?php echo SHAMA_CORE_API_PATH; ?>student_lesson_progress',
                 type: 'POST',
                 data: {data : jsonString}, 
                 success: function(res){

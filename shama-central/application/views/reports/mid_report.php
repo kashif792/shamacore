@@ -669,7 +669,7 @@ require APPPATH.'views/__layout/footer.php';
                     inputsessionid:$scope.filterobj.session.id,
                     
                 });
-                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>getstudentbyclass',(data)).then(function(response){
+                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>student_by_class',(data)).then(function(response){
 
                 //$myUtils.httprequest('<?php echo base_url(); ?>getstudentbyclass',data).then(function(response){
                     if(response.length > 0 && response != null)
@@ -720,7 +720,7 @@ require APPPATH.'views/__layout/footer.php';
                 
             }
 
-            $myUtils.httppostrequest('<?php echo SHAMA_CORE_API_PATH; ?>midstudentreportdata',data).then(function(response){
+            $myUtils.httppostrequest('<?php echo SHAMA_CORE_API_PATH; ?>mid_student_report',data).then(function(response){
                 //console.log(response);
                 if(response.length > 0)
                 {
