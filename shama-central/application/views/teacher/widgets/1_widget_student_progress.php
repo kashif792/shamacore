@@ -89,7 +89,7 @@
                         
                         <div class="form-group">
                             <label for="select_class">Grade:</label>
-                            <select class="form-control" ng-options="item.grade for item in classlist track by item.id"  name="select_class" id="select_class"  ng-model="filterobj.class" ng-change="chnagefilter()"></select>
+                            <select class="form-control" ng-options="item.name for item in classlist track by item.id"  name="select_class" id="select_class"  ng-model="filterobj.class" ng-change="chnagefilter()"></select>
                         </div>
                         <div class="form-group">
                             <label for="inputSection">Section:</label>
@@ -455,11 +455,11 @@
 
         var urlist = ({
                 getsessionlist:'<?php echo SHAMA_CORE_API_PATH; ?>sessions',
-                getclasslistTeacher:'<?php echo SHAMA_CORE_API_PATH; ?>class_list_teacher',
+                getclasslistTeacher:'<?php echo SHAMA_CORE_API_PATH; ?>classes',
                 getholidaytypes:'<?php echo SHAMA_CORE_API_PATH; ?>holiday_types',
                 getholidays:'<?php echo SHAMA_CORE_API_PATH; ?>holidays',
                 getsectionbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>sections_by_class',
-                getsemesterlist:'<?php echo SHAMA_CORE_API_PATH; ?>default_semester',
+                getsemesterlist:'<?php echo SHAMA_CORE_API_PATH; ?>semesters',
                 getsubjectlist:'<?php echo SHAMA_CORE_API_PATH; ?>subjects',
                 getsubjectbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>subjects_by_class',
                 getcourselesson:'<?php echo SHAMA_CORE_API_PATH; ?>course_lessons',
@@ -545,7 +545,7 @@
         
         function getSessionList()
         {
-            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>default_session',({school_id:$scope.school_id})).then(function(response){
+            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>sessions',({school_id:$scope.school_id})).then(function(response){
                 if(response != null && response.length > 0)
                 {
                     $scope.rsessionlist = response

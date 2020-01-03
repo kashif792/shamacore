@@ -672,7 +672,7 @@ $scope.checkUncheckAll = function () {
             formdata.append('school_id',$scope.school_id);
             var request = {
                 method: 'POST',
-                url: "<?php echo SHAMA_CORE_API_PATH; ?>send_Announcement",
+                url: "<?php echo SHAMA_CORE_API_PATH; ?>send_announcement",
                 data: formdata,
                 headers: {'Content-Type': undefined}
             };
@@ -717,7 +717,7 @@ $scope.checkUncheckAll = function () {
             
             var request = {
                 method: 'POST',
-                url: "<?php echo SHAMA_CORE_API_PATH; ?>stop_Announcement",
+                url: "<?php echo SHAMA_CORE_API_PATH; ?>stop_announcement",
                 data: formdata,
                 headers: {'Content-Type': undefined}
             };

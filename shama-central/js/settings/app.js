@@ -160,12 +160,12 @@
             // Shama v2.0
             saveassemblydata:$scope.shama_api_path+'assembly',
             getAssemblylist:$scope.shama_api_path+'assembly',
-            //getassemblyedit:$scope.shama_api_path+'assembly_update',
+            getassemblyedit:$scope.shama_api_path+'assembly_update',
 
             getLoadBreaklist:$scope.shama_api_path+'break',
             getbreakedit:$scope.shama_api_path+'break_update',
 
-            savebreakdata:$scope.shama_api_path+'savebreak',
+            savebreakdata:$scope.shama_api_path+'break',
             
             
         }
@@ -1351,20 +1351,21 @@
         $scope.getassemblyedit = function()
         
         {
-            var data = ({
-                school_id:$scope.school_id
-            })
+            // var data = ({
+            //     school_id:$scope.school_id
+            // })
             
-            $myUtils.httprequest(urlist.getassemblyedit,data).then(function(response){
-                if(response != null && response.length > 0)
-                {
+            // $myUtils.httprequest(urlist.getassemblyedit,data).then(function(response){
+            //     if(response != null && response.length > 0)
+            //     {
                     
-                       $scope.assemblyobj = response[0];
+            //            $scope.assemblyobj = response[0];
                     
-                }else{
-                  // $scope.assemblylist = []
-                }
-            });
+            //     }else{
+            //       // $scope.assemblylist = []
+            //     }
+            // });
+            $scope.assemblyobj = $scope.assemblylist[0];
         }
         
         $scope.saveassembly = function()
@@ -1409,20 +1410,21 @@
 
         $scope.getbreakedit = function()
         {
-            var data = ({
-                school_id:$scope.school_id
-            })
+            // var data = ({
+            //     school_id:$scope.school_id
+            // })
             
 
-            $myUtils.httprequest(urlist.getbreakedit,data).then(function(response){
-               if(response != null && response.length > 0)
-                {
+            // $myUtils.httprequest(urlist.getbreakedit,data).then(function(response){
+            //    if(response != null && response.length > 0)
+            //     {
                     
-                    $scope.breakobj = response[0];
-                }else{
-                   $scope.breakobj = []
-                }
-            });
+            //         $scope.breakobj = response[0];
+            //     }else{
+            //        $scope.breakobj = []
+            //     }
+            // });
+            $scope.breakobj = $scope.breakdatalist[0];
         }
         $scope.savebreak = function()
         

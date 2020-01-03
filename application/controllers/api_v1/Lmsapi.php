@@ -1937,23 +1937,23 @@ class LMSApi extends MY_Rest_Controller
     }
     
     // region Semester
-    function semesters_get()
-    {
-        $this->operation->table_name = 'semester';
-        $semesterlist = $this->operation->GetRows();
+    // function semesters_get()
+    // {
+    //     $this->operation->table_name = 'semester';
+    //     $semesterlist = $this->operation->GetRows();
         
-        $semesterarray = array();
-        if (count($semesterlist)) {
-            foreach ($semesterlist as $value) {
-                $semesterarray[] = array(
-                    'id' => $value->id,
-                    'name' => $value->semester_name,
-                    'status' => $value->status
-                );
-            }
-        }
-        $this->set_response($semesterarray, REST_Controller::HTTP_OK);
-    }
+    //     $semesterarray = array();
+    //     if (count($semesterlist)) {
+    //         foreach ($semesterlist as $value) {
+    //             $semesterarray[] = array(
+    //                 'id' => $value->id,
+    //                 'name' => $value->semester_name,
+    //                 'status' => $value->status
+    //             );
+    //         }
+    //     }
+    //     $this->set_response($semesterarray, REST_Controller::HTTP_OK);
+    // }
     
     function semester_get()
     {
@@ -2645,7 +2645,7 @@ class LMSApi extends MY_Rest_Controller
         
         $sresult = array();
         $sresult['message'] = false;
-        
+
         if (! is_null($class_id) && ! is_null($school_id)) {
             foreach ($sections as $value) {
                 $this->operation->table_name = 'sections';
@@ -2959,7 +2959,7 @@ class LMSApi extends MY_Rest_Controller
         if ($role = $this->get_user_role($user_id)) {
             $role_id = $role->role_id;
         }
-        
+
         $this->operation->table_name = "classes";
         if (empty($school_id)) {
             if ($role_id == 4) {
@@ -2975,7 +2975,7 @@ class LMSApi extends MY_Rest_Controller
         } else {
             if ($role_id == 4) {
                 
-                $query = $this->operation->GetByQuery("SELECT c.* FROM classes c INNER JOIN schedule sch ON sch.class_id=c.id WHERE sch.teacher_uid=$user_id AND school_id=$school_id");
+                $query = $this->operation->GetByQuery("SELECT c.* FROM classes c INNER JOIN schedule sch ON sch.class_id=c.id WHERE sch.teacher_uid=$user_id AND school_id=$school_id GROUP BY id");
             } else {
 
                 $query = $this->operation->GetByWhere(array(
@@ -8675,7 +8675,7 @@ class LMSApi extends MY_Rest_Controller
         $this->response($sessionarray, REST_Controller::HTTP_OK);
         //echo json_encode($sessionarray);
     }
-    function semester_detail_get()
+    function semesters_get()
     {
         $this->operation->table_name = 'semester';
         $semesterlist = $this->operation->GetRows();
@@ -9479,7 +9479,7 @@ class LMSApi extends MY_Rest_Controller
 
         echo json_encode($result);
     }
-    function selected_quiz_get()
+    function quiz_get()
     {
 
          $q = $this->operation->GetByQuery("SELECT * FROM quiz WHERE id = ".$this->input->get('inputrowid')." ");
@@ -9512,39 +9512,31 @@ class LMSApi extends MY_Rest_Controller
        //$this->data['classlist'] = $classlist;
        echo json_encode($classlist);
     }
+
     function sections_byclass_post()
-
     {
-
-
-
         $sections = array();
         $request = $this->parse_params();
         $request = $this->parse_params();
-        
         $school_id = $request->school_id;
         $class_id = $request->class_id;
         $user_id = $request->user_id;
-
         if(!empty($class_id))
-
         {
-
-            
                 if($user_id)
                 {
-                    $is_student_found = $this->operation->GetByQuery("SELECT s.*,ass.id as sid  FROM schedule sc INNER JOIN sections s On s.id = sc.section_id INNER JOIN assign_sections ass on ass.section_id = s.id   where sc.teacher_uid = ".$user_id." AND ass.status = 'a' AND sc.class_id = ".$class_id." Group BY s.id");
+                    $is_section_found = $this->operation->GetByQuery("SELECT s.*,ass.id as sid  FROM schedule sc INNER JOIN sections s On s.id = sc.section_id INNER JOIN assign_sections ass on ass.section_id = s.id   where sc.teacher_uid = ".$user_id." AND ass.status = 'a' AND sc.class_id = ".$class_id." Group BY s.id");
                 }
                 else
                 {
-                    $is_student_found = $this->operation->GetByQuery("SELECT s.*,ass.id as sid  FROM schedule sc INNER JOIN sections s On s.id = sc.section_id INNER JOIN assign_sections ass on ass.section_id = s.id   where  ass.status = 'a' AND sc.class_id = ".$class_id." Group BY s.id");
+                    $is_section_found = $this->operation->GetByQuery("SELECT s.*,ass.id as sid  FROM schedule sc INNER JOIN sections s On s.id = sc.section_id INNER JOIN assign_sections ass on ass.section_id = s.id   where  ass.status = 'a' AND sc.class_id = ".$class_id." Group BY s.id");
                 }
 
             }
 
-            if(count($is_student_found)){
+            if(count($is_section_found)){
 
-                foreach ($is_student_found as $key => $value) {
+                foreach ($is_section_found as $key => $value) {
 
                     $sections[] = array(
 
@@ -9943,7 +9935,7 @@ class LMSApi extends MY_Rest_Controller
         
         echo json_encode($result);
     }
-    function question_get()
+    function questions_get()
     {
         
         
@@ -10016,7 +10008,7 @@ class LMSApi extends MY_Rest_Controller
         //echo json_encode($qlist);
         $this->response($qlist, REST_Controller::HTTP_OK);
     }
-    function question_by_Id_get()
+    function question_get()
     {
 
        
@@ -10139,7 +10131,7 @@ class LMSApi extends MY_Rest_Controller
 
 
     }
-    public function quiz_list_get()
+    public function quizzes_get()
     {
         
 

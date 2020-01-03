@@ -242,7 +242,7 @@
     	    	getholidaytypes:'<?php echo SHAMA_CORE_API_PATH; ?>holiday_types',
     	    	getholidays:'<?php echo SHAMA_CORE_API_PATH; ?>holidays',
     	    	getsectionbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>sections_by_class',
-    	    	getsemesterlist:'<?php echo SHAMA_CORE_API_PATH; ?>default_semester',
+    	    	getsemesterlist:'<?php echo SHAMA_CORE_API_PATH; ?>semesters',
     	    	getsubjectlist:'<?php echo SHAMA_CORE_API_PATH; ?>subjects',
     	    	getsubjectbyclasslist:'<?php echo SHAMA_CORE_API_PATH; ?>subjects_by_class',
     	    	getcourselesson:'<?php echo SHAMA_CORE_API_PATH; ?>course_lessons',
@@ -321,7 +321,7 @@
         
         function getSessionList()
         {
-            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>default_session',({school_id:$scope.school_id})).then(function(response){
+            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>sessions',({school_id:$scope.school_id})).then(function(response){
             //httprequest('getsessiondetail',({})).then(function(response){
                 if(response != null && response.length > 0)
                 {

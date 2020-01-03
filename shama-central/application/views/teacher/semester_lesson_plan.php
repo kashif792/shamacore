@@ -73,7 +73,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                             <fieldset>
                              <div class="form-group">
           <label for="class_id">Grade<span class="required"></span></label>
-         <select   ng-options="item.grade for item in classlist track by item.id"  name="class_id" id="class_id" class="form-control" ng-model="class_id"></select>
+         <select   ng-options="item.name for item in classlist track by item.id"  name="class_id" id="class_id" class="form-control" ng-model="class_id"></select>
   </div>
 
                           <div class="form-group">
@@ -340,7 +340,7 @@ require APPPATH.'views/__layout/footer.php';
        function getClassList()
         {
            var data = ({school_id:$scope.school_id, user_id:$scope.user_id})
-          $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>class_list_teacher',data).then(function(response){
+          $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>classes',data).then(function(response){
             if(response != null && response.length > 0)
             {
               $scope.classlist = response

@@ -201,7 +201,7 @@ require APPPATH.'views/__layout/footer.php';
         }
         function getSessionList()
         {
-            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>default_session',({school_id:$scope.school_id})).then(function(response){
+            $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>sessions',({school_id:$scope.school_id})).then(function(response){
             //httprequest('getsessiondetail',({})).then(function(response){
                 if(response != null && response.length > 0)
                 {
@@ -245,7 +245,7 @@ require APPPATH.'views/__layout/footer.php';
         {
             try{
                 var data = ({class_id:$scope.filterobj.class.id})
-                $myUtils.httppostrequest('<?php echo SHAMA_CORE_API_PATH; ?>getsectionbyclass',({class_id:$scope.filterobj.class.id,school_id:$scope.school_id})).then(function(response){
+                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>sections_by_class',({class_id:$scope.filterobj.class.id,school_id:$scope.school_id})).then(function(response){
                 
                     if(response.length > 0 && response != null)
                     {
@@ -268,7 +268,7 @@ require APPPATH.'views/__layout/footer.php';
         function getSemesterData(){
             try{
                 $scope.semesterlist = []
-                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>default_semester',({school_id:$scope.school_id})).then(function(response){
+                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>semesters',({school_id:$scope.school_id})).then(function(response){
                 
                 //$myUtils.httprequest('<?php echo $path_url; ?>getsemesterdata',({})).then(function(response){
                     if(response.length > 0 && response != null)
