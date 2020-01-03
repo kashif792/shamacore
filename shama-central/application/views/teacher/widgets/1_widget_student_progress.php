@@ -467,9 +467,9 @@
                 getstudentquizdetail:'<?php echo SHAMA_CORE_API_PATH; ?>quiz_evaluation_details',
                 getquizevaluationlist:'<?php echo SHAMA_CORE_API_PATH; ?>quiz_evaluations',
                 getevaluationheader:'<?php echo SHAMA_CORE_API_PATH; ?>evaluation_header',
-                getmidtermsubjectresult:'<?php echo SHAMA_CORE_API_PATH; ?>subject_quiz_result',
-                savestudentmidquizmarks:'<?php echo SHAMA_CORE_API_PATH; ?>student_mid_quiz_marks',
-                getsubjectresult:'<?php echo SHAMA_CORE_API_PATH; ?>subject_result',
+                getmidtermsubjectresult:'<?php echo SHAMA_CORE_API_PATH; ?>student_quiz_marks',
+                savestudentmidquizmarks:'<?php echo SHAMA_CORE_API_PATH; ?>student_quiz_marks',
+                getsubjectresult:'<?php echo SHAMA_CORE_API_PATH; ?>student_marks',
                 savestudentmarks:'<?php echo SHAMA_CORE_API_PATH; ?>student_marks',
                 
         

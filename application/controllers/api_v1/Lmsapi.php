@@ -2975,7 +2975,7 @@ class LMSApi extends MY_Rest_Controller
         } else {
             if ($role_id == 4) {
                 
-                $query = $this->operation->GetByQuery("SELECT c.* FROM classes c INNER JOIN schedule sch ON sch.class_id=c.id WHERE sch.teacher_uid=$user_id AND school_id=$school_id GROUP BY id");
+                $query = $this->operation->GetByQuery("SELECT c.*,sc.section_name FROM classes c INNER JOIN schedule sch ON sch.class_id=c.id inner join sections as sc on sc.id = sch.section_id WHERE sch.teacher_uid=$user_id AND c.school_id=$school_id GROUP BY id");
             } else {
 
                 $query = $this->operation->GetByWhere(array(
@@ -2990,7 +2990,8 @@ class LMSApi extends MY_Rest_Controller
                 $result[] = array(
                     'id' => $value->id,
                     'last_update' => $value->last_update,
-                    'name' => $value->grade
+                    'name' => $value->grade,
+                    'section_name' => $value->section_name,
                 );
             }
         }
@@ -3181,17 +3182,31 @@ class LMSApi extends MY_Rest_Controller
     {
         $class_id = $this->input->get('class_id', true);
         $section_id = $this->input->get('section_id', true);
-        
+        $session_id = $this->input->get('session_id', true);
+        $semester_id = $this->input->get('semester_id', true);
+        $school_id = $this->input->get('school_id', true);
         $result = array();
+        if(!$session_id)
+        {
+            $active_session = $this->get_active_session($school_id);
+            $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+
+            $session_id = $active_session->id;
+            $semester_id = $active_semester->semester_id;
+
+        }
+
         if (! empty($class_id) && ! empty($section_id)) {
-            $is_result_found = $this->operation->GetByQuery('SELECT inv.username,inv.screenname,inv.profile_image,inv.id as uid FROM student_semesters s  INNER JOIN invantage_users inv ON inv.id = s.student_id  WHERE s.status = "r" AND s.class_id =' . $class_id . ' AND s.section_id = ' . $section_id);
+            $is_result_found = $this->operation->GetByQuery('SELECT inv.username,inv.screenname,inv.profile_image,inv.id as uid FROM student_semesters s  INNER JOIN invantage_users inv ON inv.id = s.student_id  WHERE s.status = "r" AND s.class_id =' . $class_id . ' AND s.section_id = ' . $section_id. ' AND s.session_id = '.$session_id.' AND s.semester_id ='.$semester_id);
             
             if (count($is_result_found)) {
                 foreach ($is_result_found as $value) {
                     
                     $result[] = array(
+                        'id' => $value->uid,
+                        'name' => $this->GetStudentName($value->uid),
                         'rollnumber' => $value->username,
-                        'name' => $value->screenname,
+                        //'name' => $value->screenname,
                         'profile_image' => $this->get_uploaded_file_url($value->profile_image, UPLOAD_CAT_PROFILE),
                         'fathername' => ($this->get_user_meta($value->uid, 'father_name') != false ? $this->get_user_meta($value->uid, 'father_name') : ''),
                         'phone' => ($this->get_user_meta($value->uid, 'sphone') != false ? $this->get_user_meta($value->uid, 'sphone') : '')
@@ -10143,7 +10158,7 @@ class LMSApi extends MY_Rest_Controller
                     );
        $this->response($result, REST_Controller::HTTP_OK);
     }
-    function mid_term_subject_result_get()
+    function student_quiz_marks_get()
     {
         
         $resultarray = array();
@@ -10214,7 +10229,7 @@ class LMSApi extends MY_Rest_Controller
         $this->response($resultarray, REST_Controller::HTTP_OK);
         //echo json_encode($resultarray);
     }
-    function subject_result_get()
+    function student_marks_get()
     {
         $resultarray = array();
         $school_id = $this->input->get('school_id');
@@ -10318,7 +10333,7 @@ class LMSApi extends MY_Rest_Controller
         }
         echo json_encode($result);
     }
-    function student_mid_quiz_marks_post()
+    function student_quiz_marks_post()
     {
 
         $request = json_decode(file_get_contents('php://input'));
@@ -10907,7 +10922,7 @@ class LMSApi extends MY_Rest_Controller
 
         echo $result['message'];
     }
-    function grade_list_get()
+    function class_section_list_by_teacher_get()
     {
         $user_id = $this->input->get('user_id');
         $this->data['grade_list']=$this->operation->GetByQuery("select cl.id, cl.grade,sc.section_name from schedule s inner join classes cl on cl.id = s.class_id inner join sections sc on sc.id = s.section_id  where s.teacher_uid = ".$user_id." group by cl.id");
@@ -10920,6 +10935,7 @@ class LMSApi extends MY_Rest_Controller
     }
     function announcements_get()
     {
+
         //$request = json_decode(file_get_contents('php://input'));
         $school_id = $this->input->get('school_id');
         $listarray =array();
@@ -10936,7 +10952,6 @@ class LMSApi extends MY_Rest_Controller
             
             }
         }
-
 
         // $datameta=$this->data['timetable_list'] = $this->operation->GetRowsByQyery("SELECT * FROM  announcements ORDER by id desc");
         
@@ -11202,7 +11217,7 @@ class LMSApi extends MY_Rest_Controller
 
 
 
-                $url = SHAMA_CORE_API_PATH."sendMessage/".$this->input->post('serial');
+                $url = SHAMA_CORE_API_PATH."send_Message/".$this->input->post('serial');
                 
                 $params = 1;
                 foreach ($params as $key => &$val) {
@@ -11252,7 +11267,7 @@ class LMSApi extends MY_Rest_Controller
         $this->response($result, REST_Controller::HTTP_OK);
         //echo json_encode($result);
     }
-    public function sendMessage_post($id = NULL)
+    public function send_Message_post($id = NULL)
     {
             //Update announcement_details set status = "Pending" where announcement_id = 191 and status = "Cancelled"
             // Check already cancelled 
@@ -11490,11 +11505,13 @@ class LMSApi extends MY_Rest_Controller
         $this->load->view('principal/announcement/view_announcement',$this->data);
     }
 
-    public function announcement_view_post()
+    public function announcement_get()
     {
-        $request = json_decode(file_get_contents('php://input'));
-        $id = $this->security->xss_clean(trim($request->serial));
-        $school_id = $this->security->xss_clean(trim($request->school_id));
+        //$request = json_decode(file_get_contents('php://input'));
+        //$id = $this->security->xss_clean(trim($request->serial));
+        //$school_id = $this->security->xss_clean(trim($request->school_id));
+        $id = $this->input->get('serial');
+        $school_id = $this->input->get('school_id');
         $ann_recorde = $this->operation->GetByQuery("SELECT * FROM  announcements where id=".$id);
         //$listarray = array();
         if($ann_recorde[0]->target_type=="Individual")

@@ -663,13 +663,13 @@ require APPPATH.'views/__layout/footer.php';
             try{
                 
                 var data = ({   
-                    inputclassid:$scope.filterobj.class.id,
-                    inputsectionid:$scope.filterobj.section.id,
-                    inputsemesterid:$scope.filterobj.semester.id,
-                    inputsessionid:$scope.filterobj.session.id,
-                    
+                    class_id:$scope.filterobj.class.id,
+                    section_id:$scope.filterobj.section.id,
+                    semester_id:$scope.filterobj.semester.id,
+                    session_id:$scope.filterobj.session.id,
+                    school_id:$scope.school_id,
                 });
-                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>student_by_class',(data)).then(function(response){
+                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>students_by_class_and_section',(data)).then(function(response){
 
                 //$myUtils.httprequest('<?php echo base_url(); ?>getstudentbyclass',data).then(function(response){
                     if(response.length > 0 && response != null)

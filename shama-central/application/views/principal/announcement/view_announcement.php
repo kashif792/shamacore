@@ -659,7 +659,7 @@ $scope.changetarget = function()
             
             var request = {
                 method: 'POST',
-                url: "<?php echo SHAMA_CORE_API_PATH; ?>stop_Announcement",
+                url: "<?php echo SHAMA_CORE_API_PATH; ?>stop_announcement",
                 data: formdata,
                 headers: {'Content-Type': undefined}
             };
@@ -697,7 +697,7 @@ $scope.changetarget = function()
                         serial:$scope.serial,
                     }
                     //console.log(data);
-                    $myUtils.httppostrequest('<?php echo SHAMA_CORE_API_PATH; ?>announcement_view',({school_id:$scope.school_id,serial:$scope.serial})).then(function(response){
+                    $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>announcement',({school_id:$scope.school_id,serial:$scope.serial})).then(function(response){
                     //httppostrequest('<?php echo $path_url; ?>Principal_controller/getAnnouncementView',data).then(function(response){
                         $scope.data = [];
                         //console.log(response);

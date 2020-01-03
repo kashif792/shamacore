@@ -266,13 +266,13 @@ require APPPATH.'views/__layout/footer.php';
             try{
                 //console.log(data);
                     $scope.data = [];
-                    $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>get_Grade_List',({school_id:$scope.school_id,user_id:$scope.user_id})).then(function(response){
+                    $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>classes',({school_id:$scope.school_id,user_id:$scope.user_id})).then(function(response){
                     //httppostrequest('getdatesheetdata',data).then(function(response){
                         $scope.data = [];
                         if(response.length > 0 && response != null)
                         {
-                            for (var i=0; i<response[0]['listarray'].length; i++) {
-                                $scope.data.push(response[0]['listarray'][i]);
+                            for (var i=0; i<response.length; i++) {
+                                $scope.data.push(response[i]);
                                 
                                 
                             }
@@ -300,7 +300,7 @@ require APPPATH.'views/__layout/footer.php';
                 "order": [[ 0, "asc"  ]],
                 rowId: 'id',
                 columns: [
-                    { data: 'grade' },
+                    { data: 'name' },
                     { data: 'section_name' },
                     
                     

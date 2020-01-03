@@ -176,7 +176,7 @@ $route['api/v(:num)/active_semester_in_school'] = 'api_v$1/Lmsapi/Get_Active_Sem
 $route['api/v(:num)/active_session_in_school'] = 'api_v$1/Lmsapi/Get_Active_Session_In_School';
 $route['api/v(:num)/reset_student_progress'] = 'api_v$1/Lmsapi/Reset_Student_Progress';
 $route['api/v(:num)/subject_list_by_class'] = "api_v$1/Lmsapi/Subject_List_By_Class/";
-$route['api/v(:num)/GetSubjectListByClassWeekly'] = "api_v$1/Lmsapi/GetSubjectListByClassWeekly/";
+$route['api/v(:num)/subject_list_by_class_weekly'] = "api_v$1/Lmsapi/GetSubjectListByClassWeekly/";
 
 // Shama v2.0 
 $route['api/v(:num)/assembly'] = 'api_v$1/Lmsapi/assembly';
@@ -212,32 +212,33 @@ $route['api/v(:num)/quizzes'] = 'api_v$1/Lmsapi/quizzes';
 
 // Quiz Mark Done
 
-$route['api/v(:num)/subject_quiz_result'] = 'api_v$1/Lmsapi/mid_term_subject_result';
+//$route['api/v(:num)/subject_quiz_result'] = 'api_v$1/Lmsapi/subject_quiz_result';  // Get Quiz Marks
 //$route['api/v(:num)/getfinaltermsubjectresult'] = 'api_v$1/Lmsapi/getfinaltermsubjectresult';
-$route['api/v(:num)/student_mid_quiz_marks'] = 'api_v$1/Lmsapi/student_mid_quiz_marks';
-$route['api/v(:num)/student_marks'] = 'api_v$1/Lmsapi/student_marks';
-//$route['api/v(:num)/getevulationheader'] = 'api_v$1/Lmsapi/GetEvulationHeader';
-$route['api/v(:num)/subject_result'] = 'api_v$1/Lmsapi/subject_result';
+$route['api/v(:num)/student_quiz_marks'] = 'api_v$1/Lmsapi/student_quiz_marks';  // Post Quiz Mark 
+$route['api/v(:num)/student_marks'] = 'api_v$1/Lmsapi/student_marks'; 
 
+//$route['api/v(:num)/subject_result'] = 'api_v$1/Lmsapi/subject_result';
+//$route['api/v(:num)/getevulationheader'] = 'api_v$1/Lmsapi/GetEvulationHeader';
 // Done
-$route['api/v(:num)/student_by_class'] = 'api_v$1/Lmsapi/student_by_class';
+//$route['api/v(:num)/student_by_class'] = 'api_v$1/Lmsapi/student_by_class';
 $route['api/v(:num)/mid_student_report'] = 'api_v$1/Lmsapi/mid_student_report_by_subject_wize';
 $route['api/v(:num)/final_student_report'] = 'api_v$1/Lmsapi/final_student_report_by_subject_wize';
-$route['api/v(:num)/student_lesson_progress'] = 'api_v$1/Lmsapi/semester_lesson_progress';
-$route['api/v(:num)/get_Grade_List'] = 'api_v$1/Lmsapi/grade_list';
+$route['api/v(:num)/student_lesson_progress'] = 'api_v$1/Lmsapi/semester_lesson_progress'; // Bulk save;
+//$route['api/v(:num)/class_section_list_by_teacher'] = 'api_v$1/Lmsapi/class_section_list_by_teacher';
 
 // Announcement Done
 
 //$route['api/v(:num)/Announcement_List'] = 'api_v$1/Lmsapi/announcement_list';
-$route['api/v(:num)/announcements'] = 'api_v$1/Lmsapi/announcements';
-$route['api/v(:num)/announcement_view'] = 'api_v$1/Lmsapi/announcement_view';
+
+$route['api/v(:num)/announcements'] = 'api_v$1/Lmsapi/announcements/'; // Bulk save;
+$route['api/v(:num)/announcement'] = 'api_v$1/Lmsapi/announcement/';
 
 $route['api/v(:num)/send_announcement'] = 'api_v$1/Lmsapi/send_Announcement';
-$route['api/v(:num)/stop_Announcement'] = 'api_v$1/Lmsapi/stop_Announcement';
+$route['api/v(:num)/stop_announcement'] = 'api_v$1/Lmsapi/stop_Announcement';
 //$route['api/v(:num)/getAnnoucementList'] = 'api_v$1/Lmsapi/getAnnoucementList';
 $route['api/v(:num)/announcement_detail_list'] = 'api_v$1/Lmsapi/announcement_detail_list';
-$route['api/v(:num)/stop_announcement_detail_list'] = 'api_v$1/Lmsapi/stop_announcement_detail_list';
-$route['api/v(:num)/sendMessage/(:any)'] = 'api_v$1/Lmsapi/sendMessage/$2';
+//$route['api/v(:num)/stop_announcement_detail_list'] = 'api_v$1/Lmsapi/stop_announcement_detail_list';
+$route['api/v(:num)/send_Message/(:any)'] = 'api_v$1/Lmsapi/send_Message/$2';
 
 //$route['midreport'] = 'Reports/MidReportView';
 //$route['finalreport'] = 'Reports/FinalReportView';

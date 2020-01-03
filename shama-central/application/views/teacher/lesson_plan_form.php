@@ -444,7 +444,7 @@ $(document).on('click','.del',function(){
       function getSemesterData(){
       try{
 
-        $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>default_semester',({school_id:$scope.school_id})).then(function(response){
+        $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>semesters',({school_id:$scope.school_id})).then(function(response){
           if(response.length > 0 && response != null)
           {
             $scope.semesterlist = response;
