@@ -289,8 +289,9 @@
 					'semester_id'=>$semester,
 					'class_id'=>$sgrade1,
 					'section_id'=>$sgrade,
-					'status'=>'r',
-					'session_id'=>$active_session[0]->id,
+					//'status'=>'r',
+					//'session_id'=>$active_session[0]->id,
+					// Avoid Session and status change
 				);
 				$is_student_created = $this->operation->Create($studentarray,$is_student_found[0]->id);
 			}

@@ -2470,6 +2470,7 @@ class LMSApi extends MY_Rest_Controller
         
         $user_id = $this->input->get('user_id');
         $session_id = $this->input->get('session_id');
+        $semester_id = $this->input->get('semester_id');
         $role_id = FALSE;
         if ($role = $this->get_user_role($user_id)) {
             $role_id = $role->role_id;
@@ -2480,9 +2481,9 @@ class LMSApi extends MY_Rest_Controller
                 $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN schedule sch ON sch.subject_id=s.id WHERE sch.teacher_uid=" . $this->db->escape($user_id) . " AND s.session_id = ".$session_id." AND s.class_id=" . $this->db->escape($class_id));
             } else {
 
-                $subjectslist = $this->get_subjects($class_id,$session_id);
+                $subjectslist = $this->get_subjects($class_id,$session_id,$semester_id);
             }
-            
+           // print_r($subjectslist);
             $subjects = array();
             if (count($subjectslist)) {
                 foreach ($subjectslist as $value) {
@@ -5818,6 +5819,7 @@ class LMSApi extends MY_Rest_Controller
 
     function GetDefaultLessonPlan_get()
     {
+        
         $this->operation->table_name = "default_lesson_plan";
         $query = $this->operation->GetRows();
         $result = array();

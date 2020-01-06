@@ -665,6 +665,7 @@
                     class_id:$scope.filterobj.class.id,
                     section_id:$scope.filterobj.section.id,
                     session_id:$scope.filterobj.session.id,
+                    user_id:$scope.user_id,
                 }
 
                 $myUtils.httprequest(urlist.getsubjectbyclasslist,data).then(function(response){
@@ -970,7 +971,7 @@ $scope.doneProgressReport = function(){
                     })).then(function(response){
                     getQuizDetail();
                     
-                    if(response.length > 0)
+                    if(response != null && response.length > 0 )
                     {
                         $scope.evulationarray = response;
                         
@@ -995,7 +996,7 @@ $scope.doneProgressReport = function(){
                                         school_id:$scope.school_id, 
                     })).then(function(response){
 
-                    if(response != null)
+                    if(response != null && response.length > 0)
                     {
                         $scope.evulationlist = response;
                     }
@@ -1073,7 +1074,7 @@ $scope.doneProgressReport = function(){
                     //console.log(subjectid+"subject_name"+classid+"sectionid"+sectionid+"semesterid"+semesterid+"sessionid"+sessionid);
                     GetEvulationHeader(subjectid,classid,sectionid,semesterid,sessionid);
                     
-                    if(response.length > 0)
+                    if(response.length > 0 )
                     {
                         
                         var columnname = ['m','f'];

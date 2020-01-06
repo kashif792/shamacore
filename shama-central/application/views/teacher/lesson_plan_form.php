@@ -313,7 +313,8 @@ require APPPATH . 'views/__layout/footer.php';
       function getSubjectList()
       {
         try{
-            var data = ({class_id:$scope.select_class.id, session_id:$scope.session_id})
+          
+            var data = ({class_id:$scope.select_class.id, session_id:$scope.session_id,semester_id:$scope.inputSemester.id})
 
             $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>subjects_by_class',data).then(function(response){
                 if(response.length > 0 && response != null)
@@ -435,7 +436,7 @@ $(document).on('click','.del',function(){
              try{
               $scope.loading_data = 1;
                  $scope.page = 1
-
+                 getSubjectList()
                 retriveData()
             }
             catch(ex){}

@@ -326,7 +326,7 @@ require APPPATH.'views/__layout/footer.php';
     angular.element(function(){
 
       getClassList();
-       
+      getSemesterData() 
     });
        
     $(window).bind('beforeunload', function(){
@@ -359,7 +359,7 @@ require APPPATH.'views/__layout/footer.php';
       function getSubjectList()
       {
         try{
-            var data = ({class_id:$scope.class_id.id, session_id:$scope.session_id, user_id:$scope.user_id})
+            var data = ({class_id:$scope.class_id.id, session_id:$scope.session_id, user_id:$scope.user_id,semester_id:$scope.semester_id.id})
 
             $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>subjects_by_class',data).then(function(response){
                 if(response.length > 0 && response != null)
@@ -367,8 +367,8 @@ require APPPATH.'views/__layout/footer.php';
                     $scope.inputSubject = response[0];
 
                     $scope.subjectlist = response;
-                    getSemesterData()
-
+                    //getSemesterData()
+                    retriveData()
                 }
                 else{
                     $scope.subjectlist = [];
@@ -453,6 +453,7 @@ require APPPATH.'views/__layout/footer.php';
              try{
                  $scope.page = 1
               $scope.loading_data = 1;
+              getSubjectList()
                 retriveData()
             }
             catch(ex){}
