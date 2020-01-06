@@ -455,7 +455,7 @@ $(document).on('click','.del',function(){
                      $scope.inputSemester = response[i];
                 }
             }
-
+            getSubjectList()
 
 
           }

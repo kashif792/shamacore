@@ -2441,11 +2441,12 @@ class LMSApi extends MY_Rest_Controller
             $role_id = $role->role_id;
         }
         $active_session = $this->get_active_session($school_id);
+        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
         $session_id = $active_session->id;
         if ($role_id == 4) {
             $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN schedule sch ON sch.subject_id=s.id WHERE sch.teacher_uid=" . $this->db->escape($user_id));
         } else {
-            $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN `classes` c ON s.class_id=c.id AND s.session_id= ".$session_id." WHERE c.school_id=" . $this->db->escape($school_id));
+            $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN `classes` c ON s.class_id=c.id AND s.session_id= ".$session_id." WHERE s.semester_id = ".$active_semester->semester_id." AND c.school_id=" . $this->db->escape($school_id));
         }
         
         $subjects = array();
