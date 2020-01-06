@@ -2444,7 +2444,7 @@ class LMSApi extends MY_Rest_Controller
         $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
         $session_id = $active_session->id;
         if ($role_id == 4) {
-            $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN schedule sch ON sch.subject_id=s.id WHERE sch.teacher_uid=" . $this->db->escape($user_id));
+            $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN schedule sch ON sch.subject_id=s.id WHERE s.session_id= ".$session_id." AND s.semester_id = ".$active_semester->semester_id." AND sch.teacher_uid=" . $this->db->escape($user_id));
         } else {
             $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN `classes` c ON s.class_id=c.id AND s.session_id= ".$session_id." WHERE s.semester_id = ".$active_semester->semester_id." AND c.school_id=" . $this->db->escape($school_id));
         }
@@ -2479,7 +2479,9 @@ class LMSApi extends MY_Rest_Controller
         
         if (! empty($class_id)) {
             if ($role_id == 4) {
-                $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN schedule sch ON sch.subject_id=s.id WHERE sch.teacher_uid=" . $this->db->escape($user_id) . " AND s.session_id = ".$session_id." AND s.class_id=" . $this->db->escape($class_id));
+                $active_semester = $this->get_active_semester_dates_by_session($session_id);
+
+                $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN schedule sch ON sch.subject_id=s.id WHERE sch.teacher_uid=" . $this->db->escape($user_id) . " AND s.session_id = ".$session_id." AND s.semester_id = ".$active_semester->semester_id." AND s.class_id=" . $this->db->escape($class_id));
             } else {
 
                 $subjectslist = $this->get_subjects($class_id,$session_id,$semester_id);
@@ -2976,8 +2978,10 @@ class LMSApi extends MY_Rest_Controller
             }
         } else {
             if ($role_id == 4) {
-                
-                $query = $this->operation->GetByQuery("SELECT c.*,sc.section_name FROM classes c INNER JOIN schedule sch ON sch.class_id=c.id inner join sections as sc on sc.id = sch.section_id WHERE sch.teacher_uid=$user_id AND c.school_id=$school_id GROUP BY id");
+                $active_session = $this->get_active_session($school_id);
+                $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+
+                $query = $this->operation->GetByQuery("SELECT c.*,sc.section_name FROM classes c INNER JOIN schedule sch ON sch.class_id=c.id inner join sections as sc on sc.id = sch.section_id WHERE sch.teacher_uid=$user_id AND c.school_id=$school_id AND sch.semester_id = ".$active_semester->semester_id." AND sch.session_id = ".$active_session->id." GROUP BY id");
             } else {
 
                 $query = $this->operation->GetByWhere(array(
@@ -10152,8 +10156,11 @@ class LMSApi extends MY_Rest_Controller
     public function quizzes_get()
     {
         
-
-            $quiz_list = $this->operation->GetByQuery("SELECT q.id,grade,section_name,subject_name,qname,isdone,q.quiz_date from quiz q INNER JOIN classes c on q.class_id=c.id INNER JOIN sections sc on q.section_id=sc.id INNER JOIN subjects sb on q.subject_id=sb.id  Where    q.tacher_uid=".$this->input->get('user_id')." group by q.id");
+            $school_id = $this->input->get('school_id');
+            $active_session = $this->get_active_session($school_id);
+            $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+            
+            $quiz_list = $this->operation->GetByQuery("SELECT q.id,grade,section_name,subject_name,qname,isdone,q.quiz_date from quiz q INNER JOIN classes c on q.class_id=c.id INNER JOIN sections sc on q.section_id=sc.id INNER JOIN subjects sb on q.subject_id=sb.id  Where    q.tacher_uid=".$this->input->get('user_id')." AND sb.session_id = ".$active_session->id." and sb.semester_id = ".$active_semester->semester_id." group by q.id");
        $result[] = array(
                         'listarray'=>$quiz_list,
                         
