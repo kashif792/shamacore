@@ -3567,3 +3567,62 @@ div#midbefore_container table td {
     float: left;
     margin: 0px 10px;
 }
+/* Student Progress Report header and first columns fixed */
+
+.tscroll th,.tscroll td {
+  width: 100px;
+  
+}
+.tscroll {
+  
+  /*overflow-x: hidden;
+  overflow-y: hidden;*/
+  height: 550px;
+}
+
+.tscroll table td:first-child {
+  position: sticky;
+  left: 0;
+  background-color: #fff;
+}
+
+
+
+table.flex-table {
+  display: inline-grid;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: scroll;
+height: 550px;
+}
+table.flex-table tbody {
+  flex: 1;
+
+}
+table.flex-table tr {
+  width: auto;
+  display: inline-flex;
+}
+
+table.flex-table thead{
+  display: block;
+}
+
+table.flex-table tbody {
+  display: block;
+
+}
+table.flex-table thead {
+    margin-right: 0px;
+    position: sticky;
+    top: 0px;
+    background-color: #fff;
+    z-index: 100;
+}
+
+
+table.flex-table tr td,
+table.flex-table tr th {
+  display: block;
+  flex: 1;
+}

@@ -1521,12 +1521,12 @@ class LMSApi extends MY_Rest_Controller
             ));
             
             $this->operation->table_name = 'grades';
-            
+            //echo $active_semester[0]->id;
             $resultlist = $this->operation->GetByWhere(array(
                 'status' => 'a',
                 'semester_date_id' => $active_semester[0]->id
             ));
-            
+            //print_r($resultlist); 
             $result = array();
             
             if (count($resultlist)) {
@@ -2267,8 +2267,8 @@ class LMSApi extends MY_Rest_Controller
         
         if (! is_null($subject_id) && ! is_null($class_id) && ! is_null($session_id) && ! is_null($semester_id)) {
             $query = $this->operation->GetByQuery('SELECT s.*,sd.date as read_date FROM semester_lesson_plan s inner join lesson_set_dates as sd on s.set_id = sd.set_id
-                WHERE s.subject_id = ' . $subject_id . ' AND s.session_id = ' . $session_id . ' AND s.semester_id = ' . $semester_id . '
-                 AND s.class_id = ' . $class_id . ' GROUP by s.id  ORDER BY s.preference ASC');
+                WHERE s.subject_id = ' . $subject_id . ' AND sd.session_id = ' . $session_id . ' AND sd.semester_id = ' . $semester_id . '
+                 AND sd.class_id = ' . $class_id . ' GROUP by s.id  ORDER BY s.preference ASC');
             
             if (count($query)) {
                 foreach ($query as $key => $value) {
@@ -2276,6 +2276,7 @@ class LMSApi extends MY_Rest_Controller
                         'id' => $value->id,
                         'unit' => $value->concept,
                         'name' => $value->topic,
+                        'sort_topic' => mb_strimwidth($value->topic, 0, 30, "..."),
                         'date' => (! is_null($value->read_date) ? date('d-M-Y', strtotime($value->read_date)) : ''),
                         'type' => ucfirst($value->type)
                     );
@@ -2377,7 +2378,7 @@ class LMSApi extends MY_Rest_Controller
             if (count($progress))
             {
                 
-                $studentprogress = $this->operation->GetByQuery('SELECT s.id as semid ,sd.date as read_date FROM `semester_lesson_plan` s inner join lesson_set_dates as sd on s.set_id = sd.set_id WHERE s.subject_id = ' . $this->input->get('subject_id') . ' AND s.semester_id = ' . $this->input->get('semester_id') . ' AND s.session_id = ' . $this->input->get('session_id') . ' group by semid order by sd.date asc');
+                $studentprogress = $this->operation->GetByQuery('SELECT s.id as semid ,sd.date as read_date FROM `semester_lesson_plan` s inner join lesson_set_dates as sd on s.set_id = sd.set_id WHERE s.subject_id = ' . $this->input->get('subject_id') . ' AND sd.semester_id = ' . $this->input->get('semester_id') . ' AND sd.session_id = ' . $this->input->get('session_id') . ' group by semid order by sd.date asc');
                 if (count($studentprogress))
                 {
                     foreach ($progress as $key => $value)

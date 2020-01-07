@@ -79,19 +79,19 @@ require APPPATH . 'views/__layout/filterlayout.php';
 						<label for="select_class">Grade <span class="required"></span></label>
 						<select
 							ng-options="item.name for item in classlist track by item.id"
-							name="select_class" id="select_class" ng-model="select_class"></select>
+							name="select_class" class="form-control" id="select_class" ng-model="select_class"></select>
 					</div>
 					<div class="form-group">
 						<label for="select_subject">Subject<span class="required"></span></label>
 						<select
 							ng-options="item.name for item in subjectlist track by item.id"
-							name="select_subject" id="select_subject" ng-model="inputSubject"></select>
+							name="select_subject" class="form-control" id="select_subject" ng-model="inputSubject"></select>
 					</div>
 					<div class="form-group">
 						<label for="inputSemester">Semester<span class="required"></span></label>
 						<select
 							ng-options="item.name for item in semesterlist track by item.id"
-							name="inputSemester" id="inputSemester" ng-model="inputSemester"
+							name="inputSemester"  class="form-control" id="inputSemester" ng-model="inputSemester"
 							my-repeat-directive>
 						</select>
 					</div>
