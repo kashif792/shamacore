@@ -4325,7 +4325,8 @@ class LMSApi extends MY_Rest_Controller
         $sresult['message'] = false;
         
         if ($session_id != 0 && is_numeric($session_id)) {
-            $this->db->query("UPDATE sessions SET status = 'i'");
+            $is_found_school = $this->operation->GetByQuery("SELECT school_id FROM `sessions` WHERE  id = ".$session_id);
+            $this->db->query("UPDATE sessions SET status = 'i' WHERE school_id = ".$is_found_school[0]->school_id);
             
             $this->operation->table_name = 'sessions';
             $session_data = array(

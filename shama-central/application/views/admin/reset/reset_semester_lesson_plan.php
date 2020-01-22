@@ -284,17 +284,17 @@ require APPPATH.'views/__layout/footer.php';
             $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>sessions',({school_id:$school_id})).then(function(response){
                 if(response != null && response.length > 0)
                 {
-                    console.log(response);
+                    
                     $scope.rsessionlist = response
                     
                      var find_active_session = $filter('filter')(response,{status:'a'},true);
-                     
+
 
                     if(find_active_session.length > 0)
                     {
                         //console.log(find_active_session[0].name+" (Active)");
                         //$scope.filterobj.session = find_active_session[0].name+" (Active)";
-                        $scope.filterobj.session = find_active_session[0]
+                        $scope.filterobj.session = find_active_session[0];
                         
                     }
                 }
@@ -316,7 +316,7 @@ require APPPATH.'views/__layout/footer.php';
                         
                         if(find_active_semester.length > 0)
                         {
-                            $scope.filterobj.semester = find_active_semester[0]  ;
+                            $scope.filterobj.semester = find_active_semester[0];
                         }
 
                     }
