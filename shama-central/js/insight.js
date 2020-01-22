@@ -76,6 +76,19 @@ $("#reports").click(function(){
         }
         $("#datasheet").slideToggle('slow')
      })
+
+$("#manage_data").click(function(){
+       
+        if($("#reset_semester_lesson_plan").css('display') == 'block')
+        {
+            $(".manage-icon").removeClass('lsubmenu-icon-rotate')
+        }
+        if($("#reset_semester_lesson_plan").css('display') == 'none'){
+            $(".manage-icon").addClass('lsubmenu-icon-rotate')
+        }
+        $("#reset_semester_lesson_plan").slideToggle('slow')
+     })
+
     /**
      * ---------------------------------------------------------
      *   Enable/Disable filter inputs

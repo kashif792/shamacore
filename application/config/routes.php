@@ -152,7 +152,7 @@ $route['api/v(:num)/subjects'] = "api_v$1/Lmsapi/subjects";
 $route['api/v(:num)/removesubject'] = "api_v$1/Lmsapi/subjectRemove";
 
 $route['api/v(:num)/subjects_by_class'] = "api_v$1/Lmsapi/subjects_by_class";
-
+$route['api/v(:num)/subjects_by_class_weekly'] = "api_v$1/Lmsapi/subjects_by_class_weekly/";
 
 $route['api/v(:num)/sync_grade_lesson_plan'] = "api_v$1/Lesson_Plan_Controller/sync_grade_lesson_plan";
 $route['api/v(:num)/sync_semester_lesson_plan'] = "api_v$1/Lesson_Plan_Controller/sync_semester_lesson_plan";
@@ -175,8 +175,6 @@ $route['api/v(:num)/setclassgroupstatus'] = 'api_v$1/Lmsapi/SetClassLessonReadSt
 $route['api/v(:num)/active_semester_in_school'] = 'api_v$1/Lmsapi/Get_Active_Semester_In_School';
 $route['api/v(:num)/active_session_in_school'] = 'api_v$1/Lmsapi/Get_Active_Session_In_School';
 $route['api/v(:num)/reset_student_progress'] = 'api_v$1/Lmsapi/Reset_Student_Progress';
-$route['api/v(:num)/subject_list_by_class'] = "api_v$1/Lmsapi/Subject_List_By_Class/";
-$route['api/v(:num)/subject_list_by_class_weekly'] = "api_v$1/Lmsapi/GetSubjectListByClassWeekly/";
 
 // Shama v2.0 
 $route['api/v(:num)/assembly'] = 'api_v$1/Lmsapi/assembly';
@@ -242,6 +240,10 @@ $route['api/v(:num)/send_Message/(:any)'] = 'api_v$1/Lmsapi/send_Message/$2';
 
 //$route['midreport'] = 'Reports/MidReportView';
 //$route['finalreport'] = 'Reports/FinalReportView';
+
+// Reset Semester Lesson Plan
+
+$route['api/v(:num)/reset_data_management'] = 'api_v$1/Lmsapi/reset_data_management';
 
 
 

@@ -186,18 +186,18 @@ defined('VALIDATE_NIC') OR define('VALIDATE_NIC', 'nic');
  
 if(ENVIRONMENT == 'production')
 {
-	define('UPLOAD_PATH', './upload/');
+	define('UPLOAD_PATH', 'http://shama.zinwebs.com/shama-core/upload/');
 }
 else{
-	define('UPLOAD_PATH', './upload/');
+	define('UPLOAD_PATH', 'http://localhost/shamacore/shama-central/upload/');
 }
 
 if(ENVIRONMENT == 'production')
 {
-	define('IMAGE_LINK_PATH','http://zinwebs.com/learninginvantage/v1/upload/');
+	define('IMAGE_LINK_PATH','http://shama.zinwebs.com/shama-core/v1/upload/');
 }
 else{
-	define('IMAGE_LINK_PATH','http://localhost/shama-central/upload/');
+	define('IMAGE_LINK_PATH','http://localhost/shamacore/shama-central/upload/');
 }
 
 if(ENVIRONMENT == 'production')

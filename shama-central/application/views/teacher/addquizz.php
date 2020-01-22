@@ -1028,7 +1028,7 @@ setTimerForWidget('section',1)
                             class_id:$scope.inputclass.id,
 
                             })
-                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>subject_list_by_class',data).then(function(response){
+                $myUtils.httprequest('<?php echo SHAMA_CORE_API_PATH; ?>subjects_by_class',data).then(function(response){
                 if(response.length > 0 && response != null)
                 {
                     $scope.subjectlist = response;

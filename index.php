@@ -54,19 +54,17 @@
  * NOTE: If you change these, also change the error_reporting() code below
  */
 
+	$env = 'production';
 	switch ($_SERVER['HTTP_HOST']) {
 
-		case '192.168.1.99':
 		case 'localhost':
 		case 'zilonlahore':
-			$env = 'development';
-			break;
 		case '192.168.1.2':
+		case '192.168.1.99':
 			$env = 'development';
 			break;
 
 		default:
-			$env = 'production';
 			break;
 	}
 	define('ENVIRONMENT', $env);

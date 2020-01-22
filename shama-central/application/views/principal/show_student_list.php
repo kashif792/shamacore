@@ -838,6 +838,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                             <th>Father Name</th>
                             <th>Father Phone No</th>
                             <th>Financial Assistance</th>
+                            <th>Mode</th>
                             <th ng-if="isPrincipal">Options</th>
                             
                         </tr>
@@ -856,6 +857,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                             <th>Father Name</th>
                             <th>Father Phone No</th>
                             <th>Financial Assistance</th>
+                            <th>Mode</th>
                             <th ng-if="isPrincipal"></th>
                             
                         </tr>
@@ -1348,7 +1350,7 @@ require APPPATH.'views/__layout/footer.php';
                     { data: 'father_name' },
                     { data: 'phone' },
                     { data: 'req_financial_assistance' },
-                    
+                    { data: 'mode' },
                     {
                      "className": '',
                      "orderable": false,
@@ -1366,115 +1368,39 @@ require APPPATH.'views/__layout/footer.php';
                       }
                     },
                 ],
+                pageLength: 10,
+                rowCallback: function (row, data) {
+                
+                    $(row).addClass('row-bar-user');
+                    $(row).attr('data-view',data['id']);
+                },
+                initComplete: function() {
+                    this.api().columns().every( function () {
+                      if(this.index()==4){
+                        return;
+                      }
+                      var column = this;
+                      var select = $('<select><option value=""></option></select>')
+                      .appendTo( $(column.footer()).empty() )
+                      .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                          $(this).val()
+                          );
+                        column
+                        .search( val ? '^'+val+'$' : '', true, false )
+                        .draw();
+                      });
 
-                "pageLength": 10,
+                      column.data().unique().sort().each( function ( d, j ) {
+                        select.append( '<option value="'+d+'">'+d+'</option>' )
+                      });
 
+                    });
+                }
+                
             })
-            
-          
-            table.columns(1).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
-            table.columns(2).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
-            table.columns(3).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
-            table.columns(5).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
-            table.columns(6).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
-            table.columns(7).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
         }
+
         function loaddatatableTeacher(data)
         {
             var listdata= data;
@@ -1493,144 +1419,42 @@ require APPPATH.'views/__layout/footer.php';
                     { data: 'father_name' },
                     { data: 'phone' },
                     { data: 'req_financial_assistance' },
+                    { data: 'mode' },
                     
                    
                 ],
+                pageLength: 10,
+                rowCallback: function (row, data) {
+                
+                    $(row).addClass('row-bar-user');
+                    $(row).attr('data-view',data['id']);
+                },
+                initComplete: function() {
+                    this.api().columns().every( function () {
+                      if(this.index()==4){
+                        return;
+                      }
+                      var column = this;
+                      var select = $('<select><option value=""></option></select>')
+                      .appendTo( $(column.footer()).empty() )
+                      .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                          $(this).val()
+                          );
+                        column
+                        .search( val ? '^'+val+'$' : '', true, false )
+                        .draw();
+                      });
 
-                "pageLength": 10,
+                      column.data().unique().sort().each( function ( d, j ) {
+                        select.append( '<option value="'+d+'">'+d+'</option>' )
+                      });
+
+                    });
+                }
 
             })
-            
-          
-            table.columns(1).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
-            table.columns(2).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
-            table.columns(3).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
-            table.columns(5).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
-            table.columns(6).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
-            table.columns(7).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
         }
-        // function loaddatatable()
-        // {
-        //     $('#table-body-phase-tow').DataTable( {
-        //          "order": [[ 0, "asc"  ]],
-               
-        //         initComplete: function () {
-        //             this.api().columns().every( function () {
-        //                 var column = this;
-        //                 var select = $('<select><option value="">All</option></select>')
-        //                     .appendTo( $(column.footer()).empty() )
-        //                     .on( 'change', function () {
-        //                         var val = $.fn.dataTable.util.escapeRegex(
-        //                             $(this).val()
-        //                         );
-        //                         column
-        //                             .search( val ? '^'+val+'$' : '', true, false )
-        //                             .draw();
-        //                     });
-        //                 column.data().unique().sort().each( function ( d, j ) {
-        //                     select.append( '<option value="'+d+'">'+d+'</option>' )
-        //                 });
-        //             });
-        //         }
-        //     });
-        // }
-
     }
 
 

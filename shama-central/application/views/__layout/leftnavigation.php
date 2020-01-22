@@ -27,6 +27,12 @@
 				<span class="link_text"> Settings</span>
 			</a>
 		</li>
+		<li >
+			<a  href="{{baseUrl}}data_management">
+				<i class="fa fa-magic" aria-hidden="true"></i>
+				<span class="link_text"> Data Management</span>
+			</a>
+		</li>
 	</ul>
 
 	<ul ng-if="isPrincipal || isTeacher" class="nav nav-pills nav-stacked">
@@ -158,7 +164,7 @@
 		</li>
 
 
-	 	<li ng-if="isPrincipal" ng-class="(segment1 == 'date_schedular')? 'active' : ''">
+	 	<li ng-if="isPrincipal || isTeacher" ng-class="(segment1 == 'date_schedular')? 'active' : ''">
 			<a  href="{{baseUrl}}date_schedular">
 				<i class="fa fa-calendar" aria-hidden="true"></i>
 				<span class="link_text"> Date Schedular</span>
@@ -226,6 +232,7 @@
 				<span class="link_text"> Announcements</span>
 			</a>
 		</li>
+		
   </ul>
 
 </div>

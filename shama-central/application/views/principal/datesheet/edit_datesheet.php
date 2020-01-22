@@ -252,7 +252,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
             saveMainDatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>datesheet',
             getDatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>datesheet',
             
-            getsubjectlistbyclass:'<?php echo SHAMA_CORE_API_PATH; ?>subject_list_by_class',
+            getsubjectlistbyclass:'<?php echo SHAMA_CORE_API_PATH; ?>subjects_by_class',
             datesheet_detail:'<?php echo SHAMA_CORE_API_PATH; ?>paper',
             detaildatesheet:'<?php echo SHAMA_CORE_API_PATH; ?>papers',
             

@@ -138,7 +138,7 @@ class Login_Controller extends My_Rest_Controller
             $grade_id = '';
             
             $ss = $this->operation->GetByQuery('SELECT * FROM `student_semesters` WHERE student_id = ' . $value->id  . "  AND status = 'r'");
-            
+            $mode='';
             if(count($ss)){
                 $semester_id = $ss[0]->semester_id;
                 $session_id = $ss[0]->session_id;
@@ -156,6 +156,7 @@ class Login_Controller extends My_Rest_Controller
             
             $data['id'] = $value->id;
             $data['type'] = $value->type;
+            $data['mode'] = $this->get_user_meta($value->id, 'mode');
             $data['email'] = $value->email;
             $data['user_name'] = $email;
             $data['screen_name'] = $value->screenname;

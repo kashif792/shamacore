@@ -268,9 +268,9 @@ require APPPATH . 'views/__layout/filterlayout.php';
 								</select> <span class="errorhide" id="section_error">Section
 									required</span>
 							</div>
-							<div class="col-sm-3"
+							<div class="col-sm-3" ng-if="studentData.semester_id"
 								ng-init="editedsemester = studentData.semester_id">
-								<label><span class="icon-user"></span> Semester: </label> <select
+								<label><span class="icon-user"></span> Semester: </label> <select disabled=""
 									class="form-control"
 									ng-options="item.name for item in semesterlist track by item.id"
 									name="inputSemester" id="inputSemester"

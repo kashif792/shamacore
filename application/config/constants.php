@@ -8,27 +8,20 @@ defined('DEVICE_LOGIN_TOKEN') OR define('DEVICE_LOGIN_TOKEN', 'ccd45e6dbe760219f
 
 if(ENVIRONMENT == 'production')
 {
-    define('UPLOAD_PATH', 'http://zinwebs.com/shama/shama-core/upload/');
-    define('SHAMA_CORE_API_PATH', 'http://zinwebs.com/shama/shama-core/api/v1/');
+    define('UPLOAD_PATH', 'http://shama.zinwebs.com/shama/shama-core/upload/');
+    define('SHAMA_CORE_API_PATH', 'http://shama.zinwebs.com/shama/shama-core/api/v1/');
 }
 else{
-    define('UPLOAD_PATH', './upload/');
+    define('UPLOAD_PATH', $_SERVER["DOCUMENT_ROOT"].'/shamacore/upload/');
     define('SHAMA_CORE_API_PATH', 'http://localhost/shamacore/api/v1/');
 }
 
 defined('UPLOAD_CAT_PROFILE') OR define('UPLOAD_CAT_PROFILE', 'profile');
 defined('UPLOAD_CAT_CONTENT') OR define('UPLOAD_CAT_CONTENT', 'content');
 
-defined('QUIZ_TOTAL_MARKS') OR define('QUIZ_TOTAL_MARKS', '10');
-defined('MID_TOTAL_MARKS') OR define('MID_TOTAL_MARKS', '30');
-defined('FINAL_TOTAL_MARKS') OR define('FINAL_TOTAL_MARKS', '50');
-defined('SISSIONAL_MARKS') OR define('SISSIONAL_MARKS', '20');
-
-
+/* SMS */
 defined('SMS_USERNAME') OR define('SMS_USERNAME', '923235917041');
-
 defined('SMS_PASSWORD') OR define('SMS_PASSWORD', '5386');
-
 defined('SMS_SENDER') OR define('SMS_SENDER', 'NR School');
 defined('SMS_PREFIX') OR define('SMS_PREFIX', '92');
 
@@ -80,12 +73,11 @@ defined('ASSEMBLY_END') OR define('ASSEMBLY_END', '7:50');
 defined('BREAK_START') OR define('BREAK_START', '9:36');
 defined('BREAK_END') OR define('BREAK_END', '10:10');
 
-// Mid Term Total Marks
+/* Evaluations */
 defined('QUIZ_TOTAL_MARKS') OR define('QUIZ_TOTAL_MARKS', '10');
 defined('MID_TOTAL_MARKS') OR define('MID_TOTAL_MARKS', '30');
 defined('FINAL_TOTAL_MARKS') OR define('FINAL_TOTAL_MARKS', '50');
 defined('SISSIONAL_MARKS') OR define('SISSIONAL_MARKS', '20');
-
 /*
 |--------------------------------------------------------------------------
 | File Stream Modes

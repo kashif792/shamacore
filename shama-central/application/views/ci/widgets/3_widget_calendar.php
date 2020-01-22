@@ -426,7 +426,7 @@
                         description: $scope.holidays.description,
                         apply: $scope.holidays.apply,
                         is_all_day: $scope.holidays.is_all_day,
-                        type_id: $scope.holidays.type.id,
+                        type_id: $scope.holidays.type!=null?$scope.holidays.type.id : 0,
                         start_date: $scope.holidays.date.startDate,
                         end_date: $scope.holidays.date.endDate
                     }

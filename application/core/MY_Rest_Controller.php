@@ -443,7 +443,16 @@ class MY_Rest_Controller extends REST_Controller
             } else {
                 // AJAX
                 $query = file_get_contents('php://input');
-                parse_str($query, $params);
+                try{
+                    //Parse a json request
+                    $params = json_decode($query);
+                } catch (Exception $e) {
+                    
+                }
+                if($params == NULL || count($params)==0){
+                    // Parse query string
+                    parse_str($query, $params);
+                }
             }
         } else if ($method == "PUT") {
 
@@ -559,8 +568,7 @@ class MY_Rest_Controller extends REST_Controller
             return $this->operation->GetByWhere(array(
                 'class_id' => $class_id,
                 'session_id' => $session_id,
-                'semester_id' => $semester_id
-                
+                'semester_id' => $semester_id                
             ));
         }
     }
@@ -605,10 +613,15 @@ class MY_Rest_Controller extends REST_Controller
     function get_active_semester_dates($school_id)
     {
         $this->operation->table_name = 'semester_dates';
-        return $this->operation->GetByWhere(array(
+        $res = $this->operation->GetByWhere(array(
             'status' => 'a',
             'school_id' => $school_id
         ));
+        
+        if (count($res)) {
+            return $res[0];
+        }
+        return FALSE;
     }
 
     function get_active_session($school_id)
@@ -749,6 +762,18 @@ class MY_Rest_Controller extends REST_Controller
         }
     }
 
+    function get_subject_name($subject_id)
+    {
+        if (! empty($subject_id)) {
+            $is_subject_found = $this->operation->GetByQuery("SELECT * FROM subjects WHERE id = " . $subject_id);
+            if (count($is_subject_found)) {
+                return $is_subject_found[0]->subject_name;
+            } else {
+                return false;
+            }
+        }
+    }
+
     function get_class_period_time($class_id, $section_id, $subject_id, $location, $semester_id, $session_id)
     {
         $this->operation->table_name = 'schedule';
@@ -791,28 +816,20 @@ class MY_Rest_Controller extends REST_Controller
     {
         $url = $file_name;
         
-        if (strlen(UPLOAD_PATH) <= 2) {
-            echo "Invalid Upload Path: " . UPLOAD_PATH;
+        if (strlen(WEB_PATH) <= 2) {
+            echo "Invalid Web Path: " . WEB_PATH;
             return $url;
         }
         
-        $upload_path = UPLOAD_PATH;
-        if ($this->startsWith(UPLOAD_PATH, './') || $this->startsWith(UPLOAD_PATH, '/')) {
-            // relative path link
-            if ($this->startsWith(UPLOAD_PATH, './')) {
-                $upload_path = base_url() . substr(UPLOAD_PATH, 2, strlen(UPLOAD_PATH));
-            } else {
-                $upload_path = base_url() . substr(UPLOAD_PATH, 1, strlen(UPLOAD_PATH));
-            }
-        }
+        $upload_path = WEB_PATH;
+        $file_name = basename($file_name);
         
         if (! empty($upload_cat)) {
 
             if ($upload_cat == UPLOAD_CAT_PROFILE) {
 
-                $url = $upload_path . UPLOAD_CAT_PROFILE . '/' . $file_name;
-
-                return $url;
+                $upload_path = $upload_path . UPLOAD_CAT_PROFILE . '/';
+                
             }
         }
 
@@ -825,19 +842,15 @@ class MY_Rest_Controller extends REST_Controller
     function get_content_url($file_name, $class_name='', $subject_name='') {
         $url = $file_name;
         
-        if (strlen(UPLOAD_PATH) <= 2) {
-            echo "Invalid Upload Path: " . UPLOAD_PATH;
+        if (strlen(WEB_PATH) <= 2) {
+            echo "Invalid Web Path: " . WEB_PATH;
             return $url;
         }
         
-        $upload_path = UPLOAD_PATH;
-        if ($this->startsWith(UPLOAD_PATH, './') || $this->startsWith(UPLOAD_PATH, '/')) {
-            // relative path link
-            if ($this->startsWith(UPLOAD_PATH, './')) {
-                $upload_path = base_url() . substr(UPLOAD_PATH, 2, strlen(UPLOAD_PATH));
-            } else {
-                $upload_path = base_url() . substr(UPLOAD_PATH, 1, strlen(UPLOAD_PATH));
-            }
+        $upload_path = WEB_PATH;
+        if ($this->startsWith($file_name, 'http')) {
+            // It's a link no need to make a link.
+            return $url;
         }
         
         $innerPath = "content/";
@@ -900,7 +913,7 @@ class MY_Rest_Controller extends REST_Controller
                     $result['religion'] = ($this->get_user_meta($value->id, 'principal_religion') != false ? $this->get_user_meta($value->id, 'teacher_religion') : '');
 
                     $result['gender'] = ($this->get_user_meta($value->id, 'principal_gender') != false ? $this->get_user_meta($value->id, 'principal_gender') : '');
-                    $result['nic'] = ($this->get_user_meta($value->id, 'principal_nic') != false ? $this->get_user_meta($value->id, 'teacher_nic') : '');
+                    $result['nic'] = ($this->get_user_meta($value->id, 'principal_nic') != false ? $this->get_user_meta($value->id, 'principal_nic') : '');
                     $result['phone'] = ($this->get_user_meta($value->id, 'principal_phone') != false ? $this->get_user_meta($value->id, 'principal_phone') : '');
                     $result['p_address'] = ($this->get_user_meta($value->id, 'principal_primary_address') != false ? $this->get_user_meta($value->id, 'principal_primary_address') : '');
                     $result['s_address'] = ($this->get_user_meta($value->id, 'principal_secondry_adress') != false ? $this->get_user_meta($value->id, 'principal_secondry_adress') : '');

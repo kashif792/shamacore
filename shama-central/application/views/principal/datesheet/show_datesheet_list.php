@@ -188,6 +188,7 @@ require APPPATH.'views/__layout/footer.php';
 
        $scope.active = 1;
         $scope.fallsemester = [];
+        $scope.filterobj.session = [];
         $scope.type = [];
 
         $("#class_report").show();

@@ -286,12 +286,12 @@
 			if(count($is_student_found)){
 				$studentarray = array(
 					'student_id'=>$is_user_created,
-					'semester_id'=>$semester,
+					//'semester_id'=>$semester,
 					'class_id'=>$sgrade1,
 					'section_id'=>$sgrade,
 					//'status'=>'r',
 					//'session_id'=>$active_session[0]->id,
-					// Avoid Session and status change
+					// Avoid session and status change when updating user information
 				);
 				$is_student_created = $this->operation->Create($studentarray,$is_student_found[0]->id);
 			}
@@ -315,12 +315,13 @@
 				$roll = str_pad($registrationid, 3, "0", STR_PAD_LEFT);
 				$regid = $locations[0]['shortname'].'-'.$roll;
 			}
+			$regid = strtolower($regid);
 
 			$this->user->table_name ="invantage_users";
 			$userarray = array(
 				'username'=>$regid,
 				'screenname'=>$sname,
-				'email'=>$regid,
+				'email'=>'',
 				'password'=>md5($regid),
 				'registerdate'=>date("Y-m-d H:i:s"),
 				'last_update'=>date("Y-m-d H:i:s"),
@@ -1080,7 +1081,8 @@
 
   	public function TeacherInfo($id, $school_id, $tfname, $tsname, $tgndr, $tnic, $temail, $tphone, $tnpswrd, $tprhmadrss, $tsechmadress, $tprovince, $tcity, $tzipcode, $tMaster){
 
-  	    
+	   	$temail = strtolower($temail);
+
 		if($id != null)
 		{
 
@@ -1268,7 +1270,7 @@
 		}
 	}
 
-  	public function PricpalInfo($id = null,$tfname = null,$tsname = null,$tgndr=null,$tnic=null,$temail=null,$tphone=null,$tnpswrd=null,$tprhmadrss=null,$tsechmadress=null,$tprovince=null,$tcity=null,$tzipcode=null,$tLocation=null,$image){
+  	public function PrincipalInfo($id = null,$tfname = null,$tsname = null,$tgndr=null,$tnic=null,$temail=null,$tphone=null,$tnpswrd=null,$tprhmadrss=null,$tsechmadress=null,$tprovince=null,$tcity=null,$tzipcode=null,$tLocation=null,$image){
 		$value = FALSE;
 		$today = date("Y-m-d");
 		$year = date("Y");

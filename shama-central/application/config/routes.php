@@ -448,3 +448,5 @@ $route['grade'] = 'Teacher/grade';
 $route['announcementlist'] = 'Principal_controller/getAnnouncementList';
 $route['add_announcement'] = 'Principal_controller/addAnnouncement';
 $route['view_announcement/(:any)'] = 'Principal_controller/viewAnnouncement/$1';
+// Manage Data Module
+$route['data_management'] = 'Principal_controller/data_management';

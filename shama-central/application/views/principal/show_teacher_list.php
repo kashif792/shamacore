@@ -502,117 +502,40 @@ require APPPATH . 'views/__layout/footer.php';
                       }
                     },
                 ],
+                pageLength: 10,
+                rowCallback: function (row, data) {
+                
+                    $(row).addClass('row-bar-user');
+                    $(row).attr('data-view',data['id']);
+                },
+                initComplete: function() {
+                    this.api().columns().every( function () {
+                      if(this.index()==2){
+                        return;
+                      }
+                      var column = this;
+                      var select = $('<select><option value=""></option></select>')
+                      .appendTo( $(column.footer()).empty() )
+                      .on( 'change', function () {
+                        var val = $.fn.dataTable.util.escapeRegex(
+                          $(this).val()
+                          );
+                        column
+                        .search( val ? '^'+val+'$' : '', true, false )
+                        .draw();
+                      });
 
-                "pageLength": 10,
+                      column.data().unique().sort().each( function ( d, j ) {
+                        select.append( '<option value="'+d+'">'+d+'</option>' )
+                      });
+
+                    });
+                }
 
             })
             
-          
-            table.columns(0).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
-            table.columns(1).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
-            table.columns(3).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
 
         }
-
-	    // function loaddatatable()
-
-	    // {
-
-	    //     $('#table-body-phase-tow').DataTable( {
-
-	    //         responsive: true,
-
-	    //          "order": [[ 0, "asc"  ]],
-
-	    //         initComplete: function () {
-
-	    //             this.api().columns().every( function () {
-
-	    //                 var column = this;
-
-	    //                    var select = $('<select><option value="">All</option></select>')
-
-	    //                     .appendTo( $(column.footer()).empty() )
-
-	    //                     .on( 'change', function () {
-
-	    //                         var val = $.fn.dataTable.util.escapeRegex(
-
-	    //                             $(this).val()
-
-	    //                         );
-
-	     
-
-	    //                         column
-
-	    //                             .search( val ? '^'+val+'$' : '', true, false )
-
-	    //                             .draw();
-
-	    //                     });
-
-	    //                 column.data().unique().sort().each( function ( d, j ) {
-
-	    //                     select.append( '<option value="'+d+'">'+d+'</option>' )
-
-	    //                 });
-
-	    //             });
-
-	    //         }
-
-	    //     });
-
-	    // }
 
         function loadTeacherList(){
 

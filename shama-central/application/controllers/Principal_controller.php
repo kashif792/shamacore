@@ -1419,5 +1419,10 @@ class Principal_controller extends MY_Controller
 
         $this->load->view('principal/announcement/view_announcement');
     }
+    // Reset Manage Data
+    function data_management()
+    {
+        $this->load->view('admin/reset/reset_semester_lesson_plan');
+    }
 }
 

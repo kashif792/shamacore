@@ -99,6 +99,8 @@ class Lesson_Plan_Controller extends My_Rest_Controller
         $subject_id = $this->input->post('subject_id');
 
         $semester_id = $this->input->post('semester_id');
+        // Get Session id from subject id 
+        $active_session = $this->operation->GetByQuery("SELECT session_id from subjects where id = ".$subject_id);
 
         foreach ($data as $value) {
             try {
@@ -143,6 +145,8 @@ class Lesson_Plan_Controller extends My_Rest_Controller
                         'unique_code' => uniqid(),
 
                         'semester_id' => $semester_id,
+                        'session_id' => $active_session[0]->session_id,
+                        'date' => date('Y-m-d'),
 
                         'last_update' => date("Y-m-d H:i:s")
                     );
@@ -509,7 +513,6 @@ class Lesson_Plan_Controller extends My_Rest_Controller
 
     public function semester_lesson_plan_get()
     {
-
         $class_id = $this->input->get('class_id');
         $subject_id = $this->input->get('subject_id');
         $session_id = $this->input->get('session_id');
@@ -584,7 +587,9 @@ class Lesson_Plan_Controller extends My_Rest_Controller
                             $lessons = $this->operation->GetByWhere(array(
                                 'day' => $i,
                                 'subject_id' => $subject->id,
-                                'class_id' => $class_id
+                                'class_id' => $class_id,
+                                'semester_id' =>$semester_id,
+                                'session_id' => $session_id
                             ));
 
                             foreach ($lessons as $lesson) {
@@ -660,13 +665,12 @@ class Lesson_Plan_Controller extends My_Rest_Controller
             }
 
             if (count($semester_lessons)) {
-                
                 foreach ($semester_lessons as $value) {
                     $data[] = array(
                         'id' => $value->id,
                         'set_id' => $value->set_id,
                         'topic' => $value->topic,
-                        'content' => $value->content,
+                        'content' => $this->get_content_url($value->content, $this->get_class_name($class_id), $this->get_subject_name($value->subject_id)),
                         'concept' => $value->concept,
                         'lesson' => $value->lesson,
                         'type' => $value->type,
@@ -690,7 +694,6 @@ class Lesson_Plan_Controller extends My_Rest_Controller
             $session_id = $this->input->post('session_id');
             $user_id = $this->input->post('user_id');
 
-            // $lesson = $this->operation->GetByQuery("SELECT * FROM semester_lesson_plan WHERE class_id=" . $class_id . " AND subject_id=" . $subject_id . " AND semester_id=" . $semester_id);
             $id = 0;
 
             if (empty($class_id) || empty($subject_id) || empty($semester_id) || empty($session_id) || empty($user_id)) {
@@ -750,9 +753,11 @@ class Lesson_Plan_Controller extends My_Rest_Controller
                     );
                     $this->operation->table_name = 'semester_lesson_plan';
                     $id = $this->operation->Create($newrec, $lid);
+
                 }
 
-                if (count($id)) {
+                if (count($id)) 
+                {
                     $result['message'] = true;
                 }
             }
@@ -798,7 +803,10 @@ class Lesson_Plan_Controller extends My_Rest_Controller
             }
 
             $this->response($result, REST_Controller::HTTP_OK);
-        } catch (Exception $e) {}
+        } catch (Exception $e) {
+            if(ENVIRONMENT == 'development')
+             print_r($e);
+         }
     }
 
     public function export_semester_lesson_plan_get()
@@ -900,6 +908,7 @@ class Lesson_Plan_Controller extends My_Rest_Controller
         if (count($lesson)) {
 
             foreach ($lesson as $value) {
+                
 
                 $isPresent = $this->operation->GetByQuery("SELECT * FROM semester_lesson_plan WHERE unique_code= '" . $value->unique_code . "'");
 
@@ -907,8 +916,28 @@ class Lesson_Plan_Controller extends My_Rest_Controller
                 $this->operation->primary_key = 'id';
 
                 if (! count($isPresent)) {
-
+                    // check set id 
+                    // Get Prefferences already any subject
+                    $isPrefferences = $this->operation->GetByQuery("SELECT preference,read_date,section_id FROM semester_lesson_plan WHERE class_id= " . $class_id . " AND session_id = " . $session_id . " AND semester_id = " . $semester_id . " AND subject_id  = " . $subject_id  . " AND set_id = ".$value->day);
+                    
+                    if(count($isPrefferences))
+                    {
+                        $prefferences = $isPrefferences[0]->preference;
+                        $read_date = $isPrefferences[0]->read_date;
+                        $section_id = $isPrefferences[0]->section_id;
+                        
+                    }
+                    else
+                    {
+                        $section_id = 0;
+                        // IF not set Prefferences
+                        $maxpref = $this->operation->GetByQuery("SELECT preference,read_date,section_id FROM semester_lesson_plan WHERE class_id= " . $class_id . " AND session_id = " . $session_id . " AND semester_id = " . $semester_id . " ORDER BY preference DESC LIMIT 1");
+                        $prefferences = $maxpref[0]->preference+1;
+                        
+                    }
+                   
                     $newdata = array(
+                        'set_id' => $value->day,
                         'concept' => $value->concept,
                         'content' => $value->content,
                         'topic' => $value->topic,
@@ -920,10 +949,15 @@ class Lesson_Plan_Controller extends My_Rest_Controller
                         'semester_id' => $semester_id,
                         'session_id' => $session_id,
                         'active' => 1,
+                        'preference' =>$prefferences,
+                        'read_date' =>$read_date,
+                        'section_id' =>$section_id,
                         'created' => date("Y-m-d H:i"),
                         'updated' => date("Y-m-d H:i")
                     );
+                    
                     $id = $this->operation->Create($newdata);
+                    
                 } else {
 
                     $data = array(
@@ -1539,7 +1573,21 @@ class Lesson_Plan_Controller extends My_Rest_Controller
                 $this->operation->table_name = TABLE_STUDENT_LESSON_PLAN;
                 $this->operation->primary_key = 'id';
 
-                if (! count($isPresent)) {
+                if (count($isPresent) > 0) {
+
+                    $data = array(
+                        'set_id' => $lesson->set_id,
+                        'concept' => $lesson->concept,
+                        'content' => $lesson->content,
+                        'topic' => $lesson->topic,
+                        'type' => $lesson->type,
+                        'lesson' => $lesson->lesson,
+                        'preference' => $lesson->preference,
+                        'updated' => date("Y-m-d H:i:s")
+                    );
+
+                    $id = $this->operation->Create($data, $isPresent[0]->id);
+                } else {
 
                     $newdata = array(
                         'set_id' => $lesson->set_id,
@@ -1556,24 +1604,10 @@ class Lesson_Plan_Controller extends My_Rest_Controller
                         'semester_id' => $semester_id,
                         'session_id' => $session_id,
                         'active' => 1,
-                        'created' => date("Y-m-d H:i"),
-                        'updated' => date("Y-m-d H:i")
+                        'created' => date("Y-m-d H:i:s"),
+                        'updated' => date("Y-m-d H:i:s")
                     );
                     $id = $this->operation->Create($newdata);
-                } else {
-
-                    $data = array(
-                        'set_id' => $lesson->set_id,
-                        'concept' => $lesson->concept,
-                        'content' => $lesson->content,
-                        'topic' => $lesson->topic,
-                        'type' => $lesson->type,
-                        'lesson' => $lesson->lesson,
-                        'preference' => $lesson->preference,
-                        'updated' => date("Y-m-d H:i")
-                    );
-
-                    $id = $this->operation->Create($data, $isPresent[0]->id);
                 }
                 if ($id) {
                     $result = TRUE;
@@ -1597,6 +1631,8 @@ class Lesson_Plan_Controller extends My_Rest_Controller
             return;
         }
 
+        $update = false;
+
         // Check if semester lesson plan is updated
         $std_count = $this->operation->GetByQuery("SELECT COUNT(id) as count FROM ". TABLE_STUDENT_LESSON_PLAN_SETTINGS ." WHERE student_id = " . $student_id);
 
@@ -1611,7 +1647,7 @@ class Lesson_Plan_Controller extends My_Rest_Controller
                 // Semester lessons were udpated for these subjects
                 foreach ($std_plan_settings as $std_plan_setting) {
                     if ($this->sync_student_lessons($student_id, $std_plan_setting->subject_id, $class_id, $semester_id, $session_id)) {
-
+                        $update = true;
                         $this->operation->table_name = TABLE_STUDENT_LESSON_PLAN_SETTINGS;
                         $this->operation->Create(array(
                             'updated' => date("Y-m-d H:i"),
@@ -1629,6 +1665,7 @@ class Lesson_Plan_Controller extends My_Rest_Controller
             if (count($class_subjects)) {
                 foreach ($class_subjects as $subject) {
                     if ($this->sync_student_lessons($student_id, $subject->id, $class_id, $semester_id, $session_id)) {
+                        $update = true;
 
                         $this->operation->table_name = TABLE_STUDENT_LESSON_PLAN_SETTINGS;
                         $this->operation->Create(array(
@@ -1659,7 +1696,7 @@ class Lesson_Plan_Controller extends My_Rest_Controller
                     'set_id' => $value->set_id,
                     'subject_id' => $value->subject_id,
                     'topic' => $value->topic,
-                    'content' => $value->content,
+                    'content' => $this->get_content_url($value->content, $this->get_class_name($class_id), $this->get_subject_name($value->subject_id)),
                     'concept' => $value->concept,
                     'lesson' => $value->lesson,
                     'type' => $value->type,
@@ -1676,7 +1713,7 @@ class Lesson_Plan_Controller extends My_Rest_Controller
             }
         }
 
-        $this->set_response($data, REST_Controller::HTTP_OK);
+        $this->set_response(array('update'=>$update, 'data'=>$data), REST_Controller::HTTP_OK);
     }
 
 
@@ -1749,7 +1786,7 @@ class Lesson_Plan_Controller extends My_Rest_Controller
                     'set_id' => $value->set_id,
                     'subject_id' => $value->subject_id,
                     'topic' => $value->topic,
-                    'content' => $value->content,
+                    'content' => $this->get_content_url($value->content, $this->get_class_name($class_id), $this->get_subject_name($value->subject_id)),
                     'concept' => $value->concept,
                     'lesson' => $value->lesson,
                     'type' => $value->type,

@@ -242,7 +242,7 @@ class LMSApi extends MY_Rest_Controller
         $email = trim($request->email);
         $phone = trim($request->phone);
         $school_id = trim($request->school_id);
-
+        
         $result = array();
         $result['message'] = false;
         
@@ -272,7 +272,6 @@ class LMSApi extends MY_Rest_Controller
             }else{
                 // insert
                 // $password = "1234";
-
                 $teacher_id = $this->user->TeacherInfo(NULL, $school_id, ucwords($first_name), ucwords($last_name), $gender, $nic, $email, $phone, $password, $p_home, $s_home, $province, $city, $zip, $is_master, $school_id);
             }
             
@@ -321,7 +320,7 @@ class LMSApi extends MY_Rest_Controller
                 "JPEG",
                 "PNG"
             );
-            
+
             foreach ($_FILES as $key => $value) {
                 
                 if (strlen($value['name'])) {
@@ -364,8 +363,9 @@ class LMSApi extends MY_Rest_Controller
             $base64_string_img = explode(',', $base64_string)[1];
             
             if (! empty($base64_string)) {
-                
+               
                 $decoded = base64_decode($base64_string_img);
+                
                 
                 if(file_put_contents($img_upload_path, $decoded)){
                     
@@ -535,9 +535,10 @@ class LMSApi extends MY_Rest_Controller
         $active_session = $this->get_active_session($school_id);
         $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
         $role_id = FALSE;
-            if ($role = $this->get_user_role($user_id)) {
-                $role_id = $role->role_id;
-            }  
+        if ($role = $this->get_user_role($user_id)) {
+            $role_id = $role->role_id;
+        }
+
         if($role_id == 3 && count($active_session) && count($active_semester))
         {
 
@@ -582,14 +583,20 @@ class LMSApi extends MY_Rest_Controller
        }
        $data_array = array('select_day'=>$currentday);
        
-        foreach ($this->data['timetable_list'] as $key => $element) {
-            
-            if ($element->start_time=="") {
+        if(count($this->data['timetable_list'])){
+            foreach ($this->data['timetable_list'] as $key => $element) {
                 
-                unset($this->data['timetable_list'][$key]);
+                if ($element->start_time=="") {
+                    
+                    unset($this->data['timetable_list'][$key]);
+                }
             }
+
+            $this->data['timetable_list']= array_values($this->data['timetable_list']); 
+        }else{
+            $this->data['timetable_list'] = [];
         }
-        $this->data['timetable_list']= array_values($this->data['timetable_list']); 
+
         $result[] = array(
                         'listarray'=>$this->data['timetable_list'],
                         
@@ -1346,7 +1353,7 @@ class LMSApi extends MY_Rest_Controller
     {
         $request = $this->parse_params();
         
-        $slug = $this->security->xss_clean(trim($request['slug']));
+        $slug = trim($request['slug']);
         
         $result = array();
         $result['message'] = false;
@@ -1390,6 +1397,7 @@ class LMSApi extends MY_Rest_Controller
         $school_id = $this->security->xss_clean(trim($request->school_id));
         
         $error_array = array();
+
         if (strlen($title) < 3) {
             array_push($error_array, "Type must be 3 character");
         }
@@ -1405,10 +1413,11 @@ class LMSApi extends MY_Rest_Controller
             
             $this->operation->table_name = 'holiday';
             
+              
             if ($serial) {
                 $holiday = array(
-                    'start_date' => date('c', strtotime($start_date)),
-                    'end_date' => date('c', strtotime($end_date)),
+                    'start_date' => date('Y-m-d', strtotime($start_date)),
+                    'end_date' => date('Y-m-d', strtotime($end_date)),
                     'title' => ucfirst($title),
                     'apply' => $apply,
                     'user_id' => $user_id,
@@ -1421,14 +1430,13 @@ class LMSApi extends MY_Rest_Controller
                     'end_time' => ($is_all_day == false ? date('H:i', strtotime($end_time)) : '')
                 );
                 $id = $this->operation->Create($holiday, $serial);
-                if (count($id)) {
-                    $result['message'] = true;
-                }
+
+                
             } else {
                 
                 $holiday = array(
-                    'start_date' => date('c', strtotime($start_date)),
-                    'end_date' => date('c', strtotime($end_date)),
+                    'start_date' => date('Y-m-d', strtotime($start_date)),
+                    'end_date' => date('Y-m-d', strtotime($end_date)),
                     'title' => ucfirst($title),
                     'apply' => $apply,
                     'description' => ucfirst($description),
@@ -1445,14 +1453,14 @@ class LMSApi extends MY_Rest_Controller
                 
                 $id = $this->operation->Create($holiday);
                 
-                if (count($id)) {
-                    
-                    // Update Semester Lesson Dates
+                
+            }
+            
+            if (count($id)) {
                     $this->update_lesson_set_dates($school_id);
-                    
                     $result['message'] = true;
                 }
-            }
+            
         }
         $this->set_response($result, REST_Controller::HTTP_OK);
     }
@@ -1521,12 +1529,12 @@ class LMSApi extends MY_Rest_Controller
             ));
             
             $this->operation->table_name = 'grades';
-            //echo $active_semester[0]->id;
+            
             $resultlist = $this->operation->GetByWhere(array(
                 'status' => 'a',
                 'semester_date_id' => $active_semester[0]->id
             ));
-            //print_r($resultlist); 
+            
             $result = array();
             
             if (count($resultlist)) {
@@ -1937,23 +1945,40 @@ class LMSApi extends MY_Rest_Controller
     }
     
     // region Semester
-    // function semesters_get()
-    // {
-    //     $this->operation->table_name = 'semester';
-    //     $semesterlist = $this->operation->GetRows();
+    function semesters_get()
+    {
+        $this->operation->table_name = 'semester';
+        $semesterlist = $this->operation->GetRows();
         
-    //     $semesterarray = array();
-    //     if (count($semesterlist)) {
-    //         foreach ($semesterlist as $value) {
-    //             $semesterarray[] = array(
-    //                 'id' => $value->id,
-    //                 'name' => $value->semester_name,
-    //                 'status' => $value->status
-    //             );
-    //         }
-    //     }
-    //     $this->set_response($semesterarray, REST_Controller::HTTP_OK);
-    // }
+        $semesterarray = array();
+        if (count($semesterlist)) {
+            $active_semester_id = '';
+            if(!empty($this->get('school_id'))){
+                // find active semester in school
+                $isValidLoactiveSemesterDatescation = $this->operation->GetByQuery("SELECT * from semester_dates where status = 'a' AND school_id =".$this->get('school_id'));
+            }
+
+            // if any dates exist
+            if( count($isValidLoactiveSemesterDatescation) )
+            {
+                $active_semester_id = $isValidLoactiveSemesterDatescation[0]->semester_id;
+            }
+
+
+            foreach ($semesterlist as $value) {
+                
+                $status = ($value->id == $active_semester_id) ?'a':'i';
+
+                $semesterarray[] = array(
+                    'id' => $value->id,
+                    'name' => $value->semester_name,
+                    'status' => $status,
+                    'active_semster' =>  $status
+                );
+            }
+        }
+        $this->set_response($semesterarray, REST_Controller::HTTP_OK);
+    }
     
     function semester_get()
     {
@@ -1979,7 +2004,7 @@ class LMSApi extends MY_Rest_Controller
         
         $this->set_response($semesterarray, REST_Controller::HTTP_OK);
     }
-    
+
     function active_semester_post()
     {
         $request = $this->parse_params();
@@ -2266,9 +2291,7 @@ class LMSApi extends MY_Rest_Controller
         $lessonlist = array();
         
         if (! is_null($subject_id) && ! is_null($class_id) && ! is_null($session_id) && ! is_null($semester_id)) {
-            $query = $this->operation->GetByQuery('SELECT s.*,sd.date as read_date FROM semester_lesson_plan s inner join lesson_set_dates as sd on s.set_id = sd.set_id
-                WHERE s.subject_id = ' . $subject_id . ' AND sd.session_id = ' . $session_id . ' AND sd.semester_id = ' . $semester_id . '
-                 AND sd.class_id = ' . $class_id . ' GROUP by s.id  ORDER BY s.preference ASC');
+            $query = $this->operation->GetByQuery('SELECT s.*,sd.date AS read_date FROM semester_lesson_plan s INNER JOIN lesson_set_dates AS sd on s.set_id = sd.set_id WHERE s.subject_id = ' . $subject_id . ' AND sd.session_id = ' . $session_id . ' AND sd.semester_id = ' . $semester_id . ' AND sd.class_id = ' . $class_id . ' GROUP BY s.id  ORDER BY s.preference ASC');
             
             if (count($query)) {
                 foreach ($query as $key => $value) {
@@ -2296,61 +2319,13 @@ class LMSApi extends MY_Rest_Controller
         $semester_id = $this->input->get('semester_id');
         
         $lessondetailarray = array();
-        /*
-         * if (! is_null($subject_id) && ! is_null($section_id) && ! is_null($class_id) && ! is_null($session_id) && ! is_null($semester_id)) {
-         *
-         * $progress = $this->operation->GetByQuery('SELECT * FROM `student_semesters` INNER JOIN invantage_users as inv on inv.id=student_id WHERE class_id = ' . $class_id . " AND section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . " AND status = 'r' AND user_active_status=1");
-         *
-         * $latestReadDate = $this->operation->GetByQuery('SELECT s.read_date FROM `semester_lesson_plan` s INNER JOIN lesson_progress p WHERE p.lessonid=s.id AND p.status = "read" AND class_id = ' . $class_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . " ORDER BY s.preference DESC");
-         * if (count($latestReadDate)) {
-         * $latestReadDate = $latestReadDate[0]->read_date;
-         * } else {
-         * $latestReadDate = '';
-         * }
-         * $datetime1 = null;
-         * try {
-         * if (! empty($latestReadDate))
-         * $datetime1 = new DateTime($latestReadDate);
-         * } catch (Exception $e) {}
-         *
-         * if (count($progress)) {
-         * $studentprogress = $this->operation->GetByQuery('SELECT s.id as semid,s.read_date FROM `semester_lesson_plan` s WHERE subject_id = ' . $subject_id . ' AND semester_id = ' . $semester_id . ' AND section_id = ' . $section_id . ' ORDER BY s.read_date ASC');
-         *
-         * if (count($studentprogress)) {
-         * foreach ($progress as $key => $value) {
-         * $sparray = array();
-         * foreach ($studentprogress as $key => $spvalue) {
-         * $ar = $this->get_student_progress($spvalue->semid, $value->student_id);
-         * $show = false;
-         * if ($datetime1 != null) {
-         * $datetime2 = new DateTime($spvalue->read_date);
-         * $show = $datetime1 >= $datetime2;
-         * }
-         * $ar['show'] = $show ? 1 : 0;
-         * $sparray[] = $ar;
-         * }
-         *
-         * $lessondetailarray[] = array(
-         * 'read_date' => $latestReadDate,
-         * 'student_id' => $value->student_id,
-         * 'screen_name' => $this->get_student_name($value->student_id),
-         * 'student_plan' => $sparray
-         * );
-         * }
-         * }
-         * }
-         * }
-         */
-        /* New code */
         if (!is_null($this->input->get('subject_id')) && !is_null($this->input->get('section_id')))
         {
             $student = array();
 
-            //$progress = $this->operation->GetRowsByQyery('SELECT * FROM `student_semesters` INNER JOIN invantageuser as inv on inv.id=studentid WHERE classid = ' . $this->input->get('inputclassid') . " AND sectionid = " . $this->input->get('inputsection') . " AND semesterid = " . $this->input->get('inputsemester') . " AND sessionid = " . $this->input->get('inputsession'));
             $progress = $this->operation->GetByQuery('SELECT student_id FROM `student_semesters` INNER JOIN invantage_users as inv on inv.id=student_id WHERE class_id = ' . $this->input->get('class_id') . " AND section_id = " . $this->input->get('section_id') . " AND semester_id = " . $this->input->get('semester_id') . " AND session_id = " . $this->input->get('session_id'));
             $latestReadDate = $this->operation->GetByQuery('SELECT p.finished FROM `semester_lesson_plan` s INNER JOIN lesson_progress p on p.lesson_id=s.id WHERE p.finished > 0 AND s.class_id = ' . $this->input->get('class_id') . " AND  semester_id = " . $this->input->get('semester_id') . "   ORDER BY p.finished DESC");
             
-            //echo 'SELECT s.read_date FROM `semester_lesson_plan` s INNER JOIN lessonprogress p WHERE p.lessonid=s.id AND p.status = "read" AND classid = ' . $this->input->get('inputclassid') . " AND sectionid = " . $this->input->get('inputsection') . " AND semsterid = " . $this->input->get('inputsemester') . " AND sessionid = " . $this->input->get('inputsession') . "  ORDER BY s.read_date DESC";
             if (count($latestReadDate))
             {
                 $latestReadDate = $latestReadDate[0]->finished;
@@ -2366,15 +2341,13 @@ class LMSApi extends MY_Rest_Controller
             {
                 if (!empty($latestReadDate)) 
                     {
-
-                        //$datetime1 = new DateTime($latestReadDate);
                         $datetime1 = date("Y-m-d",strtotime($latestReadDate));
                     }
             }
             catch(Exception $e)
             {
             }
-            $lesson_array = array();
+            
             if (count($progress))
             {
                 
@@ -2397,19 +2370,14 @@ class LMSApi extends MY_Rest_Controller
                                 $show = strtotime($datetime1) >= strtotime($datetime2);
                             }
                             $ar['show'] = $show ? 1 : 0;
-                            //$ar['show'] = 1;
                             $sparray[] = $ar;
                         }
                         $lessondetailarray[] = array( 'studentid' => $value->student_id, 'screenname' => $this->GetStudentName($value->student_id), 'student_plan' => $sparray);
-                        //print_r($lessondetailarray);
-                        //echo $spvalue->semid.'<br>';
-                       // array_push($lesson_array, $spvalue->semid);
-                        //exit;
                     }
                 }
             }
         }
-
+        
          $this->response($lessondetailarray, REST_Controller::HTTP_OK);
     }
     
@@ -2432,7 +2400,21 @@ class LMSApi extends MY_Rest_Controller
         $school_id = $this->input->get('school_id');
         
         if (empty($school_id)) {
-            $this->response([], REST_Controller::HTTP_NOT_ACCEPTABLE);
+            $this->response('School id is required', REST_Controller::HTTP_NOT_ACCEPTABLE);
+            return;
+        }
+
+
+        $this->operation->table_name = 'semester_dates';
+        $active_semester_dates = $this->operation->GetByWhere(array(
+            'school_id' => $school_id,
+            'status' => 'a'
+        ));
+        
+        if (count($active_semester_dates)>0) {
+            $active_semester_dates = $active_semester_dates[0];
+        }else{
+            $this->response('No active semester was found for this school', REST_Controller::HTTP_NOT_ACCEPTABLE);
             return;
         }
         
@@ -2441,13 +2423,11 @@ class LMSApi extends MY_Rest_Controller
         if ($role = $this->get_user_role($user_id)) {
             $role_id = $role->role_id;
         }
-        $active_session = $this->get_active_session($school_id);
-        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
-        $session_id = $active_session->id;
+
         if ($role_id == 4) {
-            $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN schedule sch ON sch.subject_id=s.id WHERE s.session_id= ".$session_id." AND s.semester_id = ".$active_semester->semester_id." AND sch.teacher_uid=" . $this->db->escape($user_id));
+            $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN schedule sch ON sch.subject_id=s.id WHERE sch.teacher_uid=" . $this->db->escape($user_id) . " AND s.session_id=" . $active_semester_dates->session_id . " AND s.semester_id=". $active_semester_dates->semester_id);
         } else {
-            $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN `classes` c ON s.class_id=c.id AND s.session_id= ".$session_id." WHERE s.semester_id = ".$active_semester->semester_id." AND c.school_id=" . $this->db->escape($school_id));
+            $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN `classes` c ON s.class_id=c.id WHERE s.session_id=" . $active_semester_dates->session_id . " AND s.semester_id=". $active_semester_dates->semester_id);
         }
         
         $subjects = array();
@@ -2469,10 +2449,22 @@ class LMSApi extends MY_Rest_Controller
     {
 
         $class_id = $this->input->get('class_id');
-        
         $user_id = $this->input->get('user_id');
         $session_id = $this->input->get('session_id');
         $semester_id = $this->input->get('semester_id');
+        $school_id = $this->input->get('school_id');
+        if(empty($session_id))
+        {
+            
+            $active_session = $this->get_active_session($school_id);
+            $session_id = $active_session->id; 
+        }
+        
+        if(empty($semester_id)){
+            $active_session = $this->get_active_semester_dates_by_session($session_id);
+            $semester_id = $active_session->semester_id;
+        }
+
         $role_id = FALSE;
         if ($role = $this->get_user_role($user_id)) {
             $role_id = $role->role_id;
@@ -2480,20 +2472,20 @@ class LMSApi extends MY_Rest_Controller
         
         if (! empty($class_id)) {
             if ($role_id == 4) {
-                $active_semester = $this->get_active_semester_dates_by_session($session_id);
+                $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN schedule sch ON sch.subject_id=s.id WHERE sch.teacher_uid=" . $this->db->escape($user_id) . " AND s.session_id = ".$session_id." AND s.semester_id = ".$semester_id." AND s.class_id=" . $this->db->escape($class_id));
 
-                $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN schedule sch ON sch.subject_id=s.id WHERE sch.teacher_uid=" . $this->db->escape($user_id) . " AND s.session_id = ".$session_id." AND s.semester_id = ".$active_semester->semester_id." AND s.class_id=" . $this->db->escape($class_id));
             } else {
 
                 $subjectslist = $this->get_subjects($class_id,$session_id,$semester_id);
             }
-           // print_r($subjectslist);
+            
             $subjects = array();
             if (count($subjectslist)) {
                 foreach ($subjectslist as $value) {
                     $subjects[] = array(
                         'id' => $value->id,
                         'name' => $value->subject_name,
+                        'code' => $value->subject_code,
                         'class_id' => $value->class_id,
                         'class_name' => $this->get_class_name($value->class_id)
                     );
@@ -2503,7 +2495,66 @@ class LMSApi extends MY_Rest_Controller
         
         $this->response($subjects, REST_Controller::HTTP_OK);
     }
-    
+
+
+    function subjects_by_class_weekly_get()
+    {
+        $sections = array();
+
+        $class_id = $this->input->get('class_id');
+        $user_id = $this->input->get('user_id');
+        $school_id = $this->input->get('school_id');
+        
+        $role_id = FALSE;
+        if ($role = $this->get_user_role($user_id)) {
+            $role_id = $role->role_id;
+        }
+        
+        $active_session = $this->get_active_session($school_id);
+        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+        if(!empty($class_id))
+        {
+            $is_student_found = $this->operation->GetByQuery("SELECT sc.*,s.* FROM subjects s 
+            	INNER JOIN schedule as sc on sc.subject_id = s.id 
+            	WHERE s.class_id = ".$class_id."  AND s.session_id = ".$active_session->id." AND s.semester_id = ".$active_semester->semester_id);
+            
+            if(count($is_student_found)){
+                foreach ($is_student_found as $key => $value) {
+                    $sections[] = array(
+                        'id'=>$value->id,
+                        'name'=>$value->subject_name,
+                        'code' => $value->subject_code,
+                        'class_id' => $value->class_id,
+                        'class_name' => $this->get_class_name($value->class_id),
+                        'mon_status' =>$value->mon_status,
+                        'mon_start_time' => $value->mon_start_time,
+                        'mon_end_time' => $value->mon_end_time,
+                        'tue_status' =>$value->tue_status,
+                        'tue_start_time' => $value->tue_start_time,
+                        'tue_end_time' => $value->tue_end_time,
+                        'wed_status' =>$value->wed_status,
+                        'wed_start_time' => $value->wed_start_time,
+                        'wed_end_time' => $value->wed_end_time,
+                        'thu_status' =>$value->thu_status,
+                        'thu_start_time' => $value->thu_start_time,
+                        'thu_end_time' => $value->thu_end_time,
+                        'fri_status' =>$value->fri_status,
+                        'fri_start_time' => $value->fri_start_time,
+                        'fri_end_time' => $value->fri_end_time,
+                        'sat_status' =>$value->sat_status,
+                        'sat_start_time' => $value->sat_start_time,
+                        'sat_end_time' => $value->sat_end_time,
+                        'sun_status' =>$value->sun_status,
+                        'sun_start_time' => $value->sun_start_time,
+                        'sun_end_time' => $value->sun_end_time,
+                        'title'=>$value->subject_name
+                    );
+                }
+            }
+        }
+        $this->response($sections, REST_Controller::HTTP_OK);
+    }
+
     function subject_get()
     {
         $id = $this->input->get('subject_id');
@@ -2519,8 +2570,9 @@ class LMSApi extends MY_Rest_Controller
                     'name' => $is_selected_subject->subject_name,
                     'code' => $is_selected_subject->subject_code,
                     'class_id' => $is_selected_subject->class_id,
-                    'class_name' => $this->get_class_name($is_selected_subject->class_id),
                     'semester_id' => $is_selected_subject->semester_id,
+                    'session_id' => $is_selected_subject->session_id,
+                    'class_name' => $this->get_class_name($is_selected_subject->class_id),
                     'image' => $is_selected_subject->subject_image
                 );
             }
@@ -2650,7 +2702,7 @@ class LMSApi extends MY_Rest_Controller
         
         $sresult = array();
         $sresult['message'] = false;
-
+        
         if (! is_null($class_id) && ! is_null($school_id)) {
             foreach ($sections as $value) {
                 $this->operation->table_name = 'sections';
@@ -2964,27 +3016,17 @@ class LMSApi extends MY_Rest_Controller
         if ($role = $this->get_user_role($user_id)) {
             $role_id = $role->role_id;
         }
-
+        
         $this->operation->table_name = "classes";
-        if (empty($school_id)) {
-            if ($role_id == 4) {
-                
-                $query = $this->operation->GetByQuery("SELECT c.* FROM classes c INNER JOIN schedule sch ON sch.class_id=c.id WHERE sch.teacher_uid=$user_id");
-            } else {
-                
-                //$query = $this->operation->GetRows();
-                $query = $this->operation->GetByWhere(array(
-                    'school_id' => $school_id
-                ));
-            }
-        } else {
-            if ($role_id == 4) {
-                $active_session = $this->get_active_session($school_id);
-                $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
+        // Changed school_id is now required.
+        if (!empty($school_id)) {
 
-                $query = $this->operation->GetByQuery("SELECT c.*,sc.section_name FROM classes c INNER JOIN schedule sch ON sch.class_id=c.id inner join sections as sc on sc.id = sch.section_id WHERE sch.teacher_uid=$user_id AND c.school_id=$school_id AND sch.semester_id = ".$active_semester->semester_id." AND sch.session_id = ".$active_session->id." GROUP BY id");
-            } else {
 
+            if ($role_id == 4) {
+                $a_sem_dates = $this->get_active_semester_dates($school_id);
+                $q = "SELECT c.* FROM classes c INNER JOIN schedule sch ON sch.class_id=c.id WHERE sch.session_id=".$a_sem_dates->session_id." AND sch.semester_id=".$a_sem_dates->semester_id." AND sch.teacher_uid=$user_id AND school_id=$school_id GROUP BY c.id";
+                $query = $this->operation->GetByQuery($q);
+            } else {
                 $query = $this->operation->GetByWhere(array(
                     'school_id' => $school_id
                 ));
@@ -2997,8 +3039,7 @@ class LMSApi extends MY_Rest_Controller
                 $result[] = array(
                     'id' => $value->id,
                     'last_update' => $value->last_update,
-                    'name' => $value->grade,
-                    'section_name' => $value->section_name,
+                    'name' => $value->grade
                 );
             }
         }
@@ -3021,6 +3062,7 @@ class LMSApi extends MY_Rest_Controller
         
         if (count($query)) {
             $result = $query[0];
+            $result->name= $result->grade;// For compatibility reasons
         }
         $this->response($result, REST_Controller::HTTP_OK);
     }
@@ -3184,7 +3226,6 @@ class LMSApi extends MY_Rest_Controller
             ], REST_Controller::HTTP_NOT_FOUND); // NOT_FOUND (404) being the HTTP response code
         }
     }
-    
     function students_by_class_and_section_get()
     {
         $class_id = $this->input->get('class_id', true);
@@ -3204,7 +3245,7 @@ class LMSApi extends MY_Rest_Controller
         }
 
         if (! empty($class_id) && ! empty($section_id)) {
-            $is_result_found = $this->operation->GetByQuery('SELECT inv.username,inv.screenname,inv.profile_image,inv.id as uid FROM student_semesters s  INNER JOIN invantage_users inv ON inv.id = s.student_id  WHERE s.status = "r" AND s.class_id =' . $class_id . ' AND s.section_id = ' . $section_id. ' AND s.session_id = '.$session_id.' AND s.semester_id ='.$semester_id);
+            $is_result_found = $this->operation->GetByQuery('SELECT inv.username,inv.screenname,inv.profile_image,inv.id as uid FROM student_semesters s  INNER JOIN invantage_users inv ON inv.id = s.student_id  WHERE  s.class_id =' . $class_id . ' AND s.section_id = ' . $section_id. ' AND s.session_id = '.$session_id.' AND s.semester_id ='.$semester_id);
             
             if (count($is_result_found)) {
                 foreach ($is_result_found as $value) {
@@ -3213,10 +3254,11 @@ class LMSApi extends MY_Rest_Controller
                         'id' => $value->uid,
                         'name' => $this->GetStudentName($value->uid),
                         'rollnumber' => $value->username,
-                        //'name' => $value->screenname,
                         'profile_image' => $this->get_uploaded_file_url($value->profile_image, UPLOAD_CAT_PROFILE),
                         'fathername' => ($this->get_user_meta($value->uid, 'father_name') != false ? $this->get_user_meta($value->uid, 'father_name') : ''),
-                        'phone' => ($this->get_user_meta($value->uid, 'sphone') != false ? $this->get_user_meta($value->uid, 'sphone') : '')
+                        'phone' => ($this->get_user_meta($value->uid, 'sphone') != false ? $this->get_user_meta($value->uid, 'sphone') : ''),
+                        'profile' => $value->profile_image,
+                        'sdob' => $this->get_user_meta($value->uid, 'sdob')
                     );
                 }
             }
@@ -3262,7 +3304,18 @@ class LMSApi extends MY_Rest_Controller
                         $semester_id = $classlist[0]->semester_id;
                         $semester_name = $classlist[0]->semester_name;
                     }
-                    
+                    if($this->get_user_meta($value->id, 'mode')=="")
+                    {
+                        $user_mode = "Time";
+                    }
+                    elseif($this->get_user_meta($value->id, 'mode')=="time")
+                    {
+                        $user_mode = "Time";
+                    }
+                    else
+                    {
+                        $user_mode = "Free";
+                    }
                     $students_list[] = array(
                         'id' => $value->id,
                         'roll_number' => $value->username,
@@ -3273,8 +3326,8 @@ class LMSApi extends MY_Rest_Controller
                         'father_name' => $this->get_user_meta($value->id, 'father_name'),
                         'dob' => $this->get_user_meta($value->id, 'sdob'),
                         'phone' => ($this->get_user_meta($value->id, 'sphone') != false ? $this->get_user_meta($value->id, 'sphone') : ''),
-                        'req_financial_assistance' => ($this->get_user_meta($value->id, 'financial_assistance') != '' ? $this->get_user_meta($value->id, 'financial_assistance') : 'No'),
-                        'mode' => ($this->get_user_meta($value->id, 'mode')),
+                        'req_financial_assistance' => $this->get_user_meta($value->id, 'financial_assistance')==1 ? "Yes" : "No",
+                        'mode' => $user_mode,
                         'class_id' => $class_id,
                         'class_name' => $class_name,
                         'semester_id' => $semester_id,
@@ -3590,7 +3643,7 @@ class LMSApi extends MY_Rest_Controller
     function student_promote_post()
     {
         $request = $this->parse_params();
-        $data = $this->security->xss_clean(trim($request));
+        $data = $request->data;
         $oldclass = $this->security->xss_clean(trim($request->old_class_id));
         $oldsection = $this->security->xss_clean(trim($request->old_section_id));
         $oldsemester = $this->security->xss_clean(trim($request->old_semester_id));
@@ -3606,56 +3659,68 @@ class LMSApi extends MY_Rest_Controller
         if (! is_null($oldclass) && ! is_null($oldsection) && ! is_null($oldsemester) && ! is_null($newclass) && ! is_null($newsection) && ! is_null($newsemester) && ! is_null($newsessionid)) {
             
             $this->operation->table_name = 'semester_dates';
-            $active_semester = $this->operation->GetByWhere(array(
-                'session_id' => $oldsession,
-                'semester_id' => $oldsemester
-            ));
+            $old_active_semester = $this->operation->GetByWhere(array('session_id' => $oldsession, 'semester_id' => $oldsemester));
             
-            $this->operation->table_name = 'student_semesters';
-            
-            // foreach ($request as $value) {
-            foreach ($data as $svalue) {
-                
-                $resultlist = $this->operation->GetByWhere(array(
-                    'class_id' => $oldclass,
-                    'section_id' => $oldsection,
-                    'semester_id' => $active_semester[0]->semester_id,
-                    'student_id' => $svalue->id,
-                    'status' => 'r',
-                    'session_id' => $oldsession
+            foreach ($data as $key => $value)
+            {
+                // Student not record on semester_dates table
+                $this->operation->table_name = 'student_semesters';
+                $datalist = $this->operation->GetByWhere(array(
+                    'class_id'=>$oldclass,
+                    'section_id'=>$oldsection,
+                    'semester_id'=>$old_active_semester[0]->semester_id,
+                    'student_id'=>$value->id,
+                    'status'=>'r',
+                    'session_id'=>$oldsession
                 ));
-                if (count($resultlist)) {
-                    $studentresult = array(
-                        'status' => 'u'
-                    );
-                    $this->operation->table_name = 'student_semesters';
-                    
-                    $id = $this->operation->Create($studentresult, $resultlist[0]->id);
-                    
+
+                if(count($datalist))
+                {
+
                     $this->operation->table_name = 'semester_dates';
-                    $active_semester = $this->operation->GetByWhere(array(
-                        'session_id' => $newsessionid,
-                        'semester_id' => $newsemester
-                    ));
-                    $studentresult = array(
-                        'class_id' => $newclass,
-                        'section_id' => $newsection,
-                        'semester_id' => $active_semester[0]->semester_id,
-                        'student_id' => $svalue->id,
-                        'status' => 'r',
-                        'session_id' => $newsessionid
-                    );
-                    $this->operation->table_name = 'student_semesters';
-                    
-                    $id = $this->operation->Create($studentresult);
-                    
-                    if (count($id)) {
-                        $sresult['message'] = true;
+                    $active_semester = $this->operation->GetByWhere(array('session_id' => $newsessionid, 'semester_id' => $newsemester));
+
+                    if(count($active_semester)!=0)
+                    {
+
+                        $this->operation->table_name = 'student_semesters';
+                        $resultlist = $this->operation->GetByWhere(array('class_id' => $newclass, 'section_id' => $newsection, 'semester_id' => $active_semester[0]->semester_id, 'student_id' => $value->id, 'session_id' => $newsessionid));
+                        if (count($resultlist) == 0)
+                        {
+                            $this->operation->table_name = 'semester_dates';
+                            $active_semester = $this->operation->GetByWhere(array('session_id' => $newsessionid, 'semester_id' => $newsemester));
+                            $studentresult = array('class_id' => $newclass, 'section_id' => $newsection, 'semester_id' => $active_semester[0]->semester_id, 'student_id' => $value->id, 'status' => 'r', 'session_id' => $newsessionid);
+                            $this->operation->table_name = 'student_semesters';
+                            $id = $this->operation->Create($studentresult);
+                            if (count($id))
+                            {
+                                $change_semester = $this->db->query("UPDATE student_semesters SET status ='u' WHERE  id =".$datalist[0]->id);
+                            }
+                        }
+                        else
+                        {
+                            if($resultlist[0]->status!='r')
+                            {
+                                $change_semester = $this->db->query("UPDATE student_semesters SET status ='r'   WHERE  id =" . $resultlist[0]->id);
+                                $change_semester = $this->db->query("UPDATE student_semesters SET status ='u'   WHERE  id =" . $datalist[0]->id);
+                                $id = true;
+                            }
+                            else
+                            {
+                                $change_semester = $this->db->query("UPDATE student_semesters SET status ='u'   WHERE  id =" . $resultlist[0]->id);
+                                $id = true;
+                            }
+                        }
                     }
                 }
+
+                
+            } // End foreachloop
+            if (count($id))
+            {
+                $sresult['message'] = true;
             }
-            // }
-        }
+        }else{echo 'Missing Params';}
         $this->response($sresult, REST_Controller::HTTP_OK);
     }
     
@@ -3769,17 +3834,24 @@ class LMSApi extends MY_Rest_Controller
         $subject_id = $this->input->get('subject_id');
         $class_id = $this->input->get('class_id');
         $section_id = $this->input->get('section_id');
-        //$semester_id = $this->input->get('semester_id');
-        //$session_id = $this->input->get('session_id');
+        $semester_id = $this->input->get('semester_id');
+        $session_id = $this->input->get('session_id');
         $user_id = $this->input->get('user_id');
         $school_id  =$this->input->get('school_id');
         $quizlist = array();
         
-        $active_session = $this->get_active_session($school_id);
-        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
-
-        $session_id = $active_session->id;
-        $semester_id = $active_semester->semester_id;
+        if(empty($session_id))
+        {
+            $active_session = $this->get_active_session($school_id);
+            $session_id = $active_session->id;
+        }
+        
+        if(empty($semester_id))
+        {
+            $active_semester = $this->get_active_semester_dates_by_session($session_id);
+            $semester_id = $active_semester->semester_id;
+        }
+        
 
 
         if (! empty($subject_id) && ! empty($semester_id) && ! empty($class_id) && ! empty($section_id) && ! empty($session_id)) {
@@ -3814,44 +3886,43 @@ class LMSApi extends MY_Rest_Controller
         $subject_id = $this->input->get('subject_id');
         $class_id = $this->input->get('class_id');
         $section_id = $this->input->get('section_id');
-        //$semester_id = $this->input->get('semester_id');
-        //$session_id = $this->input->get('session_id');
-        //$student_id = $this->input->get('student_id');
+        $semester_id = $this->input->get('semester_id');
+        $session_id = $this->input->get('session_id');
         $user_id = $this->input->get('user_id');
 
         $school_id  =$this->input->get('school_id');
         $quizlist = array();
         
-        $active_session = $this->get_active_session($school_id);
-        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
-
-        $session_id = $active_session->id;
-        $semester_id = $active_semester->semester_id;
+        if(empty($session_id))
+        {
+            $active_session = $this->get_active_session($school_id);
+            $session_id = $active_session->id;
+        }
         
+        if(empty($semester_id))
+        {
+            $active_semester = $this->get_active_semester_dates_by_session($session_id);
+            $semester_id = $active_semester->semester_id;
+        }
+
         $quizarray = array();
         $quizdetailarray = array();
 
-        if (! empty($subject_id) && ! empty($semester_id) && ! empty($class_id) && ! empty($section_id) && ! empty($session_id))
+
+        if (! empty($subject_id) && ! empty($semester_id) && ! empty($class_id) && ! empty($section_id) && ! empty($session_id) && ! empty($user_id))
         {
-            //$quizlist = $this->GetQuizeListBySubject($this->input->get('subjectlist'), $this->input->get('inputsession'), $this->input->get('inputsemester'), $this->input->get('inputclassid'), $this->input->get('inputsectionid'));
-            if ($this->input->get('studentid'))
-            {
-                $studentlist = $this->operation->GetByQuery('SELECT * FROM `student_semesters` where class_id = ' . $this->input->get('inputclassid') . " AND sectionid = " . $this->input->get('inputsectionid') . " AND semesterid = " . $this->input->get('inputsemester') . " AND  sessionid = " . $this->input->get('inputsession') . " AND studentid = " . $this->input->get('studentid') . " AND status = 'r'");
-            }
-            else
-            {
 
-                $this->operation->table_name = 'semester_dates';
-                $semester_status = $this->operation->GetByWhere(array('session_id' => $session_id, 'semester_id' => $semester_id));
-                $sem_status = 'u';
+            $this->operation->table_name = 'semester_dates';
+            $semester_status = $this->operation->GetByWhere(array('session_id' => $session_id, 'semester_id' => $semester_id));
+            $sem_status = 'u';
 
-                if ($semester_status[0]->status == 'a')
-                {
-                    $sem_status = 'r';
-                }
-                //$studentlist = $this->operation->GetRowsByQyery('SELECT * FROM `student_semesters` where classid = ' . $this->input->get('inputclassid') . " AND sectionid = " . $this->input->get('inputsectionid') . " AND semesterid = " . $this->input->get('inputsemester') . " AND  sessionid = " . $this->input->get('inputsession') . " AND status = '" . $sem_status . "'");
-                $studentlist = $this->operation->GetByQuery('SELECT s.* FROM `student_semesters` as s INNER JOIN  invantage_users AS i ON s.student_id = i.id where s.class_id = ' . $class_id . " AND s.section_id = " . $section_id . " AND s.semester_id = " . $semester_id . " AND s.session_id = " . $session_id . " AND s.status = '" . $sem_status . "' ORDER BY i.screenname ASC ");
+            if ($semester_status[0]->status == 'a')
+            {
+                $sem_status = 'r';
             }
+
+            $studentlist = $this->operation->GetByQuery('SELECT s.* FROM `student_semesters` as s INNER JOIN  invantage_users AS i ON s.student_id = i.id where s.class_id = ' . $class_id . " AND s.section_id = " . $section_id . " AND s.semester_id = " . $semester_id . " AND s.session_id = " . $session_id . " AND s.status = '" . $sem_status . "' ORDER BY i.screenname ASC ");
+            
             if (count($studentlist))
             {
 
@@ -3865,8 +3936,6 @@ class LMSApi extends MY_Rest_Controller
                         foreach ($studentprogress as $key => $spvalue)
                         {
 
-                           
-                            //$studentmidresult = $this->operation->GetRowsByQyery('SELECT * FROM `quizzes_marks`  where student_id = '.$value->studentid.' AND subject_id =' . $this->input->get('subjectlist') . " AND class_id = " . $this->input->get('inputclassid') . " and section_id = " . $this->input->get('inputsectionid') . " AND semester_id = " . $this->input->get('inputsemester') . " AND session_id = " . $this->input->get('inputsession') . " AND quiz_id = ".$spvalue->id." "); 
                             $studentmidresult = $this->operation->GetByQuery('SELECT * FROM `quizzes_marks`  where student_id = '.$value->student_id.' AND subject_id =' . $subject_id . " AND class_id = " . $class_id . " and section_id = " . $section_id . " AND semester_id = " . $semester_id . " AND session_id = " . $session_id . " AND quiz_id = ".$spvalue->id." "); 
                             if(count($studentmidresult))
                             {
@@ -3921,7 +3990,6 @@ class LMSApi extends MY_Rest_Controller
                     }
                     
                     $quizarray[] = array('student_id' => $value->student_id, 'screenname' => $this->GetStudentName($value->student_id), 'score' => $quizdetailarray, 'term_result' => $student_result);
-                     //print_r($quizarray);
                 }
             }
 
@@ -3984,11 +4052,7 @@ class LMSApi extends MY_Rest_Controller
                     }
                 }
             }
-        }
-        
-        
-       
-        
+        }        
         
         $this->response($quizarray, REST_Controller::HTTP_OK);
     }
@@ -4087,20 +4151,8 @@ class LMSApi extends MY_Rest_Controller
         $this->operation->table_name = 'sessions';
         $school_id = $this->input->get('school_id');
         $sessionarray = array();
-        if ($this->input->get('inputsessionid'))
-        {
-            $sessionlist = $this->operation->GetByWhere(array('id' => $this->input->get('inputsessionid')));
-            if (count($sessionlist))
-            {
-                foreach ($sessionlist as $key => $value)
-                {
-                    $sessionarray = array('id' => $value->id, 'name' => date('m/d/Y', strtotime($value->datefrom)), 'to' => date('m/d/Y', strtotime($value->dateto)), 'status' => $value->status,);
-                }
-            }
-        }
-        else
-        {
            
+        if(!empty($school_id)){
             $sessionlist = $this->operation->GetByWhere(array('school_id' => $school_id));
             $current_date = date('Y-m-d');
             $active_status = 'Active';
@@ -4116,7 +4168,12 @@ class LMSApi extends MY_Rest_Controller
                     {
                         $active_status = "Active";
                     }
-                    $sessionarray[] = array('id' => $value->id, 'name' => date('M d, Y', strtotime($value->datefrom)) . ' - ' . date('M d, Y', strtotime($value->dateto)), 'from' => date('m/d/Y', strtotime($value->datefrom)), 'to' => date('m/d/Y', strtotime($value->dateto)), 'status' => $value->status,'show' =>$active_status,);
+                    $sessionarray[] = array('id' => $value->id,
+                                             'from' => date('m/d/Y', strtotime($value->datefrom)),
+                                              'to' => date('m/d/Y', strtotime($value->dateto)), 
+                                              'name' => date('M d, Y', strtotime($value->datefrom)) . ' - ' . date('M d, Y', strtotime($value->dateto)),
+                                              'status' => $value->status,
+                                              'show' =>$active_status,);
                 }
             }
         }
@@ -4326,11 +4383,12 @@ class LMSApi extends MY_Rest_Controller
         
         $is_lesson_sets_found = $this->operation->GetByQuery("SELECT sem.set_id, sem.unique_code FROM semester_lesson_plan sem WHERE sem.active=1 AND sem.class_id = " . $class_id . ' AND sem.semester_id =' . $semester_id . ' AND sem.session_id =' . $session_id . ' GROUP BY sem.set_id ORDER BY sem.preference ASC');
         
+
         if (count($current_semesterdate) && count($is_lesson_sets_found)) {
             
             $holidays = $this->get_holidays($class_details->school_id); // find holidays dates
-            $start_date = date('Y-m-d', strtotime($current_semesterdate[0]->start_date)); // find semester start date
-            $end_date = date('Y-m-d', strtotime($current_semesterdate[0]->end_date)); // find semester end date
+            $start_date = date('Y-m-d', strtotime($current_semesterdate->start_date)); // find semester start date
+            $end_date = date('Y-m-d', strtotime($current_semesterdate->end_date)); // find semester end date
             
             if (strtotime($start_date) <= strtotime($end_date)) {
                 $interim_ls_date = $start_date;
@@ -4338,16 +4396,20 @@ class LMSApi extends MY_Rest_Controller
                 foreach ($is_lesson_sets_found as $set) {
                     
                     $temp_date = $this->get_next_working_date($holidays, $interim_ls_date);
-                    
+
                     if ($temp_date) {
                         
                         $this->operation->table_name = TABLE_LESSON_SET_DATES;
+                        $this->operation->primary_key = "id";
                         $is_date_found = $this->operation->GetByWhere(array(
                             'set_id' => $set->set_id,
-                            'unique_code' => $set->unique_code
+                            'session_id' => $session_id,
+                            'semester_id' => $semester_id,
+                            'class_id' => $class_id,
+                           
                         ));
                         
-                        $this->operation->table_name = TABLE_LESSON_SET_DATES;
+                        //$this->operation->table_name = TABLE_LESSON_SET_DATES;
                         
                         if (count($is_date_found)) {
                             
@@ -4358,6 +4420,7 @@ class LMSApi extends MY_Rest_Controller
                             );
                             
                             $id = $this->operation->Create($newdata, $is_date_found[0]->id);
+                           
                         } else {
                             $newdata = array(
                                 'date' => $temp_date,
@@ -4373,6 +4436,7 @@ class LMSApi extends MY_Rest_Controller
                             );
                             
                             $id = $this->operation->Create($newdata);
+                            
                         }
                         
                         if ($id) {
@@ -4418,7 +4482,7 @@ class LMSApi extends MY_Rest_Controller
                     $lessons = array();
                     if ($set->set_id) {
                         
-                        $lessons = $this->operation->GetByQuery("SELECT sem.topic,sem.concept,sem.subject_id,sem.type,sem.preference,sub.subject_name FROM semester_lesson_plan sem INNER JOIN " . TABLE_LESSON_SET_DATES . " ld  ON ld.set_id=sem.set_id INNER JOIN subjects sub ON sem.subject_id=sub.id WHERE sem.class_id = " . $class_id . ' AND sem.set_id =' . $set->set_id . ' AND sem.semester_id =' . $semester_id . ' AND sem.session_id =' . $session_id . ' ORDER BY sem.preference ASC');
+                        $lessons = $this->operation->GetByQuery("SELECT DISTINCT sem.id, sem.topic,sem.concept,sem.subject_id,sem.type,sem.preference,sub.subject_name FROM semester_lesson_plan sem INNER JOIN " . TABLE_LESSON_SET_DATES . " ld  ON ld.set_id=sem.set_id INNER JOIN subjects sub ON sem.subject_id=sub.id WHERE sem.active = 1 AND sem.class_id = " . $class_id . ' AND sem.set_id =' . $set->set_id . ' AND sem.semester_id =' . $semester_id . ' AND sem.session_id =' . $session_id . ' ORDER BY sem.preference ASC');
                     }
                     
                     $lessonarray = array(
@@ -4514,8 +4578,8 @@ class LMSApi extends MY_Rest_Controller
         
         if (! is_null($class_id) && ! is_null($semester_id) && ! is_null($session_id)) {
             
-            $is_lesson_found = $this->operation->GetByQuery("SELECT ld.*, sem.preference FROM " . TABLE_LESSON_SET_DATES . " ld INNER JOIN semester_lesson_plan sem ON ld.set_id=sem.set_id WHERE ld.active=1 AND sem.active=1 AND sem.class_id = " . $class_id . ' AND sem.semester_id =' . $semester_id . ' AND sem.session_id =' . $session_id . ' GROUP BY sem.set_id ORDER BY ld.date, sem.preference ASC');
-            
+            $is_lesson_found = $this->operation->GetByQuery("SELECT ld.*, sem.preference FROM " . TABLE_LESSON_SET_DATES . " ld INNER JOIN semester_lesson_plan sem ON ld.set_id=sem.set_id WHERE ld.active=1 AND sem.active=1 AND ld.class_id = " . $class_id . ' AND ld.semester_id =' . $semester_id . ' AND ld.session_id =' . $session_id . ' GROUP BY sem.set_id ORDER BY ld.date, sem.preference ASC');
+            /*
             if (! count($is_lesson_found)) {
                 // Generate it
                 
@@ -4523,7 +4587,7 @@ class LMSApi extends MY_Rest_Controller
                     
                     $is_lesson_found = $this->operation->GetByQuery("SELECT ld.*, sem.preference FROM " . TABLE_LESSON_SET_DATES . " ld INNER JOIN semester_lesson_plan sem ON ld.set_id=sem.set_id WHERE ld.active=1 AND sem.active=1 AND sem.class_id = " . $class_id . ' AND sem.semester_id =' . $semester_id . ' AND sem.session_id =' . $session_id . ' GROUP BY sem.set_id ORDER BY ld.date, sem.preference ASC');
                 }
-            }
+            }*/
             
             if (count($is_lesson_found)) {
                 
@@ -4552,7 +4616,7 @@ class LMSApi extends MY_Rest_Controller
                     $setDesc = '';
                     
                     if ($set->set_id) {
-                        $lessons = $this->operation->GetByQuery("SELECT sem.topic,sem.preference,sub.subject_name FROM semester_lesson_plan sem INNER JOIN " . TABLE_LESSON_SET_DATES . " ld  ON ld.set_id=sem.set_id INNER JOIN subjects sub ON sem.subject_id=sub.id WHERE sem.class_id = " . $class_id . ' AND sem.set_id =' . $set->set_id . ' AND sem.semester_id =' . $semester_id . ' AND sem.session_id =' . $session_id . ' ORDER BY sem.preference ASC');
+                        $lessons = $this->operation->GetByQuery("SELECT DISTINCT sem.id, sem.topic,sem.preference,sub.subject_name FROM semester_lesson_plan sem INNER JOIN " . TABLE_LESSON_SET_DATES . " ld  ON ld.set_id=sem.set_id INNER JOIN subjects sub ON sem.subject_id=sub.id WHERE sem.active=1 AND sem.class_id = " . $class_id . ' AND sem.set_id =' . $set->set_id . ' AND sem.semester_id =' . $semester_id . ' AND sem.session_id =' . $session_id . ' ORDER BY sem.preference ASC');
                         
                         foreach ($lessons as $lesson) {
                             if ($setDesc != '') {
@@ -4659,20 +4723,21 @@ class LMSApi extends MY_Rest_Controller
         
         $request = $this->parse_params();
         $user_id = $this->security->xss_clean(trim($request->user_id));
-        // $class_id = $this->security->xss_clean(trim($request->class_id));
+        $class_id = $this->security->xss_clean(trim($request->class_id));
         // $semester_id = $this->security->xss_clean(trim($request->semester_id));
         // $session_id = $this->security->xss_clean(trim($request->session_id));
         $schedulardata = $request->data;
         
         $sresult = array();
+        $subject_array = array();
         $sresult['message'] = false;
-        
+        $update_std_plan = false;
         $this->operation->table_name = 'semester_lesson_plan';
         
         if (count($schedulardata)) {
             
             foreach ($schedulardata as $value) {
-                $lesson_set = $this->operation->GetByQuery("SELECT id FROM semester_lesson_plan WHERE id=" . $this->db->escape($value->lesson_id));
+                $lesson_set = $this->operation->GetByQuery("SELECT id, subject_id FROM semester_lesson_plan WHERE id=" . $this->db->escape($value->lesson_id));
                 
                 if (count($lesson_set)) {
                     
@@ -4685,7 +4750,55 @@ class LMSApi extends MY_Rest_Controller
                     
                     $this->operation->Create($data, $value->lesson_id);
                     
+                    if(!in_array($lesson_set[0]->subject_id, $subject_array)){
+                        $subject_array[] = $lesson_set[0]->subject_id;
+                    }
+
                     $sresult['message'] = true;
+                    $update_std_plan = true;
+                }
+            }
+        }
+
+        if($update_std_plan){
+        	// mark student lesson plan to get updated
+
+
+            $this->operation->table_name = TABLE_STUDENT_SEMESTERS;
+            $class_students = $this->operation->GetByWhere(array(
+                'class_id' => $class_id,
+                'status' => 'r'
+            ));
+            $std_count = count($class_students);
+
+            if($std_count > 0){
+
+                $this->operation->table_name = TABLE_STUDENT_LESSON_PLAN_SETTINGS;
+
+                foreach ($class_students as $student) {
+
+                    foreach ($subject_array as $subject_id) {
+                        $rec_exists = $this->operation->GetByWhere(array(
+                            'subject_id' => $subject_id,
+                            'student_id' => $student->student_id
+                        ));
+
+                        $settings_data = array(
+                        'student_id' => $student->student_id,
+                        'subject_id' => $subject_id,
+                        'lesson_plan_updated' => 1,
+                        'updated'=> date('Y-m-d H:i:s'),
+                        'user_id' => $user_id
+                        );
+
+                        if(count($rec_exists)>0){
+    						$updated_subjects = $this->operation->Create($settings_data, $rec_exists[0]->id);
+                        }else{
+                        	$settings_data['created'] = date('Y-m-d H:i:s');
+                        	$updated_subjects = $this->operation->Create($settings_data);	
+                        }
+                    }
+                       
                 }
             }
         }
@@ -5605,7 +5718,7 @@ class LMSApi extends MY_Rest_Controller
                         
                         if(count($is_lesson_found)){
                             
-                            $finish_count = $value->read_count>0?$value->read_count:0;
+                            $finish_count = $value->finish_count>0?$value->finish_count:0;
                             $open_count = $value->open_count>0?$value->open_count:0;
                             $score = $value->score>0?$value->score:0;
                             $total_score = $value->total_score>0?$value->total_score:0;
@@ -5825,7 +5938,6 @@ class LMSApi extends MY_Rest_Controller
 
     function GetDefaultLessonPlan_get()
     {
-        
         $this->operation->table_name = "default_lesson_plan";
         $query = $this->operation->GetRows();
         $result = array();
@@ -6475,10 +6587,10 @@ class LMSApi extends MY_Rest_Controller
                             foreach ($data as $key => $value) {
                                 $is_lesson_found = $this->operation->GetByQuery("SELECT * FROM lesson_progress WHERE student_id = " . $value['id'] . " AND unique_code ='" . $lesson_code."'");
                                 if (count($is_lesson_found) == 0) {
-                                    $this->operation->table_name = 'student_lesson_plan';
+                                    $this->operation->table_name = 'semester_lesson_plan';
                                     $studentLessonPlanTable = $this->operation->GetByWhere(array(
-                                        'student_id'=> $value['id'],
-                                        'lesson_code'=> $lesson_code
+                                        'class_id'=> $class_id,
+                                        'unique_code'=> $lesson_code
                                     ));
                                     
                                     if(count($studentLessonPlanTable))
@@ -6487,8 +6599,8 @@ class LMSApi extends MY_Rest_Controller
                                             'student_id' => $value['id'],
                                             'lesson_id' => $studentLessonPlanTable[0]->id,
                                             'unique_code' => $lesson_code,
-                                            'status' => 'read',
-                                            'count' => 1,
+                                            'finish_count' => 1,
+                                            'open_count' => 1,
                                             'last_updated' => date('Y-m-d h:i:s')
                                         );
                                         
@@ -6497,11 +6609,12 @@ class LMSApi extends MY_Rest_Controller
                                     }
                                     
                                 } else {
-                                    $defaultcount = $is_lesson_found[0]->count + 1;
+                                    $defaultcount = $is_lesson_found[0]->open_count + 1;
+                                    $defaultfcount = $is_lesson_found[0]->finish_count + 1;
                                     
                                     $student_progress = array(
-                                        'status' => 'read',
-                                        'count' => $defaultcount,
+                                        'finish_count' => $defaultfcount,
+                                        'open_count' => $defaultcount,
                                         'last_updated' => date('Y-m-d h:i:s')
                                     );
                                     $this->operation->table_name = 'lesson_progress';
@@ -7846,10 +7959,10 @@ class LMSApi extends MY_Rest_Controller
             $this->Cross_Origin_Enable();
             $status = false;
             if (!empty(trim($request->studentid)) && !empty(trim($request->lessonid)) && !empty(trim($request->mode))) {
-                $this->operation->table_name = 'lessonprogress';
+                $this->operation->table_name = 'lesson_progress';
                 $lesson_progress = array(
-                    'studentid' => trim($request->studentid),
-                    'lessonid' => trim($request->lessonid),
+                    'student_id' => trim($request->studentid),
+                    'lesson_id' => trim($request->lessonid),
                     'status' => 'read',
                     'count' =>1,
                     'last_updated' => date('Y-m-d h:i:s'),
@@ -8680,8 +8793,8 @@ class LMSApi extends MY_Rest_Controller
         //echo json_encode($listarray);
     }
     // Datesheet
-
-    function Session_Detail_get()
+/*
+    function GetSessionDetail_get()
     {
         $this->operation->table_name = 'sessions';
         $sessionarray = array();
@@ -8698,7 +8811,7 @@ class LMSApi extends MY_Rest_Controller
         $this->response($sessionarray, REST_Controller::HTTP_OK);
         //echo json_encode($sessionarray);
     }
-    function semesters_get()
+    function GetSemesterData_get()
     {
         $this->operation->table_name = 'semester';
         $semesterlist = $this->operation->GetRows();
@@ -8730,8 +8843,8 @@ class LMSApi extends MY_Rest_Controller
         }
         $this->response($semesterarray, REST_Controller::HTTP_OK);
         
-    }
-    
+    }*/
+
     function datesheet_post()
     {
     
@@ -8753,7 +8866,6 @@ class LMSApi extends MY_Rest_Controller
         $active_session = $this->get_active_session($school_id);
         $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
         $session_id = $active_session->id;
-
             if($id)
             {
                 $subject_schedual_check = true;
@@ -8783,7 +8895,6 @@ class LMSApi extends MY_Rest_Controller
             }
             else
             {
-
                 $subject_schedual_check = true;
                 // Check Validation
                 $this->operation->table_name = 'datesheets';
@@ -8791,7 +8902,7 @@ class LMSApi extends MY_Rest_Controller
                 
                 if(count($is_datesheet)>0)
                 {
-                    $result['message'] = "false";
+                    $result['message'] = false;
                     
                 }
                 else
@@ -8814,16 +8925,15 @@ class LMSApi extends MY_Rest_Controller
                     // $this->operation->table_name = 'datesheets';
                     // $id = $this->operation->Create($data2);
                     $this->db->insert('datesheets',$data2);
-                    
                     $id = $this->db->insert_id();
                     if(count($id))
                     {
-                        $result['message'] = "true";
+                        $result['message'] = true;
                         $result['lastid'] = $id;
                     }
                 }
             }
-         
+                
         $this->set_response($result, REST_Controller::HTTP_OK);
         //echo json_encode($result);
     }
@@ -8838,7 +8948,7 @@ class LMSApi extends MY_Rest_Controller
             $schedulalist = $this->operation->GetByWhere(array(
                 'id' => $id
             ));
-            //print_r($schedulalist);
+            
             if (count($schedulalist)) {
                 
                 foreach ($schedulalist as $key => $value) {
@@ -9006,126 +9116,11 @@ class LMSApi extends MY_Rest_Controller
         
         echo json_encode($result);
     }
-    function getDatesheetUpdate()
-    {
 
-        if(!($this->session->userdata('id'))){
-
-                parent::redirectUrl('signin');
-
-            }
-
-        $locations = $this->session->userdata('locations');
-
-            $roles = $this->session->userdata('roles');
-
-            $result = array();
-
-            if($this->uri->segment(2) AND $this->uri->segment(2) != "page" ){
-
-                $schedule_single = $this->operation->GetRowsByQyery("Select * from datesheets where id= ".$this->uri->segment(2));
-                if(Count($schedule_single))
-                {
-                    $this->data['schedule_single'] = $schedule_single;
-
-                    $result['class_id'] = $schedule_single[0]->class_id;
-
-                    $result['semester_id'] = $schedule_single[0]->semester_id;
-
-                    $result['type'] = $schedule_single[0]->exam_type;
-                    $result['start_time'] = date('H:i',strtotime($schedule_single[0]->start_time));
-
-                    $result['end_time'] = date('H:i',strtotime($schedule_single[0]->end_time));
-
-                    $result['start_date'] = date('Y-m-d',strtotime($schedule_single[0]->start_date));
-                    $result['end_date'] = date('Y-m-d',strtotime($schedule_single[0]->end_date));
-
-                }
-
-                $this->data['result'] = $result;
-
-        }
-
-        $this->operation->table_name = "subjects";
-
-        $subjectslist = $this->operation->GetRows();
-
-        $subjects = array();
-
-        if(count($subjectslist))
-
-        {
-
-            foreach ($subjectslist as $key => $value) {
-
-
-
-                $subjects[] = array(
-
-                    'subid'=>$value->id,
-
-                    'name'=> $value->subject_name." (".$value->subject_code." )",
-
-                    'class'=>parent::getClass($value->class_id),
-
-                );
-
-            }
-
-        }
-
-        // get Detail sheet data
-                  
-        //$this->operation->table_name = "datesheet_details";
-        //$datesheet_list = $this->operation->GetByWhere(array('datesheet_id'=>$this->uri->segment(2)));
-        
-        $datesheet_list = $this->operation->GetRowsByQyery("Select * from datesheet_details where datesheet_id= ".$this->uri->segment(2)." ORDER BY exam_date");
-
-        $details = array();
-
-        if(count($datesheet_list))
-
-        {
-
-            foreach ($datesheet_list as $key => $value) {
-
-
-
-                $details[] = array(
-
-                    'detail_id'=>$value->id,
-                    'datesheet_id'=>$value->datesheet_id,
-                    'exam_date'=>date('M d, Y',strtotime($value->exam_date)),
-                    'exam_day'=>date('l',strtotime($value->exam_date)),
-                    'start_time'=>date('H:i',strtotime($value->start_time)),
-                    'end_time'=>date('H:i',strtotime($value->end_time)),
-                    'subject_name'=>getName('subjects','subject_name',$value->subject_id),
-                );
-
-            }
-
-        }
-
-//print_r($details);
-
-        $classlist = $this->operation->GetRowsByQyery("SELECT  * FROM classes c where school_id=".$locations[0]['school_id']);
-        
-        $this->data['classlist'] = $classlist;
-
-
-
-        $this->data['subjects'] = $subjects;
-
-        $this->data['details'] = $details;
-
-        $this->load->view('principal/datesheet/edit_datesheet', $this->data);
-        
-    }
     function papers_get()
     {
         
         $details = array();
-        $request = $this->parse_params();
         
         $serial = $this->input->get('datesheet_id');
         $datesheet_list = $this->operation->GetByQuery("Select * from datesheet_details where datesheet_id= ".$serial." ORDER BY exam_date");
@@ -9221,84 +9216,12 @@ class LMSApi extends MY_Rest_Controller
         $this->response($result, REST_Controller::HTTP_OK);
         
     }
-    function DatesheetUpdate ()
-    {
-        
-        
-        $locations = $this->session->userdata('locations');
-        $request = json_decode(file_get_contents('php://input'));
 
-        $serial = $this->input->get('datesheetinfo');
-        $listarray = array();
-        $data_array = array();
-        $datesheelist = $this->operation->GetRowsByQyery("Select * from datesheets where id= ".$serial);
-        if (count($datesheelist))
-            {   
-
-                foreach ($datesheelist as $key => $value)
-                {
-
-                    $listarray[] =array('id' => $value->id,'notes' => $value->notes,'start_time'=>date('H:i',strtotime($value->start_time)),'end_time'=>date('H:i',strtotime($value->end_time)),'class_id'=>$value->class_id,'type'=>$value->exam_type,'semester_id'=>$value->semester_id,'session_id'=>$value->session_id);
-                }
-
-            }
-        
-        echo json_encode($listarray);
-    }
-    
-    function class_list_get()
-    {
-        $this->operation->table_name = 'classes';
-        $classarray = array();
-        $school_id = $this->input->get('school_id');
-        $user_id = $this->input->get('user_id');
-        if(empty($user_id))
-            if ($this->input->get('inputclassid'))
-            {
-                $classlist = $this->operation->GetByWhere(array('id' => $this->input->get('inputclassid')));
-            }
-            else
-            {
-                $classlist = $this->operation->GetByQuery("Select c.* from classes c  where  c.school_id =" . $school_id);
-            }
-        else
-        {
-            
-            if ($this->input->get('inputclassid'))
-            {
-                $classlist = $this->operation->GetByWhere(array('id' => $this->input->get('inputclassid')));
-            }
-            else
-            {
-                $classlist = $this->operation->GetByQuery("Select c.* from classes c INNER JOIN schedule sc On sc.class_id = c.id where  sc.teacher_uid =" . $user_id . ' group by c.id');
-            }
-        }
-
-        if (count($classlist))
-        {
-            foreach ($classlist as $key => $value)
-            {
-                //$school = parent::GetSchoolDetail($school_id);
-                $sectionlist = array();
-                $is_section_found = $this->operation->GetByQuery("Select s.id as sectionid,s.section_name,assi.status from assign_sections assi INNER JOIN sections s ON s.id = assi.section_id  where  assi.class_id =" . $value->id);
-                if (count($is_section_found))
-                {
-                    foreach ($is_section_found as $key => $svalue)
-                    {
-                        $sectionlist[] = array('sectionid' => $svalue->sectionid, 'section_name' => $svalue->section_name, 'status' => $svalue->status,);
-                    }
-                }
-                $classarray[] = array('id' => $value->id, 'name' => $value->grade, 'status' => $value->status, 'sections' => $sectionlist);
-            }
-        }
-        $this->response($classarray, REST_Controller::HTTP_OK);
-        //echo json_encode($classarray);
-    }
     function paper_get()
     {
-        //$request = $this->parse_params();
-
-        $serial = $this->input->get('id');
+        $request = $this->parse_params();
+        
+        $serial = $request->id;
         $detail_id = $this->input->get('detail_id');
         
         
@@ -9346,109 +9269,7 @@ class LMSApi extends MY_Rest_Controller
 
         echo json_encode($sections);
     }
-    function Subject_List_By_Class_get()
 
-    {
-
-        $sections = array();
-
-        
-        
-        $request = $this->parse_params();
-        
-        $school_id = $this->input->get('school_id');
-        $class_id = $this->input->get('class_id');
-        //$school_id = $_POST['school_id'];
-        //$class_id = $_POST['class_id'];
-        $active_session = $this->get_active_session($school_id);
-        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
-
-        if(!empty($class_id))
-
-        {
-
-            $is_student_found = $this->operation->GetByQuery("Select s.* from subjects s  where S.class_id = ".$class_id."  AND s.session_id = ".$active_session->id." AND s.semester_id = ".$active_semester->semester_id);
-
-
-
-            if(count($is_student_found)){
-
-                foreach ($is_student_found as $key => $value) {
-
-                    $sections[] = array(
-
-                        'id'=>$value->id,
-
-                        'name'=>$value->subject_name.' ( '.$value->subject_code.' )',
-                        'title'=>$value->subject_name
-
-                    );
-
-                }
-
-            }
-
-        }
-
-       
-
-       
-
-
-        $this->response($sections, REST_Controller::HTTP_OK);
-        
-
-    }
-    
-    function GetSubjectListByClassWeekly_post()
-    {
-        $sections = array();
-        $request = $this->parse_params();
-        $school_id = $request->school_id;
-        $class_id = $request->class_id;
-        //$school_id = $_POST['school_id'];
-        //$class_id = $_POST['class_id'];
-        $active_session = $this->get_active_session($school_id);
-        $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
-        if(!empty($class_id))
-        {
-            $is_student_found = $this->operation->GetByQuery("Select s.*,sc.*  from subjects s inner join schedule as sc on sc.subject_id = s.id  where S.class_id = ".$class_id."  AND s.session_id = ".$active_session->id." AND s.semester_id = ".$active_semester->semester_id);
-            
-            if(count($is_student_found)){
-                foreach ($is_student_found as $key => $value) {
-                    $sections[] = array(
-                        'id'=>$value->id,
-                        'name'=>$value->subject_name.' ( '.$value->subject_code.' )',
-                        'mon_status' =>$value->mon_status,
-                        'mon_start_time' => $value->mon_start_time,
-                        'mon_end_time' => $value->mon_end_time,
-                        'tue_status' =>$value->tue_status,
-                        'tue_start_time' => $value->tue_start_time,
-                        'tue_end_time' => $value->tue_end_time,
-                        'wed_status' =>$value->wed_status,
-                        'wed_start_time' => $value->wed_start_time,
-                        'wed_end_time' => $value->wed_end_time,
-                        'thu_status' =>$value->thu_status,
-                        'thu_start_time' => $value->thu_start_time,
-                        'thu_end_time' => $value->thu_end_time,
-                        'fri_status' =>$value->fri_status,
-                        'fri_start_time' => $value->fri_start_time,
-                        'fri_end_time' => $value->fri_end_time,
-                        'sat_status' =>$value->sat_status,
-                        'sat_start_time' => $value->sat_start_time,
-                        'sat_end_time' => $value->sat_end_time,
-                        'sun_status' =>$value->sun_status,
-                        'sun_start_time' => $value->sun_start_time,
-                        'sun_end_time' => $value->sun_end_time,
-                        'title'=>$value->subject_name
-                    );
-                }
-            }
-        }
-        $this->response($sections, REST_Controller::HTTP_OK);
-    }
-
-    //function removeDetailDatesheet_get()
     function paper_delete()
     {
         
@@ -9466,6 +9287,7 @@ class LMSApi extends MY_Rest_Controller
 
             echo json_encode($result);
     }
+
     function datesheets_delete()
     {
     
@@ -9484,6 +9306,7 @@ class LMSApi extends MY_Rest_Controller
 
         echo json_encode($result);
     }
+
     function quiz_delete()
     {
     
@@ -9502,6 +9325,7 @@ class LMSApi extends MY_Rest_Controller
 
         echo json_encode($result);
     }
+
     function quiz_get()
     {
 
@@ -9511,6 +9335,7 @@ class LMSApi extends MY_Rest_Controller
        //$this->data['classlist'] = $classlist;
        echo json_encode($q);
     }
+
     // Quiz
     function class_list_teacher_get()
     {
@@ -9523,64 +9348,18 @@ class LMSApi extends MY_Rest_Controller
 
         if($role_id == 4)
         {
-            $classlist = $this->operation->GetByQuery("SELECT c.id as id,c.grade FROM schedule sch INNER JOIN classes c on c.id = sch.class_id  WHERE sch.teacher_uid = ".$this->input->get('user_id')." GROUP by c.id ORDER by c.id asc");
+            $classlist = $this->operation->GetByQuery("SELECT c.id as id,c.grade FROM schedule sch INNER JOIN classes c on c.id = sch.class_id  WHERE sch.teacher_uid = ".$user_id." GROUP by c.id ORDER by c.id asc");
         }
         else
         {
-
             $classlist = $this->operation->GetByQuery("SELECT c.id as id,c.grade FROM schedule sch INNER JOIN classes c on c.id = sch.class_id where school_id = ".$school_id."  GROUP by c.id ORDER by c.id asc");
+
         }
 
-
-       //$this->data['classlist'] = $classlist;
        echo json_encode($classlist);
     }
 
-    function sections_byclass_post()
-    {
-        $sections = array();
-        $request = $this->parse_params();
-        $request = $this->parse_params();
-        $school_id = $request->school_id;
-        $class_id = $request->class_id;
-        $user_id = $request->user_id;
-        if(!empty($class_id))
-        {
-                if($user_id)
-                {
-                    $is_section_found = $this->operation->GetByQuery("SELECT s.*,ass.id as sid  FROM schedule sc INNER JOIN sections s On s.id = sc.section_id INNER JOIN assign_sections ass on ass.section_id = s.id   where sc.teacher_uid = ".$user_id." AND ass.status = 'a' AND sc.class_id = ".$class_id." Group BY s.id");
-                }
-                else
-                {
-                    $is_section_found = $this->operation->GetByQuery("SELECT s.*,ass.id as sid  FROM schedule sc INNER JOIN sections s On s.id = sc.section_id INNER JOIN assign_sections ass on ass.section_id = s.id   where  ass.status = 'a' AND sc.class_id = ".$class_id." Group BY s.id");
-                }
-
-            }
-
-            if(count($is_section_found)){
-
-                foreach ($is_section_found as $key => $value) {
-
-                    $sections[] = array(
-
-                        'id'=>$value->id,
-
-                        'name'=>$value->section_name,
-
-                    );
-
-                }
-
-            }
-
-       
-        //echo json_encode($sections);
-        $this->response($sections, REST_Controller::HTTP_OK);
-
-
-    }
     public function quiz_post()
-
     {
 
     
@@ -10154,9 +9933,11 @@ class LMSApi extends MY_Rest_Controller
 
 
     }
+
     public function quizzes_get()
     {
         
+
             $school_id = $this->input->get('school_id');
             $active_session = $this->get_active_session($school_id);
             $active_semester = $this->get_active_semester_dates_by_session($active_session->id);
@@ -10169,6 +9950,7 @@ class LMSApi extends MY_Rest_Controller
                     );
        $this->response($result, REST_Controller::HTTP_OK);
     }
+
     function student_quiz_marks_get()
     {
         
@@ -10187,17 +9969,7 @@ class LMSApi extends MY_Rest_Controller
                 foreach ($resultlist as $key => $value)
                 {
                     // get Quizes 
-
-                    // $roles = $this->session->userdata('roles');
-                    // if ($roles[0]['role_id'] == 4)
-                    // {
-                    //     $query = $this->operation->GetByQuery("SELECT q.* FROM quiz q INNER JOIN semester s ON s.id = q.semster_id INNER JOIN sessions se ON se.id = q.session_id Where q.subjec_tid = " . $this->input->get('subject_id') . " AND q.class_id = " . $this->input->get('class_id') . " AND q.section_id = " . $this->input->get('section_id') . " AND q.tacher_uid = " . $this->session->userdata('id') . " AND q.semester_id = " . $this->input->get('semester_id') . " AND q.session_id = " . $this->input->get('session_id') . "  AND q.quiz_term = '".$this->input->get('quiz_type')."'  order by q.quiz_date asc");
-                    // }
-                    // else
-                    // {
-
                         $query = $this->operation->GetByQuery("SELECT q.* FROM quiz q INNER JOIN semester s ON s.id = q.semester_id INNER JOIN sessions se ON se.id = q.session_id Where q.subject_id = " . $this->input->get('subject_id') . " AND q.class_id = " . $this->input->get('class_id') . " AND q.section_id = " . $this->input->get('section_id') . " AND q.semester_id = " . $active_semester->semester_id . " AND q.session_id = " . $active_session->id . " AND q.quiz_term = '".$this->input->get('quiz_type')."' order by q.quiz_date asc");
-                    //}
                     
                     if(count($query)==0)
                     {
@@ -10238,8 +10010,8 @@ class LMSApi extends MY_Rest_Controller
           
         }
         $this->response($resultarray, REST_Controller::HTTP_OK);
-        //echo json_encode($resultarray);
     }
+
     function student_marks_get()
     {
         $resultarray = array();
@@ -10249,8 +10021,9 @@ class LMSApi extends MY_Rest_Controller
         
         if (!is_null($this->input->get('subject_id')) && !is_null($this->input->get('class_id')) && !is_null($this->input->get('section_id')) && !is_null($this->input->get('term_id')) && !is_null($this->input->get('semesterid')) && !is_null($this->input->get('sessionid')))
         {
-            //$resultlist = $this->operation->GetRowsByQyery('SELECT * FROM `student_semesters` where classid = ' . $this->input->get('class_id') . " AND sectionid = " . $this->input->get('section_id') . " AND semesterid = " . $this->input->get('semesterid') . " AND sessionid = " . $this->input->get('sessionid') . " AND status = 'r'");
+
             $resultlist = $this->operation->GetByQuery('SELECT s.* FROM `student_semesters` as s INNER JOIN  invantage_users AS i ON s.student_id = i.id where s.class_id = ' . $this->input->get('class_id') . " AND s.section_id = " . $this->input->get('section_id') . " AND s.semester_id = " . $active_semester->semester_id . " AND s.session_id = " . $active_session->id . " ORDER BY i.screenname ASC ");
+
             if (count($resultlist))
             {
                 foreach ($resultlist as $key => $value)
@@ -10290,7 +10063,7 @@ class LMSApi extends MY_Rest_Controller
             else
             {
                 $this->operation->table_name = 'student_semesters';
-                $resultlist = $this->operation->GetByWhere(array('classid' => $this->input->get('class_id'), 'section_id' => $this->input->get('section_id'), 'semester_id' => $active_semester->semster_id, 'session_id' => $active_session->id,));
+                $resultlist = $this->operation->GetByWhere(array('class_id' => $this->input->get('class_id'), 'section_id' => $this->input->get('section_id'), 'semester_id' => $active_semester->semester_id, 'session_id' => $active_session->id,));
                 if (count($resultlist))
                 {
                     foreach ($resultlist as $key => $value)
@@ -10390,31 +10163,7 @@ class LMSApi extends MY_Rest_Controller
         }
         echo json_encode($result);
     }
-    function student_by_class_get()
-    {
 
-        $studentarray = array();
-        if (!is_null($this->input->get('inputclassid')) && !is_null($this->input->get('inputsectionid')) && !is_null($this->input->get('inputsemesterid')) && !is_null($this->input->get('inputsessionid')))
-        {
-            
-            if ($this->input->get('inputsemesterid') == 'b')
-            {
-                $studentlist = $this->operation->GetByQuery("Select ss.student_id,iv.screenname,um.meta_value,iv.profile_image from student_semesters ss  INNER JOIN invantage_users iv on iv.id = ss.student_id INNER JOIN user_meta um on um.user_id = ss.student_id   where ss.class_id = " . $this->input->get('inputclassid') . " AND ss.section_id =" . $this->input->get('inputsectionid') . " AND ss.session_id = " . $this->input->get('inputsessionid') . " AND um.meta_key = 'roll_number'");
-            }
-            else
-            {
-                $studentlist = $this->operation->GetByQuery("Select ss.student_id,iv.screenname,um.meta_value,iv.profile_image from student_semesters ss  INNER JOIN invantage_users iv on iv.id = ss.student_id INNER JOIN user_meta um on um.user_id = ss.student_id   where ss.class_id = " . $this->input->get('inputclassid') . " AND ss.section_id =" . $this->input->get('inputsectionid') . " AND ss.semester_id = " . $this->input->get('inputsemesterid') . " AND ss.session_id = " . $this->input->get('inputsessionid') . " AND um.meta_key = 'roll_number'");
-            }
-            if (count($studentlist))
-            {
-                foreach ($studentlist as $key => $value)
-                {
-                    $studentarray[] = array('id' => $value->student_id, 'name' => $this->GetStudentName($value->student_id) . " (" . $value->meta_value . ")", 'rollnumber' => $value->meta_value, 'fathername' => parent::getUserMeta($value->student_id, 'father_name'), 'profile' => $value->profile_image, 'sdob' => parent::getUserMeta($value->student_id, 'sdob'));
-                }
-            }
-        }
-        echo json_encode($studentarray);
-    }
     function mid_student_report_by_subject_wize_post()
     {
         $request = json_decode( file_get_contents('php://input'));
@@ -10595,10 +10344,8 @@ class LMSApi extends MY_Rest_Controller
 
             foreach ($studentprogress as $key => $spvalue)
             {
-
                 if($spvalue->finish_count>0)
                 {
-
                     $sparray = array('lessonid' => $spvalue->lesson_id, 'status' => "read", 'last_updated' => $spvalue->last_updated,);
                 }
                 else
@@ -10933,6 +10680,8 @@ class LMSApi extends MY_Rest_Controller
 
         echo $result['message'];
     }
+
+    
     function class_section_list_by_teacher_get()
     {
         $user_id = $this->input->get('user_id');
@@ -11332,7 +11081,7 @@ class LMSApi extends MY_Rest_Controller
                                     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
                                 //}
 
-                                //$result = curl_exec($ch); 
+                                $result = curl_exec($ch); 
                                 // if($result === FALSE){
                                 //     echo "Failed to send SMS.";
                                 //     trigger_error(curl_error($ch));
@@ -11543,5 +11292,89 @@ class LMSApi extends MY_Rest_Controller
                     );
         $this->response($result, REST_Controller::HTTP_OK);
         //echo json_encode($result);
+    }
+    public function reset_data_management_post()
+    {
+        //print_r($_POST);
+        $result = array();
+        
+        $result['message'] = false;
+
+        $school_id = $this->input->post('school_id');
+        $session_id = $this->input->post('session_id');
+        $semester_id = $this->input->post('semester_id');
+        $class_id = $this->input->post('class_id');
+        $user_id = $this->input->post('user_id');
+        $student_id = $this->input->post('student_id');
+        $action = $this->input->post('action');
+        if($action=='dlp')
+        {
+            // Delete Default Lesson plan 
+            $removeDefaultLessonPlan = $this->db->query("DELETE FROM `default_lesson_plan` WHERE  session_id = ".$session_id." AND  semester_id = ".$semester_id. " AND class_id = ".$class_id);
+            //$removeDefaultLessonPlan = print("SELECT * FROM `default_lesson_plan` WHERE  session_id = ".$session_id." AND  semester_id = ".$semester_id. " AND class_id = ".$class_id );
+            
+            $action = 'Reset Default Lesson Plan';
+            $student_id = 0;
+            $result['message'] = true;
+        }
+        if($action=='slp')
+        {
+            // Delete Semester Lesson plan 
+            $$removeDefaultLessonPlan = $this->db->query("DELETE FROM `semester_lesson_plan` WHERE  session_id = ".$session_id." AND  semester_id = ".$semester_id ." AND class_id = ".$class_id);
+            //$removeSemesterLessonPlan = print("SELECT * FROM `semester_lesson_plan` WHERE  session_id = ".$session_id." AND  semester_id = ".$semester_id ." AND class_id = ".$class_id );
+            $action = 'Reset Semester Lesson Plan';
+            $student_id = 0;
+            $result['message'] = true;
+        }
+        if($action=='cp')
+        {
+            $is_LessonProgress = $this->operation->GetByQuery("SELECT slp.id,lp.lesson_id FROM semester_lesson_plan AS slp INNER JOIN lesson_progress AS lp ON slp.id = lp.lesson_id WHERE class_id = ".$class_id." AND session_id = ".$session_id." AND semester_id = ".$semester_id." GROUP BY lp.lesson_id ");
+            if (count($is_LessonProgress)) 
+            {
+                foreach ($is_LessonProgress as $key => $value) 
+                {
+                    $removeLessonProgress = $this->db->query("DELETE FROM lesson_progress WHERE lesson_id = ".$value->lesson_id);
+                }
+
+            }
+            $action = 'Reset Class Progress';
+            $student_id = 0;
+            $result['message'] = true;
+        }
+        else
+        {
+            $is_LessonProgress = $this->operation->GetByQuery("SELECT  slp.id,lp.id as lessonid FROM semester_lesson_plan AS slp INNER JOIN lesson_progress AS lp ON slp.id = lp.lesson_id WHERE class_id = ".$class_id." AND session_id = ".$session_id." AND semester_id = ".$semester_id." AND student_id = ".$student_id." GROUP BY lp.lesson_id ");
+            if (count($is_LessonProgress)) 
+            {
+                foreach ($is_LessonProgress as $key => $value) 
+                {
+                    $removeLessonProgress = $this->db->query("DELETE FROM lesson_progress WHERE id = ".$value->lessonid);
+                }
+
+            }
+            $action = 'Reset Student Progress';
+            $result['message'] = true;
+        }
+        // INSERT table
+        if($result['message']==true)
+        {
+            $data = array(
+                'school_id' => $school_id,
+                'session_id' => $session_id,
+                'semester_id' => $semester_id,
+                'action' => $action,
+                'class_id' => $class_id,
+                'user_id' => $user_id,
+                'student_id' => $student_id,
+                'created' => date('Y-m-d H:i:s'),
+            );
+            
+            $this->operation->table_name = 'data_management';
+            
+            $saved = $this->operation->Create($data);
+            
+        }
+
+        $this->response($result, REST_Controller::HTTP_OK);
     }
 }

@@ -150,7 +150,7 @@
                                                                         <tr ng-repeat="p in progresslist"  ng-init="$last && finished()">
                                                                             <td>{{p.screenname}}</td>
                                                                             <td ng-repeat="s in p.student_plan"  class="{{s.status}}">
-                                                                                <i id="pi_{{sub.id}}_{{s.lesson_id}}_{{p.student_id}}"  class="fa {{s.status == 'read'?'fa-check':(s.show?'fa-times':'')}}" aria-hidden="true"></i>
+                                                                                <i id="pi_{{sub.id}}_{{s.lesson_id}}_{{p.student_id}}"  class="fa {{s.status == 'read'?'fa-check':(s.show>0?'fa-times':'')}}" aria-hidden="true"></i>
                                                                             </td>
                                                                         </tr>
                                                                     </tbody>
@@ -195,11 +195,11 @@
                                                                     <tr ng-repeat="e in evulationlist" ng-init="$last && finished()">
                                                                         <td>{{e.screenname}}</td>
                                                                         <td ng-repeat="s in e.score" ng-if="s.term_status == 'bt'">
-                                                                            <a href="javascript:void(0);" ng-click="viewresult(e,s.quizid)">{{s.totalpercent}}</a>
+                                                                            {{s.totalpercent}}
                                                                         </td>
                                                                         <td>{{evulationlist[$index].term_result[0].marks}}</td>
                                                                          <td ng-repeat="s in e.score" ng-if="s.term_status == 'at'">
-                                                                            <a href="javascript:void(0);" ng-click="viewresult(e,s.quizid)">{{s.totalpercent}}</a>
+                                                                            {{s.totalpercent}}
                                                                         </td>
                                                                         <td>{{evulationlist[$index].term_result[1].marks}}</td>
                                                                     </tr>
@@ -557,7 +557,8 @@
                                         semester_id:$scope.filterobj.semester.id,
                                         session_id:$scope.filterobj.session.id,
                                         class_id:$scope.filterobj.class.id,
-                                        school_id:$scope.school_id, 
+                                        school_id:$scope.school_id,
+                                        user_id:$scope.user_id, 
                     })).then(function(response){
 
                     if(response != null)

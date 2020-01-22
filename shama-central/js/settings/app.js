@@ -667,7 +667,7 @@
 
                 // if($scope.inputAdminEmail.length > 0){
                     var reg = new RegExp(/^[+a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,10}$/i);
-                    debugger
+                    
                     if(reg.test($scope.inputAdminEmail) == false){
                         jQuery("#inputAdminEmail").css("border", "1px solid red");
                         return false;
@@ -1146,6 +1146,23 @@
         }
         
         $scope.semesterdetailid = null
+        $scope.assemblyobj = {};
+        
+        
+        $scope.assemblyobj.start_time = [];
+        $scope.assemblyobj.end_time = [];
+        // Break Timing
+        $scope.breakobj = {};
+        $scope.breakobj.monday_start_time = [];
+        $scope.breakobj.monday_end_time = [];
+        $scope.breakobj.tuesday_start_time = [];
+        $scope.breakobj.tuesday_end_time = [];
+        $scope.breakobj.wednesday_start_time = [];
+        $scope.breakobj.wednesday_end_time = [];
+        $scope.breakobj.thrusday_start_time = [];
+        $scope.breakobj.thrusday_end_time = [];
+        $scope.breakobj.friday_start_time = [];
+        $scope.breakobj.friday_end_time = [];
         // remove form
         $scope.removesemesterdetail = function(semesterdetail)
         {

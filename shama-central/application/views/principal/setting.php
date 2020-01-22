@@ -1676,7 +1676,7 @@ require APPPATH.'views/__layout/footer.php';
                 defaultTime:'<?php if(isset($end_time)){echo date('H:i',strtotime($end_time));} ?>'
 
            });
-        });
+        
 
         // when start time change, update minimum for end timepicker
        // when start time change, update minimum for end timepicker
@@ -1709,7 +1709,7 @@ require APPPATH.'views/__layout/footer.php';
 
            });    
             
-           
+         });  
             
             
         
