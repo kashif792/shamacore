@@ -109,7 +109,15 @@ require APPPATH.'views/__layout/leftnavigation.php';
                                       <tr ng-if="subjects.length<=0"><td colspan='8'>No record found</td></tr>
 
                           </tbody> -->
-
+                          <tfoot>
+                                <tr>
+                                    <th>Grade Name</th>
+                                    <th></th>
+                                   
+                                    <th></th>
+                                   
+                                </tr>
+                            </tfoot>
                           </table>
   </div>
 </div>
@@ -406,40 +414,20 @@ require APPPATH.'views/__layout/footer.php';
             })
             
           
-            table.columns(1).every( function () {
+            table.columns(0).every( function () {
                 var column = this;
-                var select = $('<select id="grade_id"><option value="">All</option></select>')
+                var select = $('<select id="grade_id"></select>')
                 .appendTo( $(column.footer()).empty() )
                 .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
+                var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                column.search( val ? '^'+val+'$' : '', true, false ).draw();
                 });
                 column.data().unique().sort().each( function ( d, j ) {
                 select.append( '<option value="'+d+'">'+d+'</option>' )
                 });
             
           });
-            table.columns(2).every( function () {
-                var column = this;
-                var select = $('<select><option value="">All</option></select>')
-                .appendTo( $(column.footer()).empty() )
-                .on( 'change', function () {
-                var val = $.fn.dataTable.util.escapeRegex(
-                $(this).val()
-                );
-                column
-                .search( val ? '^'+val+'$' : '', true, false )
-                .draw();
-                });
-                column.data().unique().sort().each( function ( d, j ) {
-                select.append( '<option value="'+d+'">'+d+'</option>' )
-                });
-            
-          });
+          $("#grade_id").trigger("change");
 
 
         }

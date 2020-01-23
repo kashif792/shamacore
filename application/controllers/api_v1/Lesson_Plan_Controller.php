@@ -17,6 +17,23 @@ class Lesson_Plan_Controller extends My_Rest_Controller
 
     // region default lesson plan
 
+
+    public function default_lesson_plan_entry_delete()
+    {
+        $params = $this->parse_params();
+
+        $check = false;
+        foreach ($params as $key => $value)
+        {
+            $id=$value[9];
+            if (! empty($id)) {
+                $check = $this->db->query("DELETE FROM default_lesson_plan WHERE id=" . $id);
+            }
+        }
+        
+        $this->response($check, REST_Controller::HTTP_OK);
+    }
+
     /**
      * Get default lesson plan
      *
@@ -147,7 +164,6 @@ class Lesson_Plan_Controller extends My_Rest_Controller
                         'semester_id' => $semester_id,
                         'session_id' => $active_session[0]->session_id,
                         'date' => date('Y-m-d'),
-
                         'last_update' => date("Y-m-d H:i:s")
                     );
 
@@ -908,7 +924,6 @@ class Lesson_Plan_Controller extends My_Rest_Controller
         if (count($lesson)) {
 
             foreach ($lesson as $value) {
-                
 
                 $isPresent = $this->operation->GetByQuery("SELECT * FROM semester_lesson_plan WHERE unique_code= '" . $value->unique_code . "'");
 
@@ -916,8 +931,7 @@ class Lesson_Plan_Controller extends My_Rest_Controller
                 $this->operation->primary_key = 'id';
 
                 if (! count($isPresent)) {
-                    // check set id 
-                    // Get Prefferences already any subject
+                     // Get Prefferences already any subject
                     $isPrefferences = $this->operation->GetByQuery("SELECT preference,read_date,section_id FROM semester_lesson_plan WHERE class_id= " . $class_id . " AND session_id = " . $session_id . " AND semester_id = " . $semester_id . " AND subject_id  = " . $subject_id  . " AND set_id = ".$value->day);
                     
                     if(count($isPrefferences))
@@ -935,7 +949,6 @@ class Lesson_Plan_Controller extends My_Rest_Controller
                         $prefferences = $maxpref[0]->preference+1;
                         
                     }
-                   
                     $newdata = array(
                         'set_id' => $value->day,
                         'concept' => $value->concept,
@@ -955,9 +968,7 @@ class Lesson_Plan_Controller extends My_Rest_Controller
                         'created' => date("Y-m-d H:i"),
                         'updated' => date("Y-m-d H:i")
                     );
-                    
                     $id = $this->operation->Create($newdata);
-                    
                 } else {
 
                     $data = array(

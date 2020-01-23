@@ -1332,7 +1332,9 @@ class LMSApi extends MY_Rest_Controller
      */
     function holiday_type_delete()
     {
-        $id = $this->input->get('id');
+        $request = $this->parse_params();
+        
+        $id = $request->id;
         
         $sresult = array();
         $sresult['message'] = false;
@@ -1643,8 +1645,10 @@ class LMSApi extends MY_Rest_Controller
     function grade_delete()
     {
         try {
-            $serial = $this->input->get('id', true);
-            $school_id = $this->input->get('school_id', true);
+            $request = $this->parse_params();
+            
+            $serial = trim($request->id);
+            $school_id = trim($request->school_id);
             
             $error_array = array();
             if (strlen($serial) < 0) {
@@ -1826,7 +1830,9 @@ class LMSApi extends MY_Rest_Controller
     
     function location_delete()
     {
-        $location_id = $this->input->get('location_id');
+        $request = $this->parse_params();
+        
+        $location_id = trim($request->location_id);
         
         $sresult['message'] = false;
         if (! empty($location_id)) {
@@ -1935,7 +1941,9 @@ class LMSApi extends MY_Rest_Controller
         $sresult = array();
         $sresult['message'] = false;
         
-        $school_id = $this->input->get('school_id');
+        $request = $this->parse_params();
+        
+        $school_id = trim($request->school_id);
         if (! empty($school_id)) {
             $this->operation->table_name = 'schools';
             $this->operation->Remove($school_id);
@@ -2902,7 +2910,10 @@ class LMSApi extends MY_Rest_Controller
     
     function section_delete()
     {
-        $section_id = $this->input->get('section_id');
+
+        $request = $this->parse_params();
+        
+        $section_id = trim($request->section_id);
         $sresult['message'] = false;
         if (! empty($section_id)) {
             $this->operation->table_name = 'sections';
@@ -3105,7 +3116,8 @@ class LMSApi extends MY_Rest_Controller
     
     function class_delete()
     {
-        $section_id = $this->input->get('class_id');
+        $params = $this->parse_params();
+        $section_id = $params->class_id;
         $sresult['message'] = false;
         if (! empty($section_id)) {
             $this->operation->table_name = 'classes';
@@ -4322,8 +4334,10 @@ class LMSApi extends MY_Rest_Controller
         
         $session_id = $this->security->xss_clean(trim($request->session_id));
         
+        // Get school_id 
         $sresult['message'] = false;
         
+
         if ($session_id != 0 && is_numeric($session_id)) {
             $is_found_school = $this->operation->GetByQuery("SELECT school_id FROM `sessions` WHERE  id = ".$session_id);
             $this->db->query("UPDATE sessions SET status = 'i' WHERE school_id = ".$is_found_school[0]->school_id);
@@ -5316,8 +5330,8 @@ class LMSApi extends MY_Rest_Controller
         $result = array();
         $params = $this->parse_params();
         
-        $user_id = $params['user_id'];
-        $id = $params['id'];
+        $user_id = $params->user_id;
+        $id = $params->id;
         
         if (empty($user_id) || empty($id)) {
             $this->set_response([], REST_Controller::HTTP_NOT_ACCEPTABLE);
@@ -7825,7 +7839,9 @@ class LMSApi extends MY_Rest_Controller
             $initial_slide = 1;
             $message_status_code =0;
             $current_read_lesson_no = 0;
-            if ($this->get('class_id') && $this->get('subject_id') && $this->get('section_id') && $this->get('school_id') ) {
+            $class_id = $this->get('class_id');
+
+            if ($class_id && $this->get('subject_id') && $this->get('section_id') && $this->get('school_id') ) {
                 
                 $this->operation->table_name = 'sessions';
                 $active_session = $this->operation->GetByWhere(array('school_id'=>$this->get('school_id'),'status'=>'a'));
@@ -7844,7 +7860,7 @@ class LMSApi extends MY_Rest_Controller
                 
                 $i = 0 ;
                 // get subject lessons set
-                $findSetLessons = $this->operation->GetByQuery("SELECT * from  semester_lesson_plan where subject_id = ". trim( $this->get( 'subject_id' ) ) ." AND class_id = ".$this->get('class_id')." AND semester_id = ".$active_semester[0]->semester_id." AND session_id = ".$active_session[0]->id." AND active = 1 Order by preference asc");
+                $findSetLessons = $this->operation->GetByQuery("SELECT * from  semester_lesson_plan where subject_id = ". trim( $this->get( 'subject_id' ) ) ." AND class_id = ".$class_id." AND semester_id = ".$active_semester[0]->semester_id." AND session_id = ".$active_session[0]->id." AND active = 1 Order by preference asc");
                 $is_blinking = true;
                 // any lessons found in set
                 if( count( $findSetLessons ) )
@@ -7859,21 +7875,21 @@ class LMSApi extends MY_Rest_Controller
                             
                             $this->operation->table_name = "classes";
                             $grade = $this->operation->GetByWhere(array(
-                                'id' => trim($this->get('class_id')),
+                                'id' => $class_id,
                             ));
                             
                             $lesson_image ="http://myaone.sg/images/no-image-lesson.jpg";
                             
-                            $file_path = base_url()."upload/content/".$grade[0]->grade."/".$subject[0]->subject_name."/".pathinfo($lesson->content, PATHINFO_FILENAME).".png";
+                            $file_path = UPLOAD_PATH."content/".$grade[0]->grade."/".$subject[0]->subject_name."/".pathinfo($lesson->content, PATHINFO_FILENAME).".png";
                             $image_exist = false;
                             if (@getimagesize($file_path))
                             {
-                                $lesson_image = "content/".$grade[0]->grade."/".$subject[0]->subject_name."/".pathinfo($lesson->content, PATHINFO_FILENAME).".png";
+                                $lesson_image = WEB_PATH."content/".$grade[0]->grade."/".$subject[0]->subject_name."/".pathinfo($lesson->content, PATHINFO_FILENAME).".png";
                                 $image_exist = true;
                             }
                             
                             $isLessonBliking = false;
-                            $checkLessonStatus = $this->operation->GetByQuery("SELECT * from  class_group where class_id = ". $this->get('class_id') ." AND section_id = ".$this->get('section_id')." AND status = 'r' AND unique_code = '".$lesson->unique_code."'");
+                            $checkLessonStatus = $this->operation->GetByQuery("SELECT * from  class_group where class_id = ". $class_id ." AND section_id = ".$this->get('section_id')." AND status = 'r' AND unique_code = '".$lesson->unique_code."'");
                             if( $is_blinking &&  count($checkLessonStatus) == 0)
                             {
                                 $is_blinking = false;
@@ -7888,17 +7904,19 @@ class LMSApi extends MY_Rest_Controller
                             $i++;
                             
                             $isLessonRead = true;
+                            $class_name = $grade[0]->grade;
+                            $subject_name = $subject[0]->subject_name;
                             $lessonsList[] = array(
                                 'id'=>$lesson->id,
                                 'date'=>date('Y-m-d',strtotime($lesson->created)),
                                 'concept'=>$lesson->concept,
-                                'content'=>$lesson->content,
+                                'content'=>$this->get_content_url($lesson->content,$class_name,$subject_name),
                                 'lesson'=>$lesson->lesson,
                                 'topic'=>$lesson->topic,
                                 'type'=>$lesson->type,
                                 'subject'=>$subject[0]->subject_name,
                                 'unit'=>"XXX",
-                                'image'=>$this->get_uploaded_file_url($lesson_image, UPLOAD_CAT_CONTENT),
+                                'image'=>$lesson_image,
                                 'lessons_readed'=>$is_readed,
                                 'bliking'=> $isLessonBliking ,
                                 'enable'=>true,
@@ -11292,15 +11310,12 @@ class LMSApi extends MY_Rest_Controller
                         'classlist'=>$classlist
                     );
         $this->response($result, REST_Controller::HTTP_OK);
-        //echo json_encode($result);
+        
     }
     public function reset_data_management_post()
     {
-        //print_r($_POST);
         $result = array();
-        
         $result['message'] = false;
-
         $school_id = $this->input->post('school_id');
         $session_id = $this->input->post('session_id');
         $semester_id = $this->input->post('semester_id');
@@ -11312,8 +11327,6 @@ class LMSApi extends MY_Rest_Controller
         {
             // Delete Default Lesson plan 
             $removeDefaultLessonPlan = $this->db->query("DELETE FROM `default_lesson_plan` WHERE  session_id = ".$session_id." AND  semester_id = ".$semester_id. " AND class_id = ".$class_id);
-            //$removeDefaultLessonPlan = print("SELECT * FROM `default_lesson_plan` WHERE  session_id = ".$session_id." AND  semester_id = ".$semester_id. " AND class_id = ".$class_id );
-            
             $action = 'Reset Default Lesson Plan';
             $student_id = 0;
             $result['message'] = true;
@@ -11369,13 +11382,9 @@ class LMSApi extends MY_Rest_Controller
                 'student_id' => $student_id,
                 'created' => date('Y-m-d H:i:s'),
             );
-            
             $this->operation->table_name = 'data_management';
-            
             $saved = $this->operation->Create($data);
-            
         }
-
         $this->response($result, REST_Controller::HTTP_OK);
     }
 }
