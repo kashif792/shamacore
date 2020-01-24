@@ -71,17 +71,18 @@ require APPPATH.'views/__layout/leftnavigation.php';
                         <?php $attributes = array('name' => 'schedule_timetable', 'id' => 'schedule_timetable','class'=>'form-inline'); echo form_open('', $attributes);?>
                             <input type="hidden" value="<?php if($this->uri->segment(2)){ echo $this->uri->segment(2);} ?>" name="serial" id="serial">
                             <fieldset>
+                              <div class="form-group">
+    <label for="semester_id">Semester<span class="required"></span></label>
+     <select   ng-options="item.name for item in semesterlist track by item.id"  name="semester_id" id="semester_id"  class="form-control" ng-model="semester_id">
+                                            </select>
+  </div>
                              <div class="form-group">
           <label for="class_id">Grade<span class="required"></span></label>
          <select   ng-options="item.name for item in classlist track by item.id"  name="class_id" id="class_id" class="form-control" ng-model="class_id"></select>
   </div>
 
 
-                   <div class="form-group">
-    <label for="semester_id">Semester<span class="required"></span></label>
-     <select   ng-options="item.name for item in semesterlist track by item.id"  name="semester_id" id="semester_id"  class="form-control" ng-model="semester_id">
-                                            </select>
-  </div>
+                   
 
 
                             </fieldset>

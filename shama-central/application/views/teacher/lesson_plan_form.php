@@ -75,6 +75,14 @@ require APPPATH . 'views/__layout/filterlayout.php';
                             <input type="hidden"
 						value="<?php if($this->uri->segment(2)){ echo $this->uri->segment(2);} ?>"
 						name="serial" id="serial">
+            <div class="form-group">
+            <label for="inputSemester">Semester<span class="required"></span></label>
+            <select
+              ng-options="item.name for item in semesterlist track by item.id"
+              name="inputSemester"  class="form-control" id="inputSemester" ng-model="inputSemester"
+              my-repeat-directive>
+            </select>
+          </div>
 					<div class="form-group">
 						<label for="select_class">Grade <span class="required"></span></label>
 						<select
@@ -87,14 +95,7 @@ require APPPATH . 'views/__layout/filterlayout.php';
 							ng-options="item.name for item in subjectlist track by item.id"
 							name="select_subject" class="form-control" id="select_subject" ng-model="inputSubject"></select>
 					</div>
-					<div class="form-group">
-						<label for="inputSemester">Semester<span class="required"></span></label>
-						<select
-							ng-options="item.name for item in semesterlist track by item.id"
-							name="inputSemester"  class="form-control" id="inputSemester" ng-model="inputSemester"
-							my-repeat-directive>
-						</select>
-					</div>
+					
 					<div class="form-group">
 						<label for="file">Import<span class="required"></span></label> <input
 							type="file" name="file" id="file" class="form-control">

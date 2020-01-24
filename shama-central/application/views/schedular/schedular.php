@@ -86,15 +86,16 @@ require APPPATH.'views/__layout/leftnavigation.php';
                 <div class="col-lg-12">
                     <form class="form-inline">
                     <div class="form-group">
+                        <label for="inputSemester">Semester <span class="required"></span></label>
+                    <select ng-options="item.name for item in semesterlist track by item.id"  name="inputSemester" id="inputSemester"  ng-model="inputSemester" ng-change="changesemester()" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
                         <label for="select_class">Grade <span class="required"></span></label>
                             
                         <select ng-options="item.name for item in classlist track by item.id"  name="select_class" id="select_class"  ng-model="select_class" ng-change="changeclass()" class="form-control"> </select>
                     </div>
 
-                    <div class="form-group">
-                        <label for="inputSemester">Semester <span class="required"></span></label>
-                        <select ng-options="item.name for item in semesterlist track by item.id"  name="inputSemester" id="inputSemester"  ng-model="inputSemester" ng-change="changesemester()" class="form-control"></select>
-                    </div>
+                    
 
                      <div class="pull-right">
                         <button id="btnReload" type="button" class="btn btn-primary" ng-click="saveschedular()" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Saving...">

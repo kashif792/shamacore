@@ -90,6 +90,10 @@
                             <select  class="form-control" ng-options="item.name for item in rsessionlist track by item.id"  name="inputRSession" id="inputRSession"  ng-model="filterobj.session" ng-change="chnagefilter()" ></select>
                         </div>
                         <div class="form-group">
+                            <label for="inputSemester">Semester:</label>
+                            <select class="form-control" ng-options="item.name for item in semesterlist track by item.id"  name="inputSemester" id="inputSemester"  ng-model="filterobj.semester" ng-change="chnagefilter()"></select>
+                        </div>
+                        <div class="form-group">
                             <label for="select_class">Grade:</label>
                             <select class="form-control" ng-options="item.name for item in classlist track by item.id"  name="select_class" id="select_class"  ng-model="filterobj.class" ng-change="chnagefilter()"></select>
                         </div>
@@ -97,10 +101,7 @@
                             <label for="inputSection">Section:</label>
                             <select class="form-control"  ng-options="item.name for item in sectionslist track by item.id"  name="inputSection" id="inputSection"  ng-model="filterobj.section" ng-change="chnagefilter()"></select>
                         </div>
-                        <div class="form-group">
-                            <label for="inputSemester">Semester:</label>
-                            <select class="form-control" ng-options="item.name for item in semesterlist track by item.id"  name="inputSemester" id="inputSemester"  ng-model="filterobj.semester" ng-change="chnagefilter()"></select>
-                        </div>
+                        
                     </form>
                 </div>
             
