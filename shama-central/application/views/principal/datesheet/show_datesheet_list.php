@@ -377,7 +377,7 @@ require APPPATH.'views/__layout/footer.php';
                         
                         var reportobj = $scope.renderprintdata();
             
-                        pdfMake.createPdf(reportobj).download(response[0]['data_array']['file_name']);
+                        pdfMake.createPdf(reportobj).download(response[0]['data_array']['file_name']+".pdf");
 
                     }
                     else{

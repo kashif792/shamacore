@@ -244,6 +244,8 @@ $route['api/v(:num)/send_Message/(:any)'] = 'api_v$1/Lmsapi/send_Message/$2';
 // Reset Semester Lesson Plan
 
 $route['api/v(:num)/reset_data_management'] = 'api_v$1/Lmsapi/reset_data_management';
+// Save Preference
 
+$route['api/v(:num)/save_grade_by_preference'] = 'api_v$1/Lmsapi/save_grade_by_preference';
 
 

@@ -845,7 +845,7 @@ require APPPATH . 'views/__layout/footer.php';
                        // console.log($scope.schedulecolumns.length);
                         var reportobj = $scope.renderprintdata();
             
-                        pdfMake.createPdf(reportobj).download("Schedule - "+$scope.grade_name);
+                        pdfMake.createPdf(reportobj).download("Schedule - "+$scope.grade_name+".pdf");
 
                     }
                     else{

@@ -681,7 +681,7 @@ require APPPATH.'views/__layout/footer.php';
                 var filename = decodeURIComponent($scope.filterobj.class.name)+"-"+decodeURIComponent($scope.filterobj.section.name)+"-"+decodeURIComponent($scope.filterobj.semester.name)+"-"+decodeURIComponent($scope.filterobj.studentid.name);
             }
             
-             pdfMake.createPdf(reportobj).download(filename);
+             pdfMake.createPdf(reportobj).download(filename+".pdf");
         }
 
 

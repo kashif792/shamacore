@@ -2815,10 +2815,11 @@ table.timtbleflter#table-body-phase-tow tfoot th:nth-child(1) select {display: n
 table.timtbleflter#table-body-phase-tow tfoot th:nth-child(4) select {display: none;}
 table.timtbleflter#table-body-phase-tow tfoot th:nth-child(5) select {display: none;}
 table.timtbleflter#table-body-phase-tow tfoot th:nth-child(6) select {display: none;}
+/*
 .class-page .report-body{
     cursor: pointer;
 }
-/*
+
 thead{
     background-color: #1d96b2;
     border: 1px solid #1d96b2;
@@ -3625,4 +3626,25 @@ table.flex-table tr td,
 table.flex-table tr th {
   display: block;
   flex: 1;
+}
+.thead
+{
+    background-color: #1d96b2 !important;
+    border: 1px solid #1d96b2;
+    font-weight: normal;
+    text-align: center;
+    color: white;
+}
+.grabbable {
+    cursor: move; /* fallback if grab cursor is unsupported */
+    cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+}
+
+ /* (Optional) Apply a "closed-hand" cursor during drag operation. */
+.grabbable:active {
+    cursor: grabbing;
+    cursor: -moz-grabbing;
+    cursor: -webkit-grabbing;
 }

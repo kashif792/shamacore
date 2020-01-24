@@ -140,7 +140,8 @@ require APPPATH . 'views/__layout/filterlayout.php';
 								<label><span class="icon-home-1"></span> Province <span
 									class="required"></span></label> <select id="inputProvice"
 									name="inputProvice" class="form-control"
-									ng-model="studentData.province" value="">
+									ng-model="studentData.province">
+									<option value="" ng-selected="selected">Select</option>
 									<option value="Azad Kashmir">Azad Kashmir</option>
 									<option value="Balochistan">Balochistan</option>
 									<option value="Federally Administered Tribal Areas">Federally Administered Tribal Areas</option>
@@ -237,7 +238,8 @@ require APPPATH . 'views/__layout/filterlayout.php';
 									<span class="required"></span></label> 
 									<select
 									class="form-control" name="inputLanguage" id="inputLanguage"
-									ng-model="studentData.add_lang" value="">
+									ng-model="studentData.add_lang">
+									<option value="" ng-selected="selected">Select</option>
 									<option value="Punjabi">Punjabi</option>
 									<option value="Sindhi">Sindhi</option>
 									<option value="Balochi">Balochi</option>

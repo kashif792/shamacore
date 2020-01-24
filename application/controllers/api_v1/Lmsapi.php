@@ -2435,7 +2435,7 @@ class LMSApi extends MY_Rest_Controller
         if ($role_id == 4) {
             $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN schedule sch ON sch.subject_id=s.id WHERE sch.teacher_uid=" . $this->db->escape($user_id) . " AND s.session_id=" . $active_semester_dates->session_id . " AND s.semester_id=". $active_semester_dates->semester_id);
         } else {
-            $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN `classes` c ON s.class_id=c.id WHERE s.session_id=" . $active_semester_dates->session_id . " AND s.semester_id=". $active_semester_dates->semester_id);
+            $subjectslist = $this->operation->GetByQuery("SELECT s.* FROM subjects s INNER JOIN `classes` c ON s.class_id=c.id WHERE s.session_id=" . $active_semester_dates->session_id . " AND s.semester_id=". $active_semester_dates->semester_id." ORDER BY c.preference");
         }
         
         $subjects = array();
@@ -2980,12 +2980,15 @@ class LMSApi extends MY_Rest_Controller
         $school_id = $this->input->get('school_id');
         
         $this->operation->table_name = "classes";
+
         if (empty($school_id)) {
             $query = $this->operation->GetRows();
+           
         } else {
-            $query = $this->operation->GetByWhere(array(
-                'school_id' => $school_id
-            ));
+            // $query = $this->operation->GetByWhere(array(
+            //     'school_id' => $school_id
+            // ));
+             $query = $this->operation->GetByQuery("SELECT * FROM classes WHERE school_id = ".$school_id." ORDER BY preference ASC");
         }
         $classarray = array();
         
@@ -3038,9 +3041,10 @@ class LMSApi extends MY_Rest_Controller
                 $q = "SELECT c.* FROM classes c INNER JOIN schedule sch ON sch.class_id=c.id WHERE sch.session_id=".$a_sem_dates->session_id." AND sch.semester_id=".$a_sem_dates->semester_id." AND sch.teacher_uid=$user_id AND school_id=$school_id GROUP BY c.id";
                 $query = $this->operation->GetByQuery($q);
             } else {
-                $query = $this->operation->GetByWhere(array(
-                    'school_id' => $school_id
-                ));
+                // $query = $this->operation->GetByWhere(array(
+                //     'school_id' => $school_id
+                // ));
+                $query = $this->operation->GetByQuery("SELECT * FROM classes WHERE school_id = ".$school_id." ORDER BY preference ASC");
             }
         }
         $result = array();
@@ -11386,5 +11390,42 @@ class LMSApi extends MY_Rest_Controller
             $saved = $this->operation->Create($data);
         }
         $this->response($result, REST_Controller::HTTP_OK);
+    }
+
+    public function save_grade_by_preference_post()
+    {
+        $debug = '';
+        $result['message'] = false;
+        try
+        {
+            
+            $data = json_decode(stripslashes($_POST['data']));
+            $school_id = $this->input->post('school_id');
+            $i = 1;
+            $this->operation->table_name = 'classes';
+            foreach($data as $key => $v)
+            {
+                
+                $class_preference = array(
+                    'preference' => $i,
+                );
+                $is_value_saved = $this->operation->Create($class_preference, $v);
+                $i++;
+               
+            }
+
+            if (count($is_value_saved))
+            {
+                $result['message'] = true;
+            }
+                   
+        }
+
+        catch(Exception $e)
+        {
+        }
+
+        echo $result['message'];
+        
     }
 }

@@ -165,28 +165,39 @@ require APPPATH.'views/__layout/leftnavigation.php';
 							                </fieldset>
 							            <?php echo form_close();?>
 									</div>
+									<button class="btn btn-primary pull-right updatebtn" style="display: none;"  on-click="savePrefrence()">Update Changes</button>
+									<div class="clearfix"></div>
 									<div class="row" style="margin-top: 5px;">
 		                                <div class="col-sm-12">
-		                                    <table class="table table-bordered table-striped table-hover table-responsive grd" id="table-body-phase-tow" >
-		                                        <thead>
-		                                            <tr>
+		                                    <table class="table table-bordered table-striped table-hover table-responsive grd tabelshort" id="table-body-phase-tow" >
+		                                        
+		                                        <tbody id="reporttablebody-phase-two" class="report-body">
+		                                            
+		                                            <tr class="thead">
 	                                                	<th>Grade</th>
 		                                               	<th>Section</th>
+		                                               	
 		                                               	<th>Options</th>
 		                                            </tr>
-		                                        </thead>
-		                                        <tbody id="reporttablebody-phase-two" class="report-body">
-		                                            <tr ng-repeat="c in classlist" ng-class-odd="'active'">
-		                                                <td class="row-update" ng-click="showclassreport(c)">{{c.name}}</td>
-		                                             	<td class="row-update" ng-click="showclassreport(c)">
+		                                       
+		                                            <tr ng-repeat="c in classlist">
+		                                            	<input type="hidden" class="class_ids" name="class_ids[]" value="{{c.id}}">
+		                                                <td class="row-update grabbable">{{c.name}}</td>
+		                                             	<td class="row-update">
 		                                             		<span  ng-repeat="s in c.sections" ng-if="s.status == 'a'">
+		                                             			<span ng-if="$index>0">,</span>
 		                                             			{{s.name}}
-		                                             			<span ng-if="s.status == 'a' && c.sections[$index+1].status == 'a'">,</span>
+		                                             			
 		                                             		</span>
 
 
 		                                             	</td>
+		                                             	
 		                                               <td>
+		                                               		<a href="javascript:void(0)" ng-click="showclassreport(c)" title="View">
+		                                                        <i class="fa fa-eye" aria-hidden="true"></i>
+		                                                    </a>
+		                                               		<a href="javascript:void(0)" ></a>
 		                                                    <a href="javascript:void(0)" ng-click="editclass(c)" title="Edit" class="edit" session-data="{{s.id}}">
 		                                                        <i class="fa fa-edit" aria-hidden="true"></i>
 		                                                    </a>
@@ -778,7 +789,65 @@ require APPPATH.'views/__layout/footer.php';
 			getClassTimetable($scope.classreportid,$scope.inputSection.id);
    			getClassStudents($scope.classreportid,$scope.inputSection.id);
 		}
+		// Save Prefrence
 
+		var grade_id_array = [];
+        $(function () {
+        	
+            $(".tabelshort").sortable({
+                items: 'tr:not(tr:first-child)',
+                cursor: 'pointer',
+                axis: 'y',
+                dropOnEmpty: false,
+                start: function (e, ui) {
+                    ui.item.addClass("selected");
+                },
+                stop: function (e, ui) {
+                    ui.item.removeClass("selected");
+                    grade_id_array = [];
+                    $('.updatebtn').show();
+                    $(this).find("tr").each(function (index) {
+                        if (index > 0) {
+                        	grade_id_array.push($(this).find(".class_ids").val());
+                            //$(this).find("td").eq(2).html(index);
+                        }
+                    });
+                }
+
+            });
+            
+        });
+		$('.updatebtn').click(function(){
+			$scope.savePrefrence();
+		})
+		$scope.savePrefrence = function(){
+            
+             
+             dataString = grade_id_array ; // array?
+             var jsonString = JSON.stringify(dataString);
+            $.ajax({
+                url:'<?php echo SHAMA_CORE_API_PATH; ?>save_grade_by_preference',
+                type: 'POST',
+                data: {data : jsonString,school_id:$scope.school_id}, 
+                success: function(res){
+                    if(res==1){
+                        loadclass();
+                        
+                        message('Updated Successfully','show');
+                       
+                    }else{
+                        alert("Unable to save progress at the moment.");
+                    }
+                    $scope.cprocessfinished = true;
+                   
+                },
+                error: function(){
+                    alert("Fail to save progress at the moment.");
+                    $scope.cprocessfinished = true;
+                    //$this.button('reset');
+                }
+            });
+        }
 	}
 
 </script>
