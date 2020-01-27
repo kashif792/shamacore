@@ -515,7 +515,7 @@ require APPPATH.'views/__layout/footer.php';
 
             urlpath = "<?php echo SHAMA_CORE_API_PATH; ?>principal";
 
-            var dataString = ({'id':dvalue});
+            var dataString = ({'id':dvalue,user_id:$scope.user_id});
 
             ajaxfunc(urlpath,dataString,userDeleteFailureHandler,loadUserDeleteResponse);
 

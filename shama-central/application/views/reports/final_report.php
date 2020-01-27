@@ -41,6 +41,10 @@ require APPPATH.'views/__layout/leftnavigation.php';
                                         <select  class="form-control" ng-options="item.name for item in rsessionlist track by item.id"  name="inputRSession" id="inputRSession"  ng-model="filterobj.session" ng-change="changeclass()" ></select>
                                     </div>
                                     <div class="form-group">
+                                        <label for="inputSemester">Semester:</label>
+                                        <select class="form-control"    ng-options="item.name for item in semesterlist track by item.id"  name="inputSemester" id="inputSemester"  ng-model="filterobj.semester" ng-change="getStutdent()"></select>
+                                    </div>
+                                    <div class="form-group">
                                         <label for="select_class">Grade:</label>
                                         <select class="form-control" ng-options="item.name for item in classlist track by item.id"  name="select_class" id="select_class"  ng-model="filterobj.class" ng-change="changeclass()"></select>
                                     </div>
@@ -48,10 +52,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
                                         <label for="inputSection">Section:</label>
                                         <select class="form-control"  ng-options="item.name for item in sectionslist track by item.id"  name="inputSection" id="inputSection"  ng-model="filterobj.section" ng-change="getStutdent()"></select>
                                     </div>
-                                    <div class="form-group">
-                                        <label for="inputSemester">Semester:</label>
-                                        <select class="form-control"    ng-options="item.name for item in semesterlist track by item.id"  name="inputSemester" id="inputSemester"  ng-model="filterobj.semester" ng-change="getStutdent()"></select>
-                                    </div>
+                                    
                                     <div class="form-group">
                                         <div class="form-group">
                                             <label for="inputDate">Student:</label>
@@ -259,7 +260,7 @@ require APPPATH.'views/__layout/footer.php';
         }
 
         getClassList();
-
+        getSemesterData();
         function loadSections()
         {
             try{
@@ -270,8 +271,8 @@ require APPPATH.'views/__layout/footer.php';
                     {
                         $scope.sectionslist = response;
                         $scope.filterobj.section = response[0];
-                        getSemesterData();
-                        //$scope.loadStudentByClass();
+                        
+                        $scope.loadStudentByClass();
                     }
                     else{
 
@@ -372,6 +373,7 @@ require APPPATH.'views/__layout/footer.php';
             $scope.active = 1;
             
            loadSections();
+           $scope.loadStudentByClass();
            //getSemesterData();
         }
         $scope.getStutdent = function()

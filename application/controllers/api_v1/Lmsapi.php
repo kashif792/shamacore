@@ -5334,8 +5334,10 @@ class LMSApi extends MY_Rest_Controller
         $result = array();
         $params = $this->parse_params();
         
-        $user_id = $params->user_id;
-        $id = $params->id;
+        $user_id = $params['user_id'];
+        $id = $params['id'];
+        
+
         
         if (empty($user_id) || empty($id)) {
             $this->set_response([], REST_Controller::HTTP_NOT_ACCEPTABLE);

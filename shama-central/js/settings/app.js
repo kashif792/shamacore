@@ -736,7 +736,7 @@
             {
                 jQuery("#location_error").hide();
                 var $this = $(".location-btn");
-                $this.button('loading');
+                //$this.button('loading');
 
                 var data = ({
                     location:jQuery("#inputLocation").val(),
@@ -833,10 +833,11 @@
             {
                 //var $this = $(".school-btn");
                 //$this.button('loading');
-
+                
                 var data = ({
                     school_name:$("#inputSchoolName").val(),
-                    location_id:$scope.inputSelectList.id,
+                    //location_id:$scope.inputSelectList.id,
+                    location_id:$("#inputSelectList").val(),
                     school_id:$scope.schid
 
                 })
