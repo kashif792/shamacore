@@ -81,11 +81,7 @@ require APPPATH.'views/__layout/leftnavigation.php';
          <select   ng-options="item.name for item in classlist track by item.id"  name="class_id" id="class_id" class="form-control" ng-model="class_id"></select>
   </div>
 
-                          <div class="form-group">
-    <label for="section_id">Section<span class="required"></span></label>
-     <select   ng-options="item.name for item in sectionslist track by item.id"  name="section_id" id="section_id" class="form-control"  ng-model="section_id" >
-                                            </select>
-  </div>
+                         
 
                        <div class="form-group">
     <label for="subject_id">Subject<span class="required"></span></label>

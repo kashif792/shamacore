@@ -47,50 +47,54 @@ require APPPATH.'views/__layout/leftnavigation.php';
                             <div class="row">
                                 <div class="col-sm-5">
                                     <form class="form-inline">
-                                        <div class="form-group">
-                                            <label for="email">Grade:</label>
-                                            <select   ng-options="item.name for item in classlist track by item.id"  name="inputClass" id="inputClass"  ng-model="inputClass" ng-change="loadSections()">
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="email">Section:</label>
-                                            <select   ng-options="item.name for item in sectionslist track by item.id"  name="inputSection" id="inputSection"  ng-model="inputSection" ng-change="loadStudentByClass()" >
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="email">Semester:</label>
-                                            <select   ng-options="item.name for item in semesterlist track by item.id"  name="inputSemester" id="inputSemester"  ng-model="inputSemester" ng-change="loadStudentByClass()" >
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
+                                        <div class="form-group" style="margin-bottom:5px">
                                             <label for="email">Session:</label>
-                                            <select   ng-options="item.name for item in sessionlist track by item.id"  name="inputSession" id="inputSession"  ng-model="inputSession" ng-change="loadStudentByClass()" >
+                                            <select class="form-control"  ng-options="item.name for item in sessionlist track by item.id"  name="inputSession" id="inputSession"  ng-model="inputSession" ng-change="loadStudentByClass()" >
                                             </select>
                                         </div>
+                                         <div class="form-group" style="margin-bottom:5px">
+                                            <label for="email">Semester:</label>
+                                            <select class="form-control"  ng-options="item.name for item in semesterlist track by item.id"  name="inputSemester" id="inputSemester"  ng-model="inputSemester" ng-change="loadStudentByClass()" >
+                                            </select>
+                                        </div>
+                                        <div class="form-group" style="margin-bottom:5px">
+                                            <label for="email">Grade:</label>
+                                            <select class="form-control"  ng-options="item.name for item in classlist track by item.id"  name="inputClass" id="inputClass"  ng-model="inputClass" ng-change="loadSections()">
+                                            </select>
+                                        </div>
+                                        <div class="form-group" style="margin-bottom:5px">
+                                            <label for="email">Section:</label>
+                                            <select class="form-control"  ng-options="item.name for item in sectionslist track by item.id"  name="inputSection" id="inputSection"  ng-model="inputSection" ng-change="loadStudentByClass()" >
+                                            </select>
+                                        </div>
+                                       
+                                        
                                     </form>
                                 </div>
                                 <div class="col-sm-7">
                                     <form class="form-inline">
-                                        <div class="form-group">
-                                            <label for="email">Grade:</label>
-                                            <select   ng-options="item.name for item in pclasslist track by item.id"  name="inputPClass" id="inputPClass"  ng-model="inputPClass" ng-change="loadPSections()">
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="email">Section:</label>
-                                            <select   ng-options="item.name for item in psectionslist track by item.id"  name="inputPSection" id="inputPSection"  ng-model="inputPSection">
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="email">Semester:</label>
-                                            <select   ng-options="item.name for item in psemesterlist track by item.id"  name="inputPSemester" id="inputPSemester"  ng-model="inputPSemester" >
-                                            </select>
-                                        </div>
-                                        <div class="form-group">
+                                        <div class="form-group" style="margin-bottom:5px">
                                             <label for="email">Session:</label>
-                                            <select   ng-options="item.name for item in psessionlist track by item.id"  name="inputPSession" id="inputPSession"  ng-model="inputPSession" >
+                                            <select class="form-control"  ng-options="item.name for item in psessionlist track by item.id"  name="inputPSession" id="inputPSession"  ng-model="inputPSession" >
                                             </select>
                                         </div>
+                                         <div class="form-group" style="margin-bottom:5px">
+                                            <label for="email">Semester:</label>
+                                            <select  class="form-control" ng-options="item.name for item in psemesterlist track by item.id"  name="inputPSemester" id="inputPSemester"  ng-model="inputPSemester" >
+                                            </select>
+                                        </div>
+                                        <div class="form-group" style="margin-bottom:5px">
+                                            <label for="email">Grade:</label>
+                                            <select class="form-control"  ng-options="item.name for item in pclasslist track by item.id"  name="inputPClass" id="inputPClass"  ng-model="inputPClass" ng-change="loadPSections()">
+                                            </select>
+                                        </div>
+                                        <div class="form-group" style="margin-bottom:5px">
+                                            <label for="email">Section:</label>
+                                            <select  class="form-control" ng-options="item.name for item in psectionslist track by item.id"  name="inputPSection" id="inputPSection"  ng-model="inputPSection">
+                                            </select>
+                                        </div>
+                                       
+                                        
                                         <div class="form-group">
                                             <button type="button" class="btn btn-primary" ng-click="promotestudent()" data-loading-text="<i class='fa fa-circle-o-notch fa-spin'></i> Saving...">Promote</button>
                                         </div>
@@ -132,9 +136,9 @@ require APPPATH.'views/__layout/footer.php';
 
 <script>
 
-    app.controller('promoteCtrl',['$scope','$myUtils', promoteCtrl]);
+    app.controller('promoteCtrl',['$scope','$myUtils','$filter', promoteCtrl]);
 
-    function promoteCtrl($scope, $myUtils) {
+    function promoteCtrl($scope, $myUtils,$filter) {
 	//app.controller('promote_ctrl', function($scope, $window, $http, $document, $timeout,$interval,$compile){
       	$('#multiselect').multiselect();
         
@@ -224,7 +228,16 @@ require APPPATH.'views/__layout/footer.php';
                 if(response != null && response.length > 0)
                 {
                     $scope.sessionlist = response
-                    $scope.inputSession = response[0]
+
+                    var find_active_session = $filter('filter')(response,{status:'a'},true);
+                    
+                    if(find_active_session.length > 0)
+                    {
+                        
+                        $scope.inputSession = find_active_session[0];
+                        
+                    }
+                    //$scope.inputSession = response[0]
                     $scope.loadStudentByClass();
                 }
             });
@@ -240,7 +253,15 @@ require APPPATH.'views/__layout/footer.php';
                 if(response != null && response.length > 0)
                 {
                     $scope.psessionlist = response
-                    $scope.inputPSession = response[0]
+                    var find_active_session = $filter('filter')(response,{status:'a'},true);
+                    
+                    if(find_active_session.length > 0)
+                    {
+                        
+                        $scope.inputPSession = find_active_session[0]
+                        
+                    }
+                    //$scope.inputPSession = response[0]
                 }
             });
         }
@@ -327,6 +348,7 @@ require APPPATH.'views/__layout/footer.php';
                                 section_id:$scope.inputSection.id,
                                 semester_id:$scope.inputSemester.id,
                                 session_id:$scope.inputSession.id,
+                                promot_std:true,
                             })
                 $myUtils.httprequest(urlist.getstudentbyclass,data).then(function(response){
                     if(response.length > 0 && response != null)

@@ -70,7 +70,7 @@
 				'is_master_teacher'=>$user[0]->is_master_teacher,
 				'roles'=>$temp_roles,
 				'schools'=>$temp_user_locations,
-				'profile_image'=>$user[0]->profile_image,
+				'profile_image'=> WEB_PATH . 'profile/' . $user[0]->profile_image,
 				'type'=>$user[0]->type
 			);
 		endif;
@@ -286,7 +286,7 @@
 			if(count($is_student_found)){
 				$studentarray = array(
 					'student_id'=>$is_user_created,
-					//'semester_id'=>$semester,
+					'semester_id'=>$semester,
 					'class_id'=>$sgrade1,
 					'section_id'=>$sgrade,
 					//'status'=>'r',
@@ -305,15 +305,25 @@
 			$registrationid = $this->getLastStudentId();
 			$regid = '';
 
+            // Get school id from class id
+            $this->operation->table_name = "classes";
+            $class_info = $this->operation->GetByWhere(array("id"=>$sgrade1));
+            if(count($class_info)){
+                $school_id = $class_info[0]->school_id;
+
+            	$this->operation->table_name = "schools";
+            	$locations = $this->operation->GetByWhere(array("id"=>$school_id));
+            }
+
 			if($registrationid == false)
 			{
-				$regid = $locations[0]['shortname']."-001";
+				$regid = $locations[0]->shortname."-001";
 			}
 			else{
 				$registrationid = end(explode('-', $registrationid));
 				$registrationid++;
 				$roll = str_pad($registrationid, 3, "0", STR_PAD_LEFT);
-				$regid = $locations[0]['shortname'].'-'.$roll;
+				$regid = $locations[0]->shortname.'-'.$roll;
 			}
 			$regid = strtolower($regid);
 
@@ -1290,13 +1300,22 @@
 
 			$is_user_created = $this->user->save($userarray,$id);
 
+
+			$this->operation->table_name = 'user_locations';
+			$user_loc = $this->operation->GetByWhere(array('user_id'=>$id,'school_id'=>$tLocation));
+
 			$this->user->table_name = 'user_locations';
-			$this->user->primary_key = 'user_id';
+			//$this->user->primary_key = 'user_id';
 			$user_locations = array(
+				'user_id'=>$id,
 				'school_id'=>$tLocation,
 			);
 
-			$user_locations = $this->user->save($user_locations,$is_user_created);
+			if(count($user_loc)==0){
+				$user_locations = $this->user->save($user_locations);
+			}else{
+				$user_locations = $this->user->save($user_locations,$user_loc[0]->id);
+			}
 
 			$this->user->table_name = 'user_meta';
 			$this->update_meta($id,'principal_firstname',htmlentities(stripslashes(($tfname))));
@@ -1442,7 +1461,7 @@
 					'meta_value'=>$tzipcode,
 				);
 				$this->user->save($userarray);
-
+				//echo $this->db->last_query();
 
 
 				return $is_user_created;

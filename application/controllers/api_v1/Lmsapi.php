@@ -3244,12 +3244,21 @@ class LMSApi extends MY_Rest_Controller
     }
     function students_by_class_and_section_get()
     {
+        $promot_std = false;
         $class_id = $this->input->get('class_id', true);
         $section_id = $this->input->get('section_id', true);
         $session_id = $this->input->get('session_id', true);
         $semester_id = $this->input->get('semester_id', true);
         $school_id = $this->input->get('school_id', true);
+        $promot_std = $this->input->get('promot_std');
+        
+
         $result = array();
+        $where = "";
+        if(!empty($promot_std))
+        {
+            $where  = ' AND s.status = "r" ';
+        }
         if(!$session_id)
         {
             $active_session = $this->get_active_session($school_id);
@@ -3261,7 +3270,7 @@ class LMSApi extends MY_Rest_Controller
         }
 
         if (! empty($class_id) && ! empty($section_id)) {
-            $is_result_found = $this->operation->GetByQuery('SELECT inv.username,inv.screenname,inv.profile_image,inv.id as uid FROM student_semesters s  INNER JOIN invantage_users inv ON inv.id = s.student_id  WHERE  s.class_id =' . $class_id . ' AND s.section_id = ' . $section_id. ' AND s.session_id = '.$session_id.' AND s.semester_id ='.$semester_id);
+            $is_result_found = $this->operation->GetByQuery('SELECT inv.username,inv.screenname,inv.profile_image,inv.id as uid FROM student_semesters s  INNER JOIN invantage_users inv ON inv.id = s.student_id  WHERE  s.class_id =' . $class_id . $where.'  AND s.section_id = ' . $section_id. ' AND s.session_id = '.$session_id.' AND s.semester_id ='.$semester_id);
             
             if (count($is_result_found)) {
                 foreach ($is_result_found as $value) {
